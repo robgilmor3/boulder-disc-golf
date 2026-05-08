@@ -1,2 +1,3 @@
-# boulder-disc-golf
-Boulder Disc Golf Tag League App
+# Boulder Disc Golf Tag League
+
+Coming soon - boulderdiscgolf.com
