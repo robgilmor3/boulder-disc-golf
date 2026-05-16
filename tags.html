@@ -701,6 +701,10 @@
     <div class="notes-section">
       <h3>📋 Club Notes</h3>
       <div id="notesList"><div class="loading"><div class="spinner"></div></div></div>
+      <div id="addNoteForm" style="display:none;margin-top:14px;display:none;gap:8px;flex-direction:column;">
+        <input type="text" id="quickNoteInput" placeholder="Add a club note..." style="padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:var(--text);font-family:inherit;font-size:14px;width:100%;" onkeydown="if(event.key==='Enter')quickAddNote()">
+        <button class="btn btn-primary btn-sm" onclick="quickAddNote()" style="align-self:flex-start;">Post Note</button>
+      </div>
     </div>
   </div>
 
@@ -1405,6 +1409,17 @@ async function deleteEvent(id) {
   renderAdmin(); renderSplash();
 }
 
+async function quickAddNote() {
+  const input = document.getElementById('quickNoteInput');
+  const content = input.value.trim();
+  if (!content) return showToast('Type a note first.', true);
+  await db.from('notes').insert({ content });
+  input.value = '';
+  showToast('Note posted!');
+  await loadNotes();
+  renderSplash();
+}
+
 async function addNote() {
   const content = document.getElementById('noteInput').value.trim();
   if (!content) return showToast('Type a note first.', true);
@@ -1457,6 +1472,7 @@ function doLogin() {
     document.getElementById('userLabel').textContent = cred.name.split(' ')[0];
     document.getElementById('loginBtn').style.display = 'none';
     document.getElementById('logoutBtn').style.display = 'inline-flex';
+  document.getElementById('addNoteForm').style.display = 'flex';
     if (['god','admin','scorer'].includes(cred.role)) {
       document.getElementById('adminBtn').style.display = 'inline-block';
     }
@@ -1473,6 +1489,7 @@ function doLogout() {
   document.getElementById('userLabel').textContent = 'Guest';
   document.getElementById('loginBtn').style.display = 'inline-flex';
   document.getElementById('logoutBtn').style.display = 'none';
+  document.getElementById('addNoteForm').style.display = 'none';
   document.getElementById('adminBtn').style.display = 'none';
   showPage('splash');
   showToast('Logged out.');
