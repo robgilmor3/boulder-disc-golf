@@ -701,9 +701,19 @@
     <div class="notes-section">
       <h3>📋 Club Notes</h3>
       <div id="notesList"><div class="loading"><div class="spinner"></div></div></div>
-      <div id="addNoteForm" style="display:none;margin-top:14px;display:none;gap:8px;flex-direction:column;">
-        <input type="text" id="quickNoteInput" placeholder="Add a club note..." style="padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:var(--text);font-family:inherit;font-size:14px;width:100%;" onkeydown="if(event.key==='Enter')quickAddNote()">
-        <button class="btn btn-primary btn-sm" onclick="quickAddNote()" style="align-self:flex-start;">Post Note</button>
+      <div id="addNoteForm" style="display:none;margin-top:14px;gap:8px;flex-direction:column;">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:2px;">
+          <span style="font-size:11px;letter-spacing:2px;color:var(--text-muted);text-transform:uppercase;">Insert:</span>
+          <button onclick="insertSymbol('• ')" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:var(--text);cursor:pointer;font-size:15px;" title="Bullet">• Bullet</button>
+          <button onclick="insertSymbol('→ ')" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:var(--text);cursor:pointer;font-size:15px;" title="Arrow">→ Arrow</button>
+          <button onclick="insertSymbol('⚠️ ')" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:var(--text);cursor:pointer;font-size:15px;" title="Warning">⚠️ Warning</button>
+          <button onclick="insertSymbol('🥏 ')" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:var(--text);cursor:pointer;font-size:15px;" title="Disc">🥏 Disc</button>
+        </div>
+        <textarea id="quickNoteInput" rows="6" placeholder="One note per line. Paste from Word, type multiple lines — each line posts as its own note." style="padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:var(--text);font-family:inherit;font-size:14px;width:100%;resize:vertical;line-height:1.6;"></textarea>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button class="btn btn-primary btn-sm" onclick="quickAddNote()">Post Notes</button>
+          <span style="font-size:12px;color:var(--text-muted);">Each line = one note</span>
+        </div>
       </div>
     </div>
   </div>
@@ -1409,13 +1419,23 @@ async function deleteEvent(id) {
   renderAdmin(); renderSplash();
 }
 
+function insertSymbol(sym) {
+  const ta = document.getElementById('quickNoteInput');
+  const start = ta.selectionStart, end = ta.selectionEnd;
+  ta.value = ta.value.slice(0, start) + sym + ta.value.slice(end);
+  ta.selectionStart = ta.selectionEnd = start + sym.length;
+  ta.focus();
+}
+
 async function quickAddNote() {
-  const input = document.getElementById('quickNoteInput');
-  const content = input.value.trim();
-  if (!content) return showToast('Type a note first.', true);
-  await db.from('notes').insert({ content });
-  input.value = '';
-  showToast('Note posted!');
+  const ta = document.getElementById('quickNoteInput');
+  const lines = ta.value.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  if (!lines.length) return showToast('Type at least one note.', true);
+  for (const line of lines) {
+    await db.from('notes').insert({ content: line });
+  }
+  ta.value = '';
+  showToast(lines.length > 1 ? lines.length + ' notes posted!' : 'Note posted!');
   await loadNotes();
   renderSplash();
 }
