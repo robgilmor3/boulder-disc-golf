@@ -1,4 +1,7 @@
 {
   "buildCommand": "bash build.sh",
-  "outputDirectory": "."
+  "outputDirectory": ".",
+  "routes": [
+    { "src": "/tags", "dest": "/tags.html" }
+  ]
 }
