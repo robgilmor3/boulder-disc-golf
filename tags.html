@@ -959,6 +959,21 @@
     </div>
 
     <!-- Player Roster (God only) -->
+    <!-- Tag Assignment Bulk Editor -->
+    <div class="admin-section" id="tagAssignSection">
+      <h3>🏷️ Assign Tags</h3>
+      <div class="card">
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">Quickly assign or update tag numbers. Players with no tag show first. Type a number and press Enter or Tab to move to the next.</p>
+        <input class="search-box" type="search" placeholder="Filter players..." oninput="filterTagAssign(this.value)" id="tagAssignSearch" style="margin-bottom:12px;">
+        <div id="tagAssignList"></div>
+        <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-primary" onclick="saveTagAssignments()">💾 Save All Changes</button>
+          <button class="btn btn-secondary" onclick="renderTagAssign('')">↺ Reset</button>
+        </div>
+        <div id="tagAssignStatus" style="margin-top:10px;font-size:13px;color:var(--green);display:none;"></div>
+      </div>
+    </div>
+
     <div class="admin-section" id="godSection" style="display:none">
       <h3>👑 Player Roster & Roles</h3>
       <div id="adminRoster"></div>
@@ -1627,6 +1642,9 @@ async function renderAdmin() {
     </div>
   `).join('') || '<div class="empty">No events.</div>';
 
+  // Tag Assignment
+  renderTagAssign('');
+
   // Notes
   const noteEl = document.getElementById('adminNoteList');
   noteEl.innerHTML = state.notes.map((n,i) => `
@@ -1658,6 +1676,78 @@ async function renderAdmin() {
       </div>
     `).join('');
   }
+}
+
+// ═══════════════════════════════════════════════════════
+//  TAG ASSIGNMENT BULK EDITOR
+// ═══════════════════════════════════════════════════════
+
+let tagAssignChanges = {}; // playerId → newTag
+
+function renderTagAssign(filter) {
+  const el = document.getElementById('tagAssignList');
+  const fl = (filter || '').toLowerCase();
+  const sorted = [...state.players].sort((a, b) => {
+    // Unassigned first, then by tag number
+    if (!a.tag && b.tag) return -1;
+    if (a.tag && !b.tag) return 1;
+    return (a.tag || 999) - (b.tag || 999);
+  });
+  const visible = fl ? sorted.filter(p => p.name.toLowerCase().includes(fl)) : sorted;
+
+  el.innerHTML = visible.map(p => `
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+      <div style="flex:1;font-size:14px;">${p.name}${p.pdga ? `<span style="font-size:11px;color:var(--text-muted);margin-left:8px">PDGA #${p.pdga}</span>` : ''}</div>
+      <input
+        type="number"
+        min="1" max="350"
+        placeholder="${p.tag || 'No tag'}"
+        value="${tagAssignChanges[p.id] !== undefined ? tagAssignChanges[p.id] : (p.tag || '')}"
+        data-player-id="${p.id}"
+        data-player-name="${p.name}"
+        style="width:80px;padding:6px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:var(--text);font-family:'DM Mono',monospace;font-size:14px;text-align:center;"
+        oninput="tagAssignChanges[${p.id}] = this.value ? parseInt(this.value) : null"
+        onkeydown="if(event.key==='Enter'||event.key==='Tab'){event.preventDefault();const inputs=document.querySelectorAll('#tagAssignList input');const idx=Array.from(inputs).indexOf(this);if(inputs[idx+1])inputs[idx+1].focus();}"
+      >
+      <span style="font-size:11px;color:var(--text-muted);width:30px;font-family:'DM Mono',monospace;">${p.tag ? '#'+p.tag : '—'}</span>
+    </div>
+  `).join('');
+}
+
+function filterTagAssign(val) {
+  renderTagAssign(val);
+}
+
+async function saveTagAssignments() {
+  const status = document.getElementById('tagAssignStatus');
+  const changes = Object.entries(tagAssignChanges).filter(([id, tag]) => tag !== null && tag >= 1 && tag <= 350);
+  if (!changes.length) { showToast('No changes to save.', true); return; }
+
+  // Check for duplicate tags
+  const newTags = changes.map(([,t]) => t);
+  const dupes = newTags.filter((t, i) => newTags.indexOf(t) !== i);
+  if (dupes.length) { showToast(`Duplicate tag #${dupes[0]} — fix before saving.`, true); return; }
+
+  status.style.display = 'block';
+  status.textContent = `Saving ${changes.length} tag assignments...`;
+
+  let saved = 0;
+  for (const [playerId, newTag] of changes) {
+    const player = state.players.find(p => p.id === parseInt(playerId));
+    if (!player) continue;
+    const { error } = await db.from('players').update({ tag: newTag, last_change: 'same' }).eq('id', playerId);
+    if (!error) {
+      player.tag = newTag;
+      saved++;
+    }
+  }
+
+  tagAssignChanges = {};
+  status.textContent = `✅ ${saved} tags saved!`;
+  setTimeout(() => { status.style.display = 'none'; }, 3000);
+  showToast(`${saved} tag assignments saved!`);
+  renderTagAssign(document.getElementById('tagAssignSearch')?.value || '');
+  renderLedger();
 }
 
 async function addEvent() {
