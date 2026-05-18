@@ -121,15 +121,41 @@
     font-size: clamp(56px, 10vw, 120px);
     line-height: 0.9;
     letter-spacing: 4px;
-    color: var(--text);
-    text-shadow: 0 4px 40px rgba(0,0,0,0.8);
+    background: linear-gradient(
+      155deg,
+      #f0ebe2 0%,
+      #f5c49a 18%,
+      #f5742a 35%,
+      #ffd8b0 52%,
+      #c4d4e8 68%,
+      #ede8e0 82%,
+      #f5c49a 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter:
+      drop-shadow(-2px -2px 0 rgba(0,0,0,0.95))
+      drop-shadow( 2px -2px 0 rgba(0,0,0,0.95))
+      drop-shadow(-2px  2px 0 rgba(0,0,0,0.95))
+      drop-shadow( 2px  2px 0 rgba(0,0,0,0.95))
+      drop-shadow(0 0 14px rgba(0,0,0,0.35));
     animation: fadeup 1.2s 0.2s ease both;
   }
 
   .hero-title span {
     display: block;
-    color: var(--orange);
-    -webkit-text-stroke: 1px var(--orange-light);
+    background: linear-gradient(
+      155deg,
+      #f5742a 0%,
+      #ff9a5c 28%,
+      #ffe0b8 52%,
+      #f5742a 76%,
+      #e05a18 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
   .hero-sub {
