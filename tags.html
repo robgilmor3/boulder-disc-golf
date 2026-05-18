@@ -786,14 +786,21 @@
           <label>Name or PDGA#</label>
           <input type="text" id="regSearch" placeholder="Type name or PDGA number..." oninput="searchPlayer(this.value)" autocomplete="off">
           <div id="playerDropdown" style="display:none; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius); margin-top:4px; max-height:180px; overflow-y:auto;"></div>
+          <div id="pdgaLookupStatus" style="display:none;margin-top:6px;font-size:12px;color:var(--text-muted);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;"></div>
         </div>
         <div class="form-row">
           <label>Current Tag #</label>
           <input type="number" id="regTag" placeholder="1–350" min="1" max="350">
         </div>
-        <div class="form-row" id="newPlayerFields" style="display:none">
-          <label>Full Name (new player)</label>
-          <input type="text" id="newPlayerName" placeholder="First Last">
+        <div id="newPlayerFields" style="display:none">
+          <div class="form-row">
+            <label>Full Name <span style="color:var(--text-muted);font-weight:300">(new player)</span></label>
+            <input type="text" id="newPlayerName" placeholder="First Last">
+          </div>
+          <div class="form-row">
+            <label>PDGA# <span style="color:var(--text-muted);font-weight:300">(optional)</span></label>
+            <input type="text" id="newPlayerPDGA" placeholder="Leave blank if none">
+          </div>
         </div>
         <div class="flex-gap mt-8">
           <button class="btn btn-primary" onclick="addRegistrant()">Add to Match</button>
@@ -1155,37 +1162,119 @@ function initMatch() {
   renderRegistrantList();
 }
 
+let pdgaLookupTimer = null;
+
 function searchPlayer(val) {
   const dd = document.getElementById('playerDropdown');
-  const tagInput = document.getElementById('regTag');
+  const status = document.getElementById('pdgaLookupStatus');
 
-  if (!val || val.length < 2) { dd.style.display = 'none'; return; }
-
-  const fl = val.toLowerCase();
-  const matches = state.players.filter(p =>
-    p.name.toLowerCase().includes(fl) || (p.pdga && p.pdga.includes(fl))
-  ).slice(0, 6);
-
-  if (!matches.length) {
+  if (!val || val.length < 2) {
     dd.style.display = 'none';
-    document.getElementById('newPlayerFields').style.display = 'block';
+    status.style.display = 'none';
+    document.getElementById('newPlayerFields').style.display = 'none';
     return;
   }
 
-  document.getElementById('newPlayerFields').style.display = 'none';
-  dd.style.display = 'block';
-  dd.innerHTML = matches.map(p => `
-    <div onclick="selectPlayer('${p.name}', ${p.tag})" style="padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border);font-size:14px;" onmouseenter="this.style.background='var(--surface)'" onmouseleave="this.style.background=''">
-      <strong>${p.name}</strong>
-      <span style="font-size:11px;color:var(--text-muted);font-family:'DM Mono',monospace;margin-left:8px">Tag #${p.tag}${p.pdga ? ' · PDGA #'+p.pdga : ''}</span>
-    </div>
-  `).join('');
+  const fl = val.toLowerCase();
+  const localMatches = state.players.filter(p =>
+    p.name.toLowerCase().includes(fl) || (p.pdga && p.pdga.includes(fl))
+  ).slice(0, 6);
+
+  if (localMatches.length) {
+    document.getElementById('newPlayerFields').style.display = 'none';
+    status.style.display = 'none';
+    dd.style.display = 'block';
+    dd.innerHTML = localMatches.map(p => `
+      <div onclick="selectPlayer(${JSON.stringify(p.name)}, ${p.tag}, ${JSON.stringify(p.pdga||'')})" style="padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border);font-size:14px;" onmouseenter="this.style.background='var(--surface)'" onmouseleave="this.style.background=''">
+        <strong>${p.name}</strong>
+        <span style="font-size:11px;color:var(--text-muted);font-family:'DM Mono',monospace;margin-left:8px">Tag #${p.tag}${p.pdga ? ' · PDGA #'+p.pdga : ''}</span>
+      </div>
+    `).join('');
+    return;
+  }
+
+  // Not in local DB — check if it looks like a PDGA number
+  dd.style.display = 'none';
+  clearTimeout(pdgaLookupTimer);
+
+  if (/^\d{4,8}$/.test(val.trim())) {
+    // Looks like a PDGA number — look it up
+    status.style.display = 'block';
+    status.innerHTML = '🔍 Looking up PDGA #' + val.trim() + '...';
+    pdgaLookupTimer = setTimeout(() => lookupPDGANumber(val.trim()), 600);
+  } else if (val.trim().includes(' ') && val.trim().length >= 4) {
+    // Looks like a full name — offer PDGA search
+    status.style.display = 'block';
+    status.innerHTML = '<span style="color:var(--text-muted)">Not in local roster. </span><a href="#" onclick="lookupPDGAName(event, ' + JSON.stringify(val.trim()) + ')" style="color:var(--green);">Search PDGA →</a> or add as new player below.';
+    document.getElementById('newPlayerFields').style.display = 'block';
+    document.getElementById('newPlayerName').value = val.trim();
+  } else {
+    status.style.display = 'none';
+    document.getElementById('newPlayerFields').style.display = 'block';
+  }
 }
 
-function selectPlayer(name, tag) {
+async function lookupPDGANumber(pdgaNum) {
+  const status = document.getElementById('pdgaLookupStatus');
+  try {
+    const res = await fetch('/api/pdga?pdga=' + pdgaNum);
+    const data = await res.json();
+    if (data.found && data.name) {
+      status.innerHTML = '✅ Found: <strong style="color:var(--text)">' + data.name + '</strong> · <a href="#" onclick="selectPDGAResult(event, ' + JSON.stringify(data.name) + ', ' + JSON.stringify(pdgaNum) + ')" style="color:var(--green);">Use this player</a>';
+    } else {
+      status.innerHTML = '<span style="color:var(--text-muted)">PDGA #' + pdgaNum + ' not found. Add as new player:</span>';
+      document.getElementById('newPlayerFields').style.display = 'block';
+      document.getElementById('newPlayerPDGA').value = pdgaNum;
+    }
+  } catch(e) {
+    status.innerHTML = '<span style="color:var(--text-muted)">PDGA lookup unavailable. Add manually:</span>';
+    document.getElementById('newPlayerFields').style.display = 'block';
+    document.getElementById('newPlayerPDGA').value = pdgaNum;
+  }
+}
+
+async function lookupPDGAName(e, name) {
+  e.preventDefault();
+  const status = document.getElementById('pdgaLookupStatus');
+  const dd = document.getElementById('playerDropdown');
+  status.innerHTML = '🔍 Searching PDGA for "' + name + '"...';
+  try {
+    const res = await fetch('/api/pdga?name=' + encodeURIComponent(name));
+    const data = await res.json();
+    if (data.found && data.players && data.players.length) {
+      dd.style.display = 'block';
+      dd.innerHTML = data.players.map(p => `
+        <div onclick="selectPDGAResult(event, ${JSON.stringify(p.name)}, ${JSON.stringify(p.pdga)})" style="padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border);font-size:14px;" onmouseenter="this.style.background='var(--surface)'" onmouseleave="this.style.background=''">
+          <strong>${p.name}</strong>
+          <span style="font-size:11px;color:var(--text-muted);font-family:'DM Mono',monospace;margin-left:8px">PDGA #${p.pdga}${p.city ? ' · ' + p.city + (p.state ? ', '+p.state : '') : ''}</span>
+        </div>
+      `).join('');
+      status.innerHTML = data.players.length + ' PDGA result' + (data.players.length > 1 ? 's' : '') + ' — select or add manually below.';
+    } else {
+      status.innerHTML = '<span style="color:var(--text-muted)">No PDGA results. Add as new player below.</span>';
+    }
+  } catch(e) {
+    status.innerHTML = '<span style="color:var(--text-muted)">PDGA lookup unavailable.</span>';
+  }
+}
+
+function selectPDGAResult(e, name, pdgaNum) {
+  if (e && e.preventDefault) e.preventDefault();
+  document.getElementById('regSearch').value = name;
+  document.getElementById('newPlayerName').value = name;
+  document.getElementById('newPlayerPDGA').value = pdgaNum || '';
+  document.getElementById('newPlayerFields').style.display = 'block';
+  document.getElementById('playerDropdown').style.display = 'none';
+  document.getElementById('pdgaLookupStatus').innerHTML = '✅ <strong style="color:var(--text)">' + name + '</strong>' + (pdgaNum ? ' · PDGA #' + pdgaNum : '') + ' — enter their tag # and click Add.';
+  document.getElementById('regTag').focus();
+}
+
+function selectPlayer(name, tag, pdga) {
   document.getElementById('regSearch').value = name;
   document.getElementById('regTag').value = tag;
   document.getElementById('playerDropdown').style.display = 'none';
+  document.getElementById('pdgaLookupStatus').style.display = 'none';
+  document.getElementById('newPlayerFields').style.display = 'none';
 }
 
 function searchPlayerModal(val) {
@@ -1212,24 +1301,35 @@ function selectPlayerModal(name, tag) {
 }
 
 function addRegistrant() {
-  const name = document.getElementById('regSearch').value.trim() || document.getElementById('newPlayerName').value.trim();
+  const searchVal = document.getElementById('regSearch').value.trim();
+  const newName = document.getElementById('newPlayerName').value.trim();
+  const name = newName || searchVal;
+  const pdga = document.getElementById('newPlayerPDGA') ? document.getElementById('newPlayerPDGA').value.trim() : '';
   const tag = parseInt(document.getElementById('regTag').value);
+
   if (!name) return showToast('Enter a player name.', true);
   if (!tag || tag < 1 || tag > 350) return showToast('Enter a valid tag # (1–350).', true);
   if (state.registrants.find(r => r.name === name)) return showToast(`${name} already registered.`, true);
   if (state.registrants.find(r => r.tag === tag)) return showToast(`Tag #${tag} already in match.`, true);
-  state.registrants.push({ name, tag, score: null });
+
+  // Check if new player (not in local DB) — mark for Supabase insert on commit
+  const existingPlayer = state.players.find(p => p.name === name);
+  const isNew = !existingPlayer;
+
+  state.registrants.push({ name, tag, pdga: pdga || (existingPlayer ? existingPlayer.pdga : ''), score: null, isNew });
   clearRegForm();
   renderRegistrantList();
-  showToast(`${name} added — Tag #${tag}`);
+  showToast(`${name} added — Tag #${tag}${isNew ? ' (new player)' : ''}`);
 }
 
 function clearRegForm() {
   document.getElementById('regSearch').value = '';
   document.getElementById('regTag').value = '';
   document.getElementById('newPlayerName').value = '';
+  if (document.getElementById('newPlayerPDGA')) document.getElementById('newPlayerPDGA').value = '';
   document.getElementById('newPlayerFields').style.display = 'none';
   document.getElementById('playerDropdown').style.display = 'none';
+  document.getElementById('pdgaLookupStatus').style.display = 'none';
 }
 
 function renderRegistrantList() {
@@ -1314,10 +1414,21 @@ async function commitResults() {
   for (const r of state.pendingResults) {
     const player = state.players.find(p => p.name === r.name);
     if (player) {
+      // Existing player — update tag
       const oldTag = player.tag;
       const change = r.newTag < oldTag ? 'up' : r.newTag > oldTag ? 'down' : 'same';
       const { error } = await db.from('players').update({ tag: r.newTag, last_change: change }).eq('id', player.id);
       if (!error) { player.tag = r.newTag; player.last_change = change; }
+    } else if (r.isNew) {
+      // New player — insert into Supabase
+      const { data, error } = await db.from('players').insert({
+        name: r.name,
+        pdga: r.pdga || null,
+        tag: r.newTag,
+        role: 'player',
+        last_change: 'same'
+      }).select().single();
+      if (!error && data) state.players.push(data);
     }
   }
 
