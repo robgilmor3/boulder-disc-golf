@@ -1343,7 +1343,7 @@ async function showPlayerStats(playerId) {
 //  MATCH FLOW
 // âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
-function initMatch() {
+async function initMatch() {
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('matchDate').value = today;
   renderRegistrantList();
@@ -1969,7 +1969,7 @@ async function saveNoteOrder(orderedIds) {
   await db.from('settings').upsert({ key: 'note_order', value: JSON.stringify(orderedIds) }, { onConflict: 'key' });
 }
 
-function applyNoteReorder(noteEl) {
+async function applyNoteReorder(noteEl) {
   let longPressTimer, dragItem = null, dragStartY = 0;
   const items = Array.from(noteEl.querySelectorAll('[data-note-id]'));
   items.forEach(item => {
@@ -2010,7 +2010,7 @@ function applyNoteReorder(noteEl) {
     });
   });
 }
-function quickAddNote() {
+async function quickAddNote() {
   const ta = document.getElementById('quickNoteInput');
   const lines = ta.value.split('\n').map(l => l.trim()).filter(l => l.length > 0);
   if (!lines.length) return showToast('Type at least one note.', true);
