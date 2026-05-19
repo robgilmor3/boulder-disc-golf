@@ -1188,7 +1188,7 @@ async function renderLedger(filter = '') {
   await loadPlayers();
 
   const fl = filter.toLowerCase();
-  const sorted = [...state.players].sort((a, b) => a.tag - b.tag);
+  const sorted = [...state.players].sort((a, b) => (a.tag ?? Infinity) - (b.tag ?? Infinity));
   const visible = fl ? sorted.filter(p =>
     p.name.toLowerCase().includes(fl) || (p.pdga && p.pdga.includes(fl))
   ) : sorted;
