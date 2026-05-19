@@ -1058,6 +1058,19 @@
   </div>
 </div>
 
+<!-- Registered Players List -->
+<div class="modal-overlay" id="regListModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2 id="regListModalTitle" style="margin-bottom:16px"></h2>
+    <div id="regListModalBody" style="max-height:60vh;overflow-y:auto;"></div>
+    <div class="modal-actions" style="margin-top:16px">
+      <button class="btn btn-secondary" onclick="closeModal('regListModal')">Close</button>
+      <button class="btn btn-primary" onclick="closeModal('regListModal');showPage('match')">Go to Match →</button>
+    </div>
+  </div>
+</div>
+
 <!-- Login -->
 <div class="modal-overlay" id="loginModal">
   <div class="modal">
@@ -1194,7 +1207,7 @@ async function renderSplash() {
             ${ev.host ? `<br><strong>🎙️</strong> Hosted by ${ev.host}` : ''}
           </div>
           <div style="display:flex;gap:16px;margin-top:10px;flex-wrap:wrap;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;">
-            <span style="color:var(--green);">👥 ${playerCount} registered</span>
+            <span id="reg-count-${ev.id}" style="color:var(--green);cursor:pointer;text-decoration:underline dotted;" onclick="showRegisteredPlayers(${ev.id})" title="Tap to see who's registered">👥 ${playerCount} registered</span>
             ${!ev.cancelled ? `<span style="color:var(--gold);">💰 $${aceTotal.toFixed(0)} ace pool${aceCapped ? ' 🔒 CAPPED' : ''}</span>` : ''}
           </div>
           ${!ev.cancelled ? `<button class="btn btn-primary btn-sm" style="margin-top:10px" onclick="openRegisterForEvent(${ev.id})">Register →</button>` : ''}
@@ -1212,6 +1225,10 @@ async function renderSplash() {
 function openRegisterForEvent(id) {
   const ev = state.events.find(e => e.id === id);
   state.selectedEventId = id;
+  // Load existing registrants for this event
+  const saved = Array.isArray(ev?.registered) ? ev.registered
+    : (ev?.registered ? JSON.parse(ev.registered) : []);
+  state.registrants = saved;
   document.getElementById('modalEventInfo').textContent = ev ? `${ev.course} · ${formatTime(ev.time)}` : '';
   document.getElementById('modalRegSearch').value = '';
   document.getElementById('modalTag').value = '';
@@ -1222,11 +1239,11 @@ async function submitModalReg() {
   const name = document.getElementById('modalRegSearch').value.trim();
   const tag = parseInt(document.getElementById('modalTag').value);
   if (!name) return showToast('Enter name and tag number.', true);
-  if (!state.registrants.find(r => r.name === name)) {
-    state.registrants.push({ name, tag, score: null });
-  }
+  if (state.registrants.find(r => r.name === name)) return showToast(`${name} already registered.`, true);
+  state.registrants.push({ name, tag, score: null });
+  await persistRegistrants();
   closeModal('registerModal');
-  showToast(`${name} registered with tag #${tag}!`);
+  showToast(`${name} registered — tag #${tag}!`);
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1346,11 +1363,52 @@ async function showPlayerStats(playerId) {
 async function initMatch() {
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('matchDate').value = today;
+  // Load registrants from Supabase for the selected event
+  if (state.selectedEventId) {
+    try {
+      const { data: ev } = await db.from('events').select('registered').eq('id', state.selectedEventId).single();
+      if (ev?.registered) {
+        state.registrants = Array.isArray(ev.registered) ? ev.registered : JSON.parse(ev.registered);
+      }
+    } catch(e) { console.error('load registrants:', e); }
+  }
   renderRegistrantList();
-  // Persist registrants to Supabase
+}
+
+// ── Persist registrants to Supabase + update home screen count ──
+async function persistRegistrants() {
+  if (!state.selectedEventId) return;
   try {
-    await db.from('events').update({ registered: JSON.stringify(state.registrants) }).eq('id', state.selectedEventId);
-  } catch(e) { console.error('save registrants:', e); }
+    await db.from('events')
+      .update({ registered: JSON.stringify(state.registrants) })
+      .eq('id', state.selectedEventId);
+    // Keep home screen count in sync
+    const badge = document.getElementById('reg-count-' + state.selectedEventId);
+    if (badge) badge.textContent = '\u{1F465} ' + state.registrants.length + ' registered';
+    // Keep state.events in sync so re-renders are accurate
+    const ev = state.events.find(e => e.id === state.selectedEventId);
+    if (ev) ev.registered = state.registrants;
+  } catch(e) { console.error('persist registrants:', e); }
+}
+
+// ── Show registered players for an event (tap the count) ──
+function showRegisteredPlayers(eventId) {
+  const ev = state.events.find(e => e.id === eventId);
+  if (!ev) return;
+  const registered = Array.isArray(ev.registered) ? ev.registered
+    : (ev.registered ? JSON.parse(ev.registered) : []);
+  if (!registered.length) { showToast('No players registered yet.'); return; }
+  const sorted = [...registered].sort((a, b) => (a.tag ?? 999) - (b.tag ?? 999));
+  const listHtml = sorted.map(r =>
+    `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+      <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--orange);min-width:44px;">#${r.tag}</span>
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;letter-spacing:1px;">${r.name}</span>
+    </div>`
+  ).join('');
+  document.getElementById('regListModalTitle').textContent =
+    (ev.title || 'Tag Match') + ' · ' + registered.length + ' registered';
+  document.getElementById('regListModalBody').innerHTML = listHtml;
+  openModal('regListModal');
 }
 
 let pdgaLookupTimer = null;
@@ -1511,6 +1569,7 @@ async function addRegistrant() {
   state.registrants.push({ name, tag, pdga: pdga || (existingPlayer ? existingPlayer.pdga : ''), score: null, isNew });
   clearRegForm();
   renderRegistrantList();
+  await persistRegistrants();
   showToast(`${name} added — Tag #${tag}${isNew ? ' (new player)' : ''}`);
 }
 
@@ -1548,6 +1607,7 @@ function renderRegistrantList() {
 function removeRegistrant(name) {
   state.registrants = state.registrants.filter(r => r.name !== name);
   renderRegistrantList();
+  persistRegistrants();
 }
 
 function goToScoring() {
