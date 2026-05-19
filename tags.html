@@ -748,7 +748,7 @@
 
     <div class="splash-hero">
       <h1>Tag Matches</h1>
-      <div class="sub">BOULDER DISC GOLF Â· COLORADO</div>
+      <div class="sub">BOULDER DISC GOLF · COLORADO</div>
     </div>
 
     <div id="eventList"><div class="loading"><div class="spinner"></div>Loading events...</div></div>
@@ -1212,7 +1212,7 @@ async function renderSplash() {
 function openRegisterForEvent(id) {
   const ev = state.events.find(e => e.id === id);
   state.selectedEventId = id;
-  document.getElementById('modalEventInfo').textContent = ev ? `${ev.course} Â· ${formatTime(ev.time)}` : '';
+  document.getElementById('modalEventInfo').textContent = ev ? `${ev.course} · ${formatTime(ev.time)}` : '';
   document.getElementById('modalRegSearch').value = '';
   document.getElementById('modalTag').value = '';
   openModal('registerModal');
@@ -1378,7 +1378,7 @@ function searchPlayer(val) {
     dd.innerHTML = localMatches.map(p => `
       <div onclick="selectPlayer(${JSON.stringify(p.name)}, ${p.tag}, ${JSON.stringify(p.pdga||'')})" style="padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border);font-size:14px;" onmouseenter="this.style.background='var(--surface)'" onmouseleave="this.style.background=''">
         <strong>${p.name}</strong>
-        <span style="font-size:11px;color:var(--text-muted);font-family:'DM Mono',monospace;margin-left:8px">Tag #${p.tag}${p.pdga ? ' Â· PDGA #'+p.pdga : ''}</span>
+        <span style="font-size:11px;color:var(--text-muted);font-family:'DM Mono',monospace;margin-left:8px">Tag #${p.tag}${p.pdga ? ' · PDGA #'+p.pdga : ''}</span>
       </div>
     `).join('');
     return;
@@ -1411,7 +1411,7 @@ async function lookupPDGANumber(pdgaNum) {
     const res = await fetch('/api/pdga?pdga=' + pdgaNum);
     const data = await res.json();
     if (data.found && data.name) {
-      status.innerHTML = '✅ Found: <strong style="color:var(--text)">' + data.name + '</strong> Â· <a href="#" onclick="selectPDGAResult(event, ' + JSON.stringify(data.name) + ', ' + JSON.stringify(pdgaNum) + ')" style="color:var(--green);">Use this player</a>';
+      status.innerHTML = '✅ Found: <strong style="color:var(--text)">' + data.name + '</strong> · <a href="#" onclick="selectPDGAResult(event, ' + JSON.stringify(data.name) + ', ' + JSON.stringify(pdgaNum) + ')" style="color:var(--green);">Use this player</a>';
     } else {
       status.innerHTML = '<span style="color:var(--text-muted)">PDGA #' + pdgaNum + ' not found. Add as new player:</span>';
       document.getElementById('newPlayerFields').style.display = 'block';
@@ -1437,7 +1437,7 @@ async function lookupPDGAName(e, name) {
       dd.innerHTML = data.players.map(p => `
         <div onclick="selectPDGAResult(event, ${JSON.stringify(p.name)}, ${JSON.stringify(p.pdga)})" style="padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border);font-size:14px;" onmouseenter="this.style.background='var(--surface)'" onmouseleave="this.style.background=''">
           <strong>${p.name}</strong>
-          <span style="font-size:11px;color:var(--text-muted);font-family:'DM Mono',monospace;margin-left:8px">PDGA #${p.pdga}${p.city ? ' Â· ' + p.city + (p.state ? ', '+p.state : '') : ''}</span>
+          <span style="font-size:11px;color:var(--text-muted);font-family:'DM Mono',monospace;margin-left:8px">PDGA #${p.pdga}${p.city ? ' · ' + p.city + (p.state ? ', '+p.state : '') : ''}</span>
         </div>
       `).join('');
       status.innerHTML = data.players.length + ' PDGA result' + (data.players.length > 1 ? 's' : '') + ' — select or add manually below.';
@@ -1456,7 +1456,7 @@ function selectPDGAResult(e, name, pdgaNum) {
   document.getElementById('newPlayerPDGA').value = pdgaNum || '';
   document.getElementById('newPlayerFields').style.display = 'block';
   document.getElementById('playerDropdown').style.display = 'none';
-  document.getElementById('pdgaLookupStatus').innerHTML = '✅ <strong style="color:var(--text)">' + name + '</strong>' + (pdgaNum ? ' Â· PDGA #' + pdgaNum : '') + ' — enter their tag # and click Add.';
+  document.getElementById('pdgaLookupStatus').innerHTML = '✅ <strong style="color:var(--text)">' + name + '</strong>' + (pdgaNum ? ' · PDGA #' + pdgaNum : '') + ' — enter their tag # and click Add.';
   document.getElementById('regTag').focus();
 }
 
@@ -1585,7 +1585,7 @@ function calculateResults() {
     const arrowClass = better ? 'better' : worse ? 'worse' : '';
     const tagClass = better ? 'better' : worse ? 'worse' : 'same';
     const diff = r.tag - r.newTag;
-    const diffStr = diff > 0 ? `+${diff}` : diff < 0 ? `${diff}` : 'Â±0';
+    const diffStr = diff > 0 ? `+${diff}` : diff < 0 ? `${diff}` : '±0';
     return `
       <div class="result-item">
         <span class="finish-num ${fClass}">${r.finish}</span>
@@ -1690,7 +1690,7 @@ async function renderAdmin() {
     <div class="list-item">
       <div class="list-item-info">
         <div class="list-item-name">${ev.title || 'Tag Match'} — ${ev.course}</div>
-        <div class="list-item-meta">${ev.date} Â· ${formatTime(ev.time)} ${ev.cancelled ? 'Â· CANCELLED' : ''}</div>
+        <div class="list-item-meta">${ev.date} · ${formatTime(ev.time)} ${ev.cancelled ? '· CANCELLED' : ''}</div>
       </div>
       <div class="flex-gap">
         <button class="btn btn-secondary btn-sm" onclick="toggleCancel(${ev.id}, ${!ev.cancelled})">${ev.cancelled ? 'Restore' : 'Cancel'}</button>
@@ -1719,7 +1719,7 @@ async function renderAdmin() {
       <div class="list-item">
         <div class="list-item-info">
           <div class="list-item-name">${p.name}</div>
-          <div class="list-item-meta">Tag #${p.tag}${p.pdga ? ' Â· PDGA #'+p.pdga : ''}</div>
+          <div class="list-item-meta">Tag #${p.tag}${p.pdga ? ' · PDGA #'+p.pdga : ''}</div>
         </div>
         <div class="flex-gap" style="align-items:center">
           <select onchange="changeRole(${p.id}, this.value)" style="width:auto;padding:4px 8px;font-size:12px">
