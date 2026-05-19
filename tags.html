@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="BDG Tags">
 <meta name="theme-color" content="#0a0f0d">
-<title>Boulder Disc Golf â Tag League</title>
+<title>Boulder Disc Golf — Tag League</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -39,7 +39,7 @@
     overflow-x: hidden;
   }
 
-  /* ââ HEADER ââ */
+  /* ── HEADER ── */
   header {
     position: sticky; top: 0; z-index: 100;
     background: rgba(10,15,13,0.95);
@@ -108,7 +108,7 @@
     white-space: nowrap;
   }
 
-  /* ââ MAIN ââ */
+  /* ── MAIN ── */
   main {
     max-width: 900px;
     margin: 0 auto;
@@ -118,7 +118,7 @@
   .page { display: none; }
   .page.active { display: block; }
 
-  /* ââ BUTTONS ââ */
+  /* ── BUTTONS ── */
   .btn {
     display: inline-flex;
     align-items: center;
@@ -143,7 +143,7 @@
   .btn-sm { padding: 5px 10px; font-size: 12px; }
   .btn-full { width: 100%; justify-content: center; }
 
-  /* ââ FORMS ââ */
+  /* ── FORMS ── */
   .form-row { margin-bottom: 14px; }
 
   label {
@@ -173,7 +173,7 @@
   input:focus, select:focus { border-color: var(--green); }
   select option { background: var(--surface2); }
 
-  /* ââ CARDS ââ */
+  /* ── CARDS ── */
   .card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -192,7 +192,7 @@
     border-bottom: 1px solid var(--border);
   }
 
-  /* ââ SECTION HEADER ââ */
+  /* ── SECTION HEADER ── */
   .section-header {
     display: flex;
     align-items: center;
@@ -211,7 +211,7 @@
 
   .section-title span { color: var(--green); }
 
-  /* ââ SPLASH ââ */
+  /* ── SPLASH ── */
   .splash-hero {
     background: linear-gradient(135deg, var(--surface) 0%, var(--bg) 100%);
     border: 1px solid var(--border);
@@ -223,7 +223,7 @@
   }
 
   .splash-hero::after {
-    content: 'ð¥';
+    content: '🥏';
     position: absolute;
     right: 16px;
     top: 50%;
@@ -248,7 +248,7 @@
     margin-top: 4px;
   }
 
-  /* ââ EVENT CARDS ââ */
+  /* ── EVENT CARDS ── */
   .event-card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -282,7 +282,7 @@
   .event-meta { font-size: 12px; color: var(--text-dim); line-height: 1.8; font-family: 'DM Mono', monospace; }
   .event-meta strong { color: var(--green); }
 
-  /* ââ NOTES ââ */
+  /* ── NOTES ── */
   .notes-section {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -311,9 +311,9 @@
   }
 
   .note-item:last-child { border-bottom: none; }
-  .note-item::before { content: 'âº'; color: var(--gold); font-size: 16px; line-height: 1.3; flex-shrink: 0; }
+  .note-item::before { content: '›'; color: var(--gold); font-size: 16px; line-height: 1.3; flex-shrink: 0; }
 
-  /* ââ TAG LEDGER ââ */
+  /* ── TAG LEDGER ── */
   .search-box {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -374,7 +374,7 @@
   .change-down { background: rgba(255,82,82,0.12); color: var(--red); }
   .change-same { color: var(--text-muted); }
 
-  /* ââ MATCH FLOW ââ */
+  /* ── MATCH FLOW ── */
   .step-indicator {
     display: flex;
     gap: 6px;
@@ -419,7 +419,7 @@
     padding: 8px;
   }
 
-  /* ââ RESULTS ââ */
+  /* ── RESULTS ── */
   .result-item {
     display: flex;
     align-items: center;
@@ -458,7 +458,7 @@
   .new-tag.worse { color: var(--red); }
   .new-tag.same { color: var(--text-muted); }
 
-  /* ââ ADMIN ââ */
+  /* ── ADMIN ── */
   .stat-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -531,7 +531,7 @@
   .role-scorer { background: rgba(100,150,200,0.08); color: #7ab0e0; border: 1px solid rgba(100,150,200,0.2); }
   .role-player { background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border); }
 
-  /* ââ MODAL ââ */
+  /* ── MODAL ── */
   .modal-overlay {
     display: none;
     position: fixed;
@@ -576,7 +576,7 @@
 
   .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
 
-  /* ââ TOAST ââ */
+  /* ── TOAST ── */
   .toast {
     position: fixed;
     bottom: 24px;
@@ -597,7 +597,7 @@
   .toast.show { transform: translateX(-50%) translateY(0); }
   .toast.error { background: var(--red); box-shadow: 0 4px 20px rgba(255,82,82,0.3); }
 
-  /* ââ LOADING ââ */
+  /* ── LOADING ── */
   .loading {
     display: flex;
     align-items: center;
@@ -620,7 +620,7 @@
 
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ââ EMPTY ââ */
+  /* ── EMPTY ── */
   .empty {
     text-align: center;
     padding: 32px;
@@ -634,12 +634,12 @@
   .mt-8 { margin-top: 8px; }
   .mt-14 { margin-top: 14px; }
 
-  /* ââ SCROLLBAR ââ */
+  /* ── SCROLLBAR ── */
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: var(--bg); }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-  /* ââ PWA INSTALL BANNER ââ */
+  /* ── PWA INSTALL BANNER ── */
   .install-banner {
     display: none;
     background: var(--surface2);
@@ -718,32 +718,32 @@
   </div>
 </header>
 
-<!-- ââ UNDER CONSTRUCTION BANNER ââ -->
+<!-- ══ UNDER CONSTRUCTION BANNER ══ -->
 <div id="constructionBanner" style="background:linear-gradient(90deg,#1a1200,#2a1f00,#1a1200);border-bottom:2px solid #f0c040;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;cursor:pointer;" onclick="toggleConstructionNote()">
   <div style="display:flex;align-items:center;gap:10px;">
-    <span style="font-size:18px;">ð§</span>
+    <span style="font-size:18px;">🚧</span>
     <span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#f0c040;">Under Construction</span>
-    <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;color:rgba(240,192,64,0.6);letter-spacing:1px;">â tap for details</span>
+    <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;color:rgba(240,192,64,0.6);letter-spacing:1px;">— tap for details</span>
   </div>
-  <span id="constructionChevron" style="color:#f0c040;font-size:16px;transition:transform 0.3s;">â¼</span>
+  <span id="constructionChevron" style="color:#f0c040;font-size:16px;transition:transform 0.3s;">▼</span>
 </div>
 <div id="constructionNote" style="display:none;background:#0f0c00;border-bottom:1px solid rgba(240,192,64,0.2);padding:16px 24px;">
   <p style="font-family:'Barlow Condensed',sans-serif;font-size:15px;color:rgba(240,192,64,0.85);letter-spacing:1px;line-height:1.7;max-width:600px;">
-    ð¥ <strong style="color:#f0c040;">Boulder Disc Golf Tag League</strong> is actively being built.<br>
+    🥏 <strong style="color:#f0c040;">Boulder Disc Golf Tag League</strong> is actively being built.<br>
     Features like match results, live tag tracking, and player stats are coming soon.<br>
-    <span style="color:rgba(255,255,255,0.4);font-size:13px;">Thanks for your patience â check back soon. Full launch coming shortly.</span>
+    <span style="color:rgba(255,255,255,0.4);font-size:13px;">Thanks for your patience — check back soon. Full launch coming shortly.</span>
   </p>
 </div>
 
 <main>
 
-  <!-- ââ SPLASH ââ -->
+  <!-- ══ SPLASH ══ -->
   <div id="page-splash" class="page active">
     <div class="install-banner" id="installBanner">
-      <span style="font-size:24px">ð¥</span>
+      <span style="font-size:24px">🥏</span>
       <p>Add to your home screen for the full app experience!</p>
       <button class="btn btn-primary btn-sm" id="installBtn">Add</button>
-      <button class="btn btn-secondary btn-sm" onclick="document.getElementById('installBanner').classList.remove('show')">â</button>
+      <button class="btn btn-secondary btn-sm" onclick="document.getElementById('installBanner').classList.remove('show')">✕</button>
     </div>
 
     <div class="splash-hero">
@@ -754,17 +754,17 @@
     <div id="eventList"><div class="loading"><div class="spinner"></div>Loading events...</div></div>
 
     <div class="notes-section">
-      <h3>ð Club Notes</h3>
+      <h3>📋 Club Notes</h3>
       <div id="notesList"><div class="loading"><div class="spinner"></div></div></div>
       <div id="addNoteForm" style="display:none;margin-top:14px;gap:8px;flex-direction:column;">
         <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:2px;">
           <span style="font-size:11px;letter-spacing:2px;color:var(--text-muted);text-transform:uppercase;">Insert:</span>
-          <button onclick="insertSymbol('â¢ ')" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:var(--text);cursor:pointer;font-size:15px;" title="Bullet">â¢ Bullet</button>
-          <button onclick="insertSymbol('â ')" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:var(--text);cursor:pointer;font-size:15px;" title="Arrow">â Arrow</button>
-          <button onclick="insertSymbol('â ï¸ ')" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:var(--text);cursor:pointer;font-size:15px;" title="Warning">â ï¸ Warning</button>
-          <button onclick="insertSymbol('ð¥ ')" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:var(--text);cursor:pointer;font-size:15px;" title="Disc">ð¥ Disc</button>
+          <button onclick="insertSymbol('• ')" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:var(--text);cursor:pointer;font-size:15px;" title="Bullet">• Bullet</button>
+          <button onclick="insertSymbol('→ ')" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:var(--text);cursor:pointer;font-size:15px;" title="Arrow">→ Arrow</button>
+          <button onclick="insertSymbol('⚠️ ')" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:var(--text);cursor:pointer;font-size:15px;" title="Warning">⚠️ Warning</button>
+          <button onclick="insertSymbol('🥏 ')" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:var(--text);cursor:pointer;font-size:15px;" title="Disc">🥏 Disc</button>
         </div>
-        <textarea id="quickNoteInput" rows="6" placeholder="One note per line. Paste from Word, type multiple lines â each line posts as its own note." style="padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:var(--text);font-family:inherit;font-size:14px;width:100%;resize:vertical;line-height:1.6;"></textarea>
+        <textarea id="quickNoteInput" rows="6" placeholder="One note per line. Paste from Word, type multiple lines — each line posts as its own note." style="padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:var(--text);font-family:inherit;font-size:14px;width:100%;resize:vertical;line-height:1.6;"></textarea>
         <div style="display:flex;align-items:center;gap:12px;">
           <button class="btn btn-primary btn-sm" onclick="quickAddNote()">Post Notes</button>
           <span style="font-size:12px;color:var(--text-muted);">Each line = one note</span>
@@ -773,7 +773,7 @@
     </div>
   </div>
 
-  <!-- ââ TAG LEDGER ââ -->
+  <!-- ══ TAG LEDGER ══ -->
   <div id="page-ledger" class="page">
     <div class="section-header">
       <div class="section-title">Tag <span>Ledger</span></div>
@@ -782,16 +782,16 @@
     <div class="tag-list" id="tagList"><div class="loading"><div class="spinner"></div>Loading...</div></div>
   </div>
 
-  <!-- ââ PLAYER STATS ââ -->
+  <!-- ══ PLAYER STATS ══ -->
   <div id="page-stats" class="page">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
-      <button class="btn btn-secondary btn-sm" onclick="showPage(&apos;ledger&apos;)">â Back</button>
+      <button class="btn btn-secondary btn-sm" onclick="showPage(&apos;ledger&apos;)">← Back</button>
       <div class="section-title" style="margin:0">Player <span>Profile</span></div>
     </div>
     <div id="statsContent"><div class="loading"><div class="spinner"></div>Loading...</div></div>
   </div>
 
-  <!-- ââ MATCH ââ -->
+  <!-- ══ MATCH ══ -->
   <div id="page-match" class="page">
     <div class="section-title" style="margin-bottom:16px">Match <span>Manager</span></div>
 
@@ -805,7 +805,7 @@
     <!-- Step 1: Register -->
     <div id="matchStep1">
       <div class="card">
-        <div class="card-title">ð Event Details</div>
+        <div class="card-title">📍 Event Details</div>
         <div class="form-row">
           <label>Course</label>
           <select id="matchCourse" onchange="saveMatchState()">
@@ -828,7 +828,7 @@
       </div>
 
       <div class="card">
-        <div class="card-title">â Register Player</div>
+        <div class="card-title">➕ Register Player</div>
         <div class="form-row">
           <label>Name or PDGA#</label>
           <input type="text" id="regSearch" placeholder="Type name or PDGA number..." oninput="searchPlayer(this.value)" autocomplete="off">
@@ -837,7 +837,7 @@
         </div>
         <div class="form-row">
           <label>Current Tag #</label>
-          <input type="number" id="regTag" placeholder="1â350" min="1" max="350">
+          <input type="number" id="regTag" placeholder="1–350" min="1" max="350">
         </div>
         <div id="newPlayerFields" style="display:none">
           <div class="form-row">
@@ -856,23 +856,23 @@
       </div>
 
       <div class="card">
-        <div class="card-title">ðï¸ Registrants <span id="regCount" style="font-size:13px;font-weight:400;color:var(--text-muted)"></span></div>
+        <div class="card-title">🏌️ Registrants <span id="regCount" style="font-size:13px;font-weight:400;color:var(--text-muted)"></span></div>
         <div id="registrantList"><div class="empty">No players added yet.</div></div>
         <div class="divider"></div>
-        <button class="btn btn-gold btn-full" id="proceedBtn" style="display:none" onclick="goToScoring()">Enter Scores â</button>
+        <button class="btn btn-gold btn-full" id="proceedBtn" style="display:none" onclick="goToScoring()">Enter Scores →</button>
       </div>
     </div>
 
     <!-- Step 2: Scores -->
     <div id="matchStep2" style="display:none">
       <div class="card">
-        <div class="card-title">ð Enter Final Scores</div>
+        <div class="card-title">📊 Enter Final Scores</div>
         <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px">Total strokes for each player. Lower = better.</p>
         <div id="scoreList"></div>
         <div class="divider"></div>
         <div class="flex-gap">
-          <button class="btn btn-secondary" onclick="backToStep1()">â Back</button>
-          <button class="btn btn-primary" onclick="calculateResults()">Calculate Tags â</button>
+          <button class="btn btn-secondary" onclick="backToStep1()">← Back</button>
+          <button class="btn btn-primary" onclick="calculateResults()">Calculate Tags →</button>
         </div>
       </div>
     </div>
@@ -880,31 +880,31 @@
     <!-- Step 3: Results -->
     <div id="matchStep3" style="display:none">
       <div class="card">
-        <div class="card-title">ð New Tag Assignments</div>
+        <div class="card-title">🏆 New Tag Assignments</div>
         <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px">Tiebreaker: better incoming tag wins.</p>
         <div id="resultsList"></div>
         <div class="divider"></div>
         <div class="flex-gap">
-          <button class="btn btn-secondary" onclick="backToStep2()">â Back</button>
-          <button class="btn btn-gold" onclick="commitResults()">â Commit & Update Ledger</button>
+          <button class="btn btn-secondary" onclick="backToStep2()">← Back</button>
+          <button class="btn btn-gold" onclick="commitResults()">✓ Commit & Update Ledger</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ââ ADMIN ââ -->
+  <!-- ══ ADMIN ══ -->
   <div id="page-admin" class="page">
     <div class="section-title" style="margin-bottom:16px">Admin <span>Panel</span></div>
 
     <div class="stat-grid">
-      <div class="stat-card"><div class="stat-val" id="statPlayers">â</div><div class="stat-lbl">Players</div></div>
+      <div class="stat-card"><div class="stat-val" id="statPlayers">—</div><div class="stat-lbl">Players</div></div>
       <div class="stat-card"><div class="stat-val" id="statTags">350</div><div class="stat-lbl">Tags</div></div>
-      <div class="stat-card"><div class="stat-val" id="statMatches">â</div><div class="stat-lbl">Matches</div></div>
+      <div class="stat-card"><div class="stat-val" id="statMatches">—</div><div class="stat-lbl">Matches</div></div>
     </div>
 
     <!-- Add Event -->
     <div class="admin-section">
-      <h3>ð Add Event</h3>
+      <h3>📅 Add Event</h3>
       <div class="card">
         <div class="form-row">
           <label>Title</label>
@@ -954,7 +954,7 @@
 
     <!-- Community Notes -->
     <div class="admin-section">
-      <h3>ð Community Notes</h3>
+      <h3>📋 Community Notes</h3>
       <div class="card">
         <div class="form-row">
           <label>New Note</label>
@@ -979,7 +979,7 @@
 
     <!-- Add Player -->
     <div class="admin-section">
-      <h3>ð¤ Add Player</h3>
+      <h3>👤 Add Player</h3>
       <div class="card">
         <div class="form-row">
           <label>Full Name</label>
@@ -992,7 +992,7 @@
           </div>
           <div class="form-row" style="flex:1">
             <label>Tag #</label>
-            <input type="number" id="npTag" placeholder="1â350" min="1" max="350">
+            <input type="number" id="npTag" placeholder="1–350" min="1" max="350">
           </div>
         </div>
         <div class="form-row">
@@ -1011,21 +1011,21 @@
     <!-- Player Roster (God only) -->
     <!-- Tag Assignment Bulk Editor -->
     <div class="admin-section" id="tagAssignSection">
-      <h3>ð·ï¸ Assign Tags</h3>
+      <h3>🏷️ Assign Tags</h3>
       <div class="card">
         <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">Quickly assign or update tag numbers. Players with no tag show first. Type a number and press Enter or Tab to move to the next.</p>
         <input class="search-box" type="search" placeholder="Filter players..." oninput="filterTagAssign(this.value)" id="tagAssignSearch" style="margin-bottom:12px;">
         <div id="tagAssignList"></div>
         <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
-          <button class="btn btn-primary" onclick="saveTagAssignments()">ð¾ Save All Changes</button>
-          <button class="btn btn-secondary" onclick="renderTagAssign('')">âº Reset</button>
+          <button class="btn btn-primary" onclick="saveTagAssignments()">💾 Save All Changes</button>
+          <button class="btn btn-secondary" onclick="renderTagAssign('')">↺ Reset</button>
         </div>
         <div id="tagAssignStatus" style="margin-top:10px;font-size:13px;color:var(--green);display:none;"></div>
       </div>
     </div>
 
     <div class="admin-section" id="godSection" style="display:none">
-      <h3>ð Player Roster & Roles</h3>
+      <h3>👑 Player Roster & Roles</h3>
       <div id="adminRoster"></div>
     </div>
 
@@ -1033,7 +1033,7 @@
 
 </main>
 
-<!-- ââ MODALS ââ -->
+<!-- ══ MODALS ══ -->
 
 <!-- Register for event -->
 <div class="modal-overlay" id="registerModal">
@@ -1053,7 +1053,7 @@
     </div>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('registerModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="submitModalReg()">Register â</button>
+      <button class="btn btn-primary" onclick="submitModalReg()">Register ✓</button>
     </div>
   </div>
 </div>
@@ -1074,7 +1074,7 @@
     <div id="loginErr" style="color:var(--red);font-size:13px;margin-top:6px;display:none">Invalid credentials.</div>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal('loginModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="doLogin()">Login â</button>
+      <button class="btn btn-primary" onclick="doLogin()">Login →</button>
     </div>
   </div>
 </div>
@@ -1083,19 +1083,19 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ═══════════════════════════════════════════════════════
 //  SUPABASE INIT
 //  These values are injected by Vercel from environment vars
-// âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ═══════════════════════════════════════════════════════
 const SUPABASE_URL  = 'https://mewwizubdwfgvrhiylur.supabase.co';
 const SUPABASE_ANON = 'sb_publishable_aZbW6gII45Fkxflzw9gG_Q_OCt29okw';
 
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON);
 
-// âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ═══════════════════════════════════════════════════════
 //  APP STATE
-// âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ═══════════════════════════════════════════════════════
 let state = {
   currentUser: null,
   players: [],
@@ -1113,9 +1113,9 @@ const DEMO_CREDS = {
   shane: { pass: 'bdgc1',    role: 'admin',  name: 'Shane Sparkman' },
 };
 
-// âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ═══════════════════════════════════════════════════════
 //  NAVIGATION
-// âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ═══════════════════════════════════════════════════════
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
@@ -1129,9 +1129,9 @@ function showPage(id) {
   if (id === 'stats')   renderStats();
 }
 
-// âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-//  DATA LAYER â Supabase
-// âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ═══════════════════════════════════════════════════════
+//  DATA LAYER — Supabase
+// ═══════════════════════════════════════════════════════
 
 async function loadPlayers() {
   const { data, error } = await db.from('players').select('*').order('tag', { ascending: true });
@@ -1159,9 +1159,9 @@ async function loadNotes() {
   return state.notes;
 }
 
-// âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ═══════════════════════════════════════════════════════
 //  SPLASH
-// âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ═══════════════════════════════════════════════════════
 
 async function renderSplash() {
   await Promise.all([loadEvents(), loadNotes()]);
@@ -1189,15 +1189,15 @@ async function renderSplash() {
           ${ev.cancelled ? '<span class="badge badge-red">CANCELLED</span>' : ''}
           <div class="event-title ${ev.cancelled ? 'cancelled-text' : ''}">${ev.title || 'Tag Match'}</div>
           <div class="event-meta">
-            <strong>ð</strong> ${ev.course}<br>
-            <strong>ð</strong> ${dateStr} &nbsp; <strong>ð</strong> ${timeStr}
-            ${ev.host ? `<br><strong>ðï¸</strong> Hosted by ${ev.host}` : ''}
+            <strong>📍</strong> ${ev.course}<br>
+            <strong>📅</strong> ${dateStr} &nbsp; <strong>🕗</strong> ${timeStr}
+            ${ev.host ? `<br><strong>🎙️</strong> Hosted by ${ev.host}` : ''}
           </div>
           <div style="display:flex;gap:16px;margin-top:10px;flex-wrap:wrap;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;">
-            <span style="color:var(--green);">ð¥ ${playerCount} registered</span>
-            ${!ev.cancelled ? `<span style="color:var(--gold);">ð° $${aceTotal.toFixed(0)} ace pool${aceCapped ? ' ð CAPPED' : ''}</span>` : ''}
+            <span style="color:var(--green);">👥 ${playerCount} registered</span>
+            ${!ev.cancelled ? `<span style="color:var(--gold);">💰 $${aceTotal.toFixed(0)} ace pool${aceCapped ? ' 🔒 CAPPED' : ''}</span>` : ''}
           </div>
-          ${!ev.cancelled ? `<button class="btn btn-primary btn-sm" style="margin-top:10px" onclick="openRegisterForEvent(${ev.id})">Register â</button>` : ''}
+          ${!ev.cancelled ? `<button class="btn btn-primary btn-sm" style="margin-top:10px" onclick="openRegisterForEvent(${ev.id})">Register →</button>` : ''}
         </div>
       `;
     }).join('');
@@ -1229,9 +1229,9 @@ async function submitModalReg() {
   showToast(`${name} registered with tag #${tag}!`);
 }
 
-// âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ═══════════════════════════════════════════════════════
 //  TAG LEDGER
-// âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ═══════════════════════════════════════════════════════
 
 async function renderLedger(filter = '') {
   const el = document.getElementById('tagList');
@@ -1249,7 +1249,7 @@ async function renderLedger(filter = '') {
   el.innerHTML = visible.map(p => {
     const cls = p.tag === 1 ? 't1' : p.tag === 2 ? 't2' : p.tag === 3 ? 't3' : p.tag <= 20 ? 'top' : p.tag <= 100 ? 'mid' : 'low';
     const changeClass = p.last_change === 'up' ? 'change-up' : p.last_change === 'down' ? 'change-down' : 'change-same';
-    const changeText = p.last_change === 'up' ? 'â²' : p.last_change === 'down' ? 'â¼' : 'â';
+    const changeText = p.last_change === 'up' ? '▲' : p.last_change === 'down' ? '▼' : '—';
     const pdgaLink = p.pdga ? `<a href="https://www.pdga.com/player/${p.pdga}" target="_blank" style="color:var(--text-muted);text-decoration:none;font-family:'DM Mono',monospace;font-size:11px">#${p.pdga}</a>` : '';
     return `
       <div class="tag-row" onclick="showPlayerStats(${p.id})" style="cursor:pointer;">
@@ -1297,20 +1297,20 @@ async function showPlayerStats(playerId) {
     if (!pr) return '';
     const d = new Date(m.date + 'T12:00:00');
     const dateStr = d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'2-digit' });
-    const moved = pr.newTag < pr.tag ? `<span style="color:var(--green)">â² +${pr.tag - pr.newTag}</span>` :
-                  pr.newTag > pr.tag ? `<span style="color:#ff6b6b">â¼ ${pr.tag - pr.newTag}</span>` :
-                  '<span style="color:var(--text-muted)">â</span>';
+    const moved = pr.newTag < pr.tag ? `<span style="color:var(--green)">▲ +${pr.tag - pr.newTag}</span>` :
+                  pr.newTag > pr.tag ? `<span style="color:#ff6b6b">▼ ${pr.tag - pr.newTag}</span>` :
+                  '<span style="color:var(--text-muted)">—</span>';
     return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13px;">
       <span style="color:var(--text-muted)">${dateStr}</span>
       <span>${m.course || 'Tag Match'}</span>
-      <span style="font-family:'DM Mono',monospace">${pr.score ? pr.score+'â¦' : 'â'}</span>
-      <span style="font-family:'DM Mono',monospace">#${pr.tag} â #${pr.newTag}</span>
+      <span style="font-family:'DM Mono',monospace">${pr.score ? pr.score+'✦' : '—'}</span>
+      <span style="font-family:'DM Mono',monospace">#${pr.tag} → #${pr.newTag}</span>
       <span>${moved}</span>
     </div>`;
   }).join('');
 
   const tagCls = p.tag === 1 ? 't1' : p.tag <= 3 ? 't2' : p.tag <= 20 ? 'top' : p.tag <= 100 ? 'mid' : 'low';
-  const pdgaLink = p.pdga ? `<a href="https://www.pdga.com/player/${p.pdga}" target="_blank" style="color:var(--orange);text-decoration:none;font-size:13px;">PDGA #${p.pdga} â</a>` : '<span style="color:var(--text-muted);font-size:13px;">No PDGA#</span>';
+  const pdgaLink = p.pdga ? `<a href="https://www.pdga.com/player/${p.pdga}" target="_blank" style="color:var(--orange);text-decoration:none;font-size:13px;">PDGA #${p.pdga} ↗</a>` : '<span style="color:var(--text-muted);font-size:13px;">No PDGA#</span>';
 
   el.innerHTML = `
     <div class="card" style="text-align:center;padding:28px 20px;">
@@ -1325,12 +1325,12 @@ async function showPlayerStats(playerId) {
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0;">
       <div class="stat-card"><div class="stat-val">${matchCount}</div><div class="stat-lbl">Matches</div></div>
       <div class="stat-card"><div class="stat-val">#${bestTag}</div><div class="stat-lbl">Best Tag</div></div>
-      <div class="stat-card"><div class="stat-val">${p.last_change === 'up' ? 'â²' : p.last_change === 'down' ? 'â¼' : 'â'}</div><div class="stat-lbl">Last Move</div></div>
+      <div class="stat-card"><div class="stat-val">${p.last_change === 'up' ? '▲' : p.last_change === 'down' ? '▼' : '—'}</div><div class="stat-lbl">Last Move</div></div>
     </div>
 
     ${playerMatches.length > 0 ? `
     <div class="card">
-      <div class="card-title">ð Recent Matches</div>
+      <div class="card-title">📊 Recent Matches</div>
       <div style="font-size:11px;color:var(--text-muted);display:flex;justify-content:space-between;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.06);letter-spacing:1px;text-transform:uppercase;">
         <span>Date</span><span>Course</span><span>Score</span><span>Tags</span><span>Move</span>
       </div>
@@ -1339,9 +1339,9 @@ async function showPlayerStats(playerId) {
   `;
 }
 
-// âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ═══════════════════════════════════════════════════════
 //  MATCH FLOW
-// âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ═══════════════════════════════════════════════════════
 
 async function initMatch() {
   const today = new Date().toISOString().split('T')[0];
@@ -1384,19 +1384,19 @@ function searchPlayer(val) {
     return;
   }
 
-  // Not in local DB â check if it looks like a PDGA number
+  // Not in local DB — check if it looks like a PDGA number
   dd.style.display = 'none';
   clearTimeout(pdgaLookupTimer);
 
   if (/^\d{4,8}$/.test(val.trim())) {
-    // Looks like a PDGA number â look it up
+    // Looks like a PDGA number — look it up
     status.style.display = 'block';
-    status.innerHTML = 'ð Looking up PDGA #' + val.trim() + '...';
+    status.innerHTML = '🔍 Looking up PDGA #' + val.trim() + '...';
     pdgaLookupTimer = setTimeout(() => lookupPDGANumber(val.trim()), 600);
   } else if (val.trim().includes(' ') && val.trim().length >= 4) {
-    // Looks like a full name â offer PDGA search
+    // Looks like a full name — offer PDGA search
     status.style.display = 'block';
-    status.innerHTML = '<span style="color:var(--text-muted)">Not in local roster. </span><a href="#" onclick="lookupPDGAName(event, ' + JSON.stringify(val.trim()) + ')" style="color:var(--green);">Search PDGA â</a> or add as new player below.';
+    status.innerHTML = '<span style="color:var(--text-muted)">Not in local roster. </span><a href="#" onclick="lookupPDGAName(event, ' + JSON.stringify(val.trim()) + ')" style="color:var(--green);">Search PDGA →</a> or add as new player below.';
     document.getElementById('newPlayerFields').style.display = 'block';
     document.getElementById('newPlayerName').value = val.trim();
   } else {
@@ -1411,7 +1411,7 @@ async function lookupPDGANumber(pdgaNum) {
     const res = await fetch('/api/pdga?pdga=' + pdgaNum);
     const data = await res.json();
     if (data.found && data.name) {
-      status.innerHTML = 'â Found: <strong style="color:var(--text)">' + data.name + '</strong> Â· <a href="#" onclick="selectPDGAResult(event, ' + JSON.stringify(data.name) + ', ' + JSON.stringify(pdgaNum) + ')" style="color:var(--green);">Use this player</a>';
+      status.innerHTML = '✅ Found: <strong style="color:var(--text)">' + data.name + '</strong> Â· <a href="#" onclick="selectPDGAResult(event, ' + JSON.stringify(data.name) + ', ' + JSON.stringify(pdgaNum) + ')" style="color:var(--green);">Use this player</a>';
     } else {
       status.innerHTML = '<span style="color:var(--text-muted)">PDGA #' + pdgaNum + ' not found. Add as new player:</span>';
       document.getElementById('newPlayerFields').style.display = 'block';
@@ -1428,7 +1428,7 @@ async function lookupPDGAName(e, name) {
   e.preventDefault();
   const status = document.getElementById('pdgaLookupStatus');
   const dd = document.getElementById('playerDropdown');
-  status.innerHTML = 'ð Searching PDGA for "' + name + '"...';
+  status.innerHTML = '🔍 Searching PDGA for "' + name + '"...';
   try {
     const res = await fetch('/api/pdga?name=' + encodeURIComponent(name));
     const data = await res.json();
@@ -1440,7 +1440,7 @@ async function lookupPDGAName(e, name) {
           <span style="font-size:11px;color:var(--text-muted);font-family:'DM Mono',monospace;margin-left:8px">PDGA #${p.pdga}${p.city ? ' Â· ' + p.city + (p.state ? ', '+p.state : '') : ''}</span>
         </div>
       `).join('');
-      status.innerHTML = data.players.length + ' PDGA result' + (data.players.length > 1 ? 's' : '') + ' â select or add manually below.';
+      status.innerHTML = data.players.length + ' PDGA result' + (data.players.length > 1 ? 's' : '') + ' — select or add manually below.';
     } else {
       status.innerHTML = '<span style="color:var(--text-muted)">No PDGA results. Add as new player below.</span>';
     }
@@ -1456,7 +1456,7 @@ function selectPDGAResult(e, name, pdgaNum) {
   document.getElementById('newPlayerPDGA').value = pdgaNum || '';
   document.getElementById('newPlayerFields').style.display = 'block';
   document.getElementById('playerDropdown').style.display = 'none';
-  document.getElementById('pdgaLookupStatus').innerHTML = 'â <strong style="color:var(--text)">' + name + '</strong>' + (pdgaNum ? ' Â· PDGA #' + pdgaNum : '') + ' â enter their tag # and click Add.';
+  document.getElementById('pdgaLookupStatus').innerHTML = '✅ <strong style="color:var(--text)">' + name + '</strong>' + (pdgaNum ? ' Â· PDGA #' + pdgaNum : '') + ' — enter their tag # and click Add.';
   document.getElementById('regTag').focus();
 }
 
@@ -1500,18 +1500,18 @@ async function addRegistrant() {
   const tag = parseInt(document.getElementById('regTag').value);
 
   if (!name) return showToast('Enter a player name.', true);
-  if (!tag || tag < 1 || tag > 350) return showToast('Enter a valid tag # (1â350).', true);
+  if (!tag || tag < 1 || tag > 350) return showToast('Enter a valid tag # (1–350).', true);
   if (state.registrants.find(r => r.name === name)) return showToast(`${name} already registered.`, true);
   if (state.registrants.find(r => r.tag === tag)) return showToast(`Tag #${tag} already in match.`, true);
 
-  // Check if new player (not in local DB) â mark for Supabase insert on commit
+  // Check if new player (not in local DB) — mark for Supabase insert on commit
   const existingPlayer = state.players.find(p => p.name === name);
   const isNew = !existingPlayer;
 
   state.registrants.push({ name, tag, pdga: pdga || (existingPlayer ? existingPlayer.pdga : ''), score: null, isNew });
   clearRegForm();
   renderRegistrantList();
-  showToast(`${name} added â Tag #${tag}${isNew ? ' (new player)' : ''}`);
+  showToast(`${name} added — Tag #${tag}${isNew ? ' (new player)' : ''}`);
 }
 
 function clearRegForm() {
@@ -1540,7 +1540,7 @@ function renderRegistrantList() {
     <div class="registrant-item">
       <span class="reg-tag">#${r.tag}</span>
       <span class="reg-name">${r.name}</span>
-      <button class="btn btn-danger btn-sm" onclick="removeRegistrant('${r.name}')">â</button>
+      <button class="btn btn-danger btn-sm" onclick="removeRegistrant('${r.name}')">✕</button>
     </div>
   `).join('');
 }
@@ -1557,7 +1557,7 @@ function goToScoring() {
     <div class="registrant-item" style="margin-bottom:8px">
       <span class="reg-tag">#${r.tag}</span>
       <span class="reg-name">${r.name}</span>
-      <input class="score-input" type="number" min="18" max="120" placeholder="â" id="score_${r.name.replace(/\W/g,'_')}">
+      <input class="score-input" type="number" min="18" max="120" placeholder="—" id="score_${r.name.replace(/\W/g,'_')}">
     </div>
   `).join('');
 }
@@ -1581,7 +1581,7 @@ function calculateResults() {
     const better = r.newTag < r.tag;
     const worse = r.newTag > r.tag;
     const fClass = r.finish === 1 ? 'f1' : r.finish === 2 ? 'f2' : r.finish === 3 ? 'f3' : '';
-    const arrow = better ? 'â²' : worse ? 'â¼' : 'â';
+    const arrow = better ? '▲' : worse ? '▼' : '—';
     const arrowClass = better ? 'better' : worse ? 'worse' : '';
     const tagClass = better ? 'better' : worse ? 'worse' : 'same';
     const diff = r.tag - r.newTag;
@@ -1590,7 +1590,7 @@ function calculateResults() {
       <div class="result-item">
         <span class="finish-num ${fClass}">${r.finish}</span>
         <span class="result-name">${r.name}</span>
-        <span style="font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace">${r.score}â¦</span>
+        <span style="font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace">${r.score}✦</span>
         <span style="font-family:'DM Mono',monospace;font-size:13px;color:var(--text-muted)">#${r.tag}</span>
         <span class="tag-arrow ${arrowClass}">${arrow}</span>
         <span class="new-tag ${tagClass}" style="font-family:'Bebas Neue',sans-serif;font-size:22px">#${r.newTag}</span>
@@ -1606,13 +1606,13 @@ async function commitResults() {
   for (const r of state.pendingResults) {
     const player = state.players.find(p => p.name === r.name);
     if (player) {
-      // Existing player â update tag
+      // Existing player — update tag
       const oldTag = player.tag;
       const change = r.newTag < oldTag ? 'up' : r.newTag > oldTag ? 'down' : 'same';
       const { error } = await db.from('players').update({ tag: r.newTag, last_change: change }).eq('id', player.id);
       if (!error) { player.tag = r.newTag; player.last_change = change; }
     } else if (r.isNew) {
-      // New player â insert into Supabase
+      // New player — insert into Supabase
       const { data, error } = await db.from('players').insert({
         name: r.name,
         pdga: r.pdga || null,
@@ -1654,7 +1654,7 @@ async function commitResults() {
   state.pendingResults = null;
   setStep(1);
   renderRegistrantList();
-  showToast('â Tags updated! Ledger committed.');
+  showToast('✓ Tags updated! Ledger committed.');
   setTimeout(() => showPage('ledger'), 1500);
 }
 
@@ -1671,9 +1671,9 @@ function backToStep1() { setStep(1); }
 function backToStep2() { setStep(2); }
 function saveMatchState() {}
 
-// âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ═══════════════════════════════════════════════════════
 //  ADMIN
-// âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ═══════════════════════════════════════════════════════
 
 async function renderAdmin() {
   await Promise.all([loadPlayers(), loadEvents(), loadNotes(), loadAcePool()]);
@@ -1689,7 +1689,7 @@ async function renderAdmin() {
   evEl.innerHTML = state.events.map(ev => `
     <div class="list-item">
       <div class="list-item-info">
-        <div class="list-item-name">${ev.title || 'Tag Match'} â ${ev.course}</div>
+        <div class="list-item-name">${ev.title || 'Tag Match'} — ${ev.course}</div>
         <div class="list-item-meta">${ev.date} Â· ${formatTime(ev.time)} ${ev.cancelled ? 'Â· CANCELLED' : ''}</div>
       </div>
       <div class="flex-gap">
@@ -1735,11 +1735,11 @@ async function renderAdmin() {
   }
 }
 
-// âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ═══════════════════════════════════════════════════════
 //  TAG ASSIGNMENT BULK EDITOR
-// âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ═══════════════════════════════════════════════════════
 
-let tagAssignChanges = {}; // playerId â newTag
+let tagAssignChanges = {}; // playerId → newTag
 
 function renderTagAssign(filter) {
   const el = document.getElementById('tagAssignList');
@@ -1766,7 +1766,7 @@ function renderTagAssign(filter) {
         oninput="tagAssignChanges[${p.id}] = this.value ? parseInt(this.value) : null"
         onkeydown="if(event.key==='Enter'||event.key==='Tab'){event.preventDefault();const inputs=document.querySelectorAll('#tagAssignList input');const idx=Array.from(inputs).indexOf(this);if(inputs[idx+1])inputs[idx+1].focus();}"
       >
-      <span style="font-size:11px;color:var(--text-muted);width:30px;font-family:'DM Mono',monospace;">${p.tag ? '#'+p.tag : 'â'}</span>
+      <span style="font-size:11px;color:var(--text-muted);width:30px;font-family:'DM Mono',monospace;">${p.tag ? '#'+p.tag : '—'}</span>
     </div>
   `).join('');
 }
@@ -1783,7 +1783,7 @@ async function saveTagAssignments() {
   // Check for duplicate tags
   const newTags = changes.map(([,t]) => t);
   const dupes = newTags.filter((t, i) => newTags.indexOf(t) !== i);
-  if (dupes.length) { showToast(`Duplicate tag #${dupes[0]} â fix before saving.`, true); return; }
+  if (dupes.length) { showToast(`Duplicate tag #${dupes[0]} — fix before saving.`, true); return; }
 
   status.style.display = 'block';
   status.textContent = `Saving ${changes.length} tag assignments...`;
@@ -1800,7 +1800,7 @@ async function saveTagAssignments() {
   }
 
   tagAssignChanges = {};
-  status.textContent = `â ${saved} tags saved!`;
+  status.textContent = `✅ ${saved} tags saved!`;
   setTimeout(() => { status.style.display = 'none'; }, 3000);
 
   try {
@@ -1954,7 +1954,7 @@ async function renderStats() {
   const top=(obj,n)=>Object.entries(obj).sort((a,b)=>b[1]-a[1]).slice(0,n);
   el.innerHTML='<div class="stats-screen"><button class="btn btn-sm" onclick="showPage(&apos;splash&apos;)" style="margin-bottom:16px">← Back</button>'+
     '<div style="font-family:Barlow Condensed,sans-serif;font-size:22px;letter-spacing:2px;margin-bottom:4px">🏆 SEASON STATS</div>'+
-    '<div style="font-size:11px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:20px">2026 · '+(allEvents?.length||0)+' events · '+rounds.length+' rounds logged</div>'+
+    '<div style="font-size:11px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:20px">2026 � '+(allEvents?.length||0)+' events � '+rounds.length+' rounds logged</div>'+
     '<div class="stats-grid">'+
     board('Season Attendance','📅',top(attend,8),r=>r[1]+' rounds')+
     board('Current Streak','🔥',Object.entries(streaks).sort((a,b)=>b[1]-a[1]).slice(0,8),r=>r[1]+' weeks')+
@@ -2061,9 +2061,9 @@ async function changeRole(id, role) {
   showToast('Role updated.');
 }
 
-// âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ═══════════════════════════════════════════════════════
 //  AUTH
-// âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ═══════════════════════════════════════════════════════
 
 function doLogin() {
   const user = document.getElementById('loginUser').value.trim().toLowerCase();
@@ -2097,9 +2097,9 @@ function doLogout() {
   showToast('Logged out.');
 }
 
-// âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ═══════════════════════════════════════════════════════
 //  UTILS
-// âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ═══════════════════════════════════════════════════════
 
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
@@ -2119,9 +2119,9 @@ function formatTime(t) {
   return `${h%12||12}:${String(m).padStart(2,'0')} ${h>=12?'PM':'AM'}`;
 }
 
-// âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ═══════════════════════════════════════════════════════
 //  PWA INSTALL PROMPT
-// âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ═══════════════════════════════════════════════════════
 let deferredPrompt;
 
 window.addEventListener('beforeinstallprompt', e => {
@@ -2144,9 +2144,9 @@ document.querySelectorAll('.modal-overlay').forEach(el => {
   el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
 });
 
-// âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ═══════════════════════════════════════════════════════
 //  INIT
-// âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ═══════════════════════════════════════════════════════
 (async () => {
   await loadPlayers();
   renderSplash();
