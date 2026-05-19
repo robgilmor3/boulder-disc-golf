@@ -705,11 +705,11 @@
     <span>TAG LEAGUE</span>
   </a>
   <nav>
-    <button class="active" onclick="showPage('splash')">Home</button>
-    <button onclick="showPage('ledger')">Tags</button>
-    <button onclick="showPage('match')">Match</button>
-    <button onclick="showPage('stats')">Stats</button>
-    <button onclick="showPage('admin')" id="adminBtn" style="display:none">Admin</button>
+    <button class="active" onclick="showPage(&apos;splash&apos;)">Home</button>
+    <button onclick="showPage(&apos;ledger&apos;)">Tags</button>
+    <button onclick="showPage(&apos;match&apos;)">Match</button>
+    <button onclick="showPage(&apos;stats&apos;)">Stats</button>
+    <button onclick="showPage(&apos;admin&apos;)" id="adminBtn" style="display:none">Admin</button>
   </nav>
   <div class="header-right">
     <span class="user-pill" id="userLabel">Guest</span>
@@ -785,7 +785,7 @@
   <!-- ââ PLAYER STATS ââ -->
   <div id="page-stats" class="page">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
-      <button class="btn btn-secondary btn-sm" onclick="showPage('ledger')">â Back</button>
+      <button class="btn btn-secondary btn-sm" onclick="showPage(&apos;ledger&apos;)">â Back</button>
       <div class="section-title" style="margin:0">Player <span>Profile</span></div>
     </div>
     <div id="statsContent"><div class="loading"><div class="spinner"></div>Loading...</div></div>
@@ -1920,7 +1920,7 @@ async function renderStats() {
   const {data:allEvents}=await db.from('events').select('id,date,course').eq('season','2026').order('date',{ascending:true});
   const now=new Date(),seasonStart=new Date('2026-07-04'),daysTo=Math.ceil((seasonStart-now)/86400000);
   if(!rounds||rounds.length===0){
-    el.innerHTML='<div class="stats-screen"><button class="btn btn-sm" onclick="showPage('splash')" style="margin-bottom:16px">← Back</button><div class="stats-empty"><div style="font-size:48px">🏆</div>'+(now<seasonStart?'<div style="margin-top:12px;font-size:16px">Season starts July 4th, 2026</div><div style="font-family:Barlow Condensed,sans-serif;font-size:32px;color:var(--gold);margin-top:8px">'+daysTo+' days to go</div>':'<div style="margin-top:12px">No rounds recorded yet. Stats appear after the first match.</div>')+'</div></div>';
+    el.innerHTML='<div class="stats-screen"><button class="btn btn-sm" onclick="showPage(&apos;splash&apos;)" style="margin-bottom:16px">← Back</button><div class="stats-empty"><div style="font-size:48px">🏆</div>'+(now<seasonStart?'<div style="margin-top:12px;font-size:16px">Season starts July 4th, 2026</div><div style="font-family:Barlow Condensed,sans-serif;font-size:32px;color:var(--gold);margin-top:8px">'+daysTo+' days to go</div>':'<div style="margin-top:12px">No rounds recorded yet. Stats appear after the first match.</div>')+'</div></div>';
     return;
   }
   const attend={},courseMap={},weather={},tagImp={},playerDates={};
@@ -1953,7 +1953,7 @@ async function renderStats() {
     return '<div class="stats-card"><div class="stats-card-title">'+emoji+' '+title+'</div>'+rh+'</div>';
   };
   const top=(obj,n)=>Object.entries(obj).sort((a,b)=>b[1]-a[1]).slice(0,n);
-  el.innerHTML='<div class="stats-screen"><button class="btn btn-sm" onclick="showPage('splash')" style="margin-bottom:16px">← Back</button>'+
+  el.innerHTML='<div class="stats-screen"><button class="btn btn-sm" onclick="showPage(&apos;splash&apos;)" style="margin-bottom:16px">← Back</button>'+
     '<div style="font-family:Barlow Condensed,sans-serif;font-size:22px;letter-spacing:2px;margin-bottom:4px">🏆 SEASON STATS</div>'+
     '<div style="font-size:11px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:20px">2026 · '+(allEvents?.length||0)+' events · '+rounds.length+' rounds logged</div>'+
     '<div class="stats-grid">'+
