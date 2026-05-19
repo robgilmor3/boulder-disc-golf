@@ -658,6 +658,43 @@
     .stat-grid { grid-template-columns: repeat(3, 1fr); }
     .stat-val { font-size: 28px; }
   }
+
+  /* ── RESPONSIVE: phones 360-480px ── */
+  @media (max-width: 480px) {
+    nav button { font-size: 11px; padding: 10px 8px; min-height: 44px; }
+    .card { padding: 14px 12px; }
+    .btn { min-height: 44px; font-size: 14px; }
+    input, select, textarea { font-size: 16px !important; }
+    .modal-inner { width: 95vw; max-height: 88vh; overflow-y: auto; }
+    .player-row { flex-wrap: wrap; gap: 6px; }
+    .event-meta, .course-meta { white-space: normal; word-break: break-word; }
+    * { overflow-wrap: break-word; }
+  }
+  /* ── RESPONSIVE: very narrow <360px (Galaxy Z Fold cover, iPhone SE) ── */
+  @media (max-width: 359px) {
+    nav button { font-size: 9px; padding: 10px 4px; min-height: 44px; letter-spacing: 0; }
+    .card { padding: 10px 8px; }
+    .card-title { font-size: 11px; letter-spacing: 0.5px; }
+    .flex-gap { flex-direction: column; }
+    .btn-sm { padding: 6px 8px; font-size: 12px; }
+  }
+  /* ── RESPONSIVE: tablet/unfolded 480-768px ── */
+  @media (min-width: 481px) and (max-width: 768px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .modal-inner { width: 80vw; }
+  }
+  /* ── STATS SCREEN ── */
+  .stats-screen { padding: 16px; }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-top: 16px; }
+  .stats-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .stats-card-title { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 10px; }
+  .stats-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 13px; }
+  .stats-row:last-child { border-bottom: none; }
+  .stats-rank { width: 18px; font-size: 11px; color: var(--text-muted); flex-shrink: 0; text-align: right; }
+  .stats-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .stats-val { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--green); }
+  .stats-empty { text-align: center; padding: 48px 20px; color: var(--text-dim); font-size: 14px; }
+  .recur-section { background: rgba(61,220,110,0.04); border: 1px solid rgba(61,220,110,0.15); border-radius: 8px; padding: 14px; margin-top: 12px; }
 </style>
 </head>
 <body>
@@ -671,6 +708,7 @@
     <button class="active" onclick="showPage('splash')">Home</button>
     <button onclick="showPage('ledger')">Tags</button>
     <button onclick="showPage('match')">Match</button>
+    <button onclick="showPage('stats')">Stats</button>
     <button onclick="showPage('admin')" id="adminBtn" style="display:none">Admin</button>
   </nav>
   <div class="header-right">
@@ -922,6 +960,18 @@
           <label>New Note</label>
           <select id="noteDurationType" style="padding:6px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;margin-right:6px;"><option value="permanent">Permanent</option><option value="round">This round</option></select><input type="text" id="noteInput" style="flex:1" placeholder="Pick up your trash. Don't be an asshole." onkeydown="if(event.key==='Enter')addNote()">
         </div>
+      <div class="card" style="margin-top:14px">
+        <div class="card-title">🗓 Season Scheduler</div>
+        <div class="recur-section">
+          <div class="form-row"><label>Type</label><select id="recurType"><option value="saturday">Saturday Tag Match (noon)</option><option value="wednesday">Wednesday Night League (sunset)</option></select></div>
+          <div class="form-row"><label>Course</label><select id="recurCourse"><option>Valmont DGC</option><option>Harlow Platts Community Park</option><option>East Interlocken Park</option><option>Wondervu DGC</option></select></div>
+          <div class="form-row"><label>Title (optional)</label><input type="text" id="recurTitle" placeholder="Leave blank for default"></div>
+          <div class="form-row"><label>Ace pool per player ($)</label><input type="number" id="recurAce" value="5" min="0" style="width:70px"></div>
+          <div class="form-row"><label>Season end date</label><input type="date" id="recurEndDate" value="2026-10-31"></div>
+          <button class="btn btn-primary" id="generateSeasonBtn" onclick="generateSeasonSchedule()" style="width:100%;margin-top:4px">🗓 Generate Season Schedule</button>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:6px">Creates weekly events Jul 4 → end date. Wednesday times auto-set from sunset −2h15m via Open-Meteo.</div>
+        </div>
+      </div>
         <button class="btn btn-primary" onclick="addNote()">Post Note</button>
       </div>
       <div id="adminNoteList"></div>
@@ -1076,6 +1126,7 @@ function showPage(id) {
   if (id === 'ledger')  renderLedger();
   if (id === 'admin')   renderAdmin();
   if (id === 'match')   initMatch();
+  if (id === 'stats')   renderStats();
 }
 
 // âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
@@ -1751,6 +1802,18 @@ async function saveTagAssignments() {
   tagAssignChanges = {};
   status.textContent = `â ${saved} tags saved!`;
   setTimeout(() => { status.style.display = 'none'; }, 3000);
+
+  try {
+    const _ev=(state.events||[]).find(e=>e.id===state.selectedEventId);
+    const _coords=_ev?.course?(COURSE_COORDS[_ev.course]||{lat:40.0150,lon:-105.2316}):{lat:40.0150,lon:-105.2316};
+    const _rows=[];
+    for(const [pid,nTag] of changes){
+      const _p=(state.players||[]).find(p=>p.id===pid);
+      if(_p) _rows.push({event_id:state.selectedEventId||null,player_id:pid,player_name:_p.name,tag_before:_p.tag,tag_after:nTag,course:_ev?.course||null,season:'2026'});
+    }
+    if(_rows.length>0) await db.from('rounds').insert(_rows);
+    if(_ev?.id) fetchWeatherForEvent(_ev.id,_coords.lat,_coords.lon);
+  }catch(_e){console.warn('rounds:',_e);}
   showToast(`${saved} tag assignments saved!`);
   renderTagAssign(document.getElementById('tagAssignSearch')?.value || '');
   renderLedger();
@@ -1797,6 +1860,111 @@ function insertSymbol(sym) {
 }
 
 async 
+
+const COURSE_COORDS = {
+  'Valmont DGC': {lat:40.0150,lon:-105.2316},
+  'Harlow Platts Community Park': {lat:40.0094,lon:-105.2616},
+  'East Interlocken Park': {lat:39.9555,lon:-105.1074},
+  'Wondervu DGC': {lat:39.9501,lon:-105.4050}
+};
+
+async function fetchWeatherForEvent(eventId, lat, lon) {
+  try {
+    const url = 'https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current=temperature_2m,windspeed_10m,precipitation&temperature_unit=fahrenheit&windspeed_unit=mph';
+    const res = await fetch(url); const data = await res.json(); const cur = data.current;
+    const tempF = Math.round(cur.temperature_2m), windMph = Math.round(cur.windspeed_10m), precip = cur.precipitation||0;
+    const desc = precip>0.05?(tempF<35?'snow':'rain'):windMph>20?'windy':tempF<40?'cold':'clear';
+    await db.from('events').update({weather_temp_f:tempF,weather_wind_mph:windMph,weather_precip_mm:precip,weather_desc:desc,lat,lon}).eq('id',eventId);
+  } catch(e){console.warn('weather:',e);}
+}
+
+async function generateSeasonSchedule() {
+  const course=document.getElementById('recurCourse')?.value, type=document.getElementById('recurType')?.value;
+  const endDate=document.getElementById('recurEndDate')?.value, title=document.getElementById('recurTitle')?.value||(type==='wednesday'?'Wednesday Night Tag League':'Saturday Tag Match');
+  const acePerPlayer=parseFloat(document.getElementById('recurAce')?.value||'5');
+  if(!course||!endDate){alert('Fill in course and end date');return;}
+  const btn=document.getElementById('generateSeasonBtn');
+  if(btn){btn.disabled=true;btn.textContent='Generating…';}
+  const seasonStart=new Date('2026-07-04'),seasonEnd=new Date(endDate),targetDay=type==='wednesday'?3:6;
+  const coords=COURSE_COORDS[course]||{lat:40.0150,lon:-105.2316};
+  let d=new Date(seasonStart); while(d.getDay()!==targetDay) d.setDate(d.getDate()+1);
+  const toInsert=[]; let created=0,errors=0;
+  while(d<=seasonEnd){
+    const dateStr=d.toISOString().split('T')[0]; let timeStr='12:00';
+    if(type==='wednesday'){
+      try{
+        const sr=await fetch('https://api.sunrise-sunset.org/json?lat='+coords.lat+'&lng='+coords.lon+'&date='+dateStr+'&formatted=0');
+        const sd=await sr.json(); const sunsetUTC=new Date(sd.results.sunset);
+        const offsetHrs=(d.getMonth()>=2&&d.getMonth()<=10)?6:7;
+        const startLocal=new Date(sunsetUTC.getTime()-(offsetHrs*3600000)-(2*60+15)*60000);
+        timeStr=startLocal.toTimeString().substring(0,5);
+      }catch(e){timeStr='18:00';}
+    }
+    toInsert.push({title,date:dateStr,time:timeStr,course,lat:coords.lat,lon:coords.lon,ace_per_player:acePerPlayer,registered:'[]',season:'2026',recurring:true,recur_day:type,recur_time:timeStr});
+    d.setDate(d.getDate()+7);
+  }
+  for(let i=0;i<toInsert.length;i+=5){
+    const batch=toInsert.slice(i,i+5);
+    const {error}=await db.from('events').insert(batch);
+    if(error) errors+=batch.length; else created+=batch.length;
+  }
+  if(btn){btn.disabled=false;btn.textContent='🗓 Generate Season';}
+  alert('Created '+created+' events'+(errors?' ('+errors+' errors)':'')+'!');
+  await loadEvents(); renderAdmin();
+}
+
+async function renderStats() {
+  const el=document.getElementById('app');
+  el.innerHTML='<div class="stats-empty"><div style="font-size:32px">📊</div><div style="margin-top:8px">Loading…</div></div>';
+  const {data:rounds}=await db.from('rounds').select('*,events(date,course,weather_temp_f,weather_wind_mph,weather_precip_mm)').eq('season','2026').order('created_at',{ascending:true});
+  const {data:allEvents}=await db.from('events').select('id,date,course').eq('season','2026').order('date',{ascending:true});
+  const now=new Date(),seasonStart=new Date('2026-07-04'),daysTo=Math.ceil((seasonStart-now)/86400000);
+  if(!rounds||rounds.length===0){
+    el.innerHTML='<div class="stats-screen"><button class="btn btn-sm" onclick="showPage('splash')" style="margin-bottom:16px">← Back</button><div class="stats-empty"><div style="font-size:48px">🏆</div>'+(now<seasonStart?'<div style="margin-top:12px;font-size:16px">Season starts July 4th, 2026</div><div style="font-family:Barlow Condensed,sans-serif;font-size:32px;color:var(--gold);margin-top:8px">'+daysTo+' days to go</div>':'<div style="margin-top:12px">No rounds recorded yet. Stats appear after the first match.</div>')+'</div></div>';
+    return;
+  }
+  const attend={},courseMap={},weather={},tagImp={},playerDates={};
+  rounds.forEach(r=>{
+    const n=r.player_name;
+    attend[n]=(attend[n]||0)+1;
+    if(!courseMap[n]) courseMap[n]={};
+    if(r.course) courseMap[n][r.course]=(courseMap[n][r.course]||0)+1;
+    const ev=r.events;
+    if(ev&&(ev.weather_wind_mph>15||ev.weather_precip_mm>0||ev.weather_temp_f<40)) weather[n]=(weather[n]||0)+1;
+    if(!tagImp[n]) tagImp[n]={first:r.tag_before,best:r.tag_after??999};
+    else if(r.tag_after&&r.tag_after<tagImp[n].best) tagImp[n].best=r.tag_after;
+    const ed=ev?.date; if(ed){if(!playerDates[n]) playerDates[n]=new Set(); playerDates[n].add(ed);}
+  });
+  const evDates=(allEvents||[]).map(e=>e.date).sort();
+  const streaks={};
+  Object.entries(playerDates).forEach(([n,dates])=>{
+    let s=0; for(const d of [...evDates].reverse()){if(dates.has(d))s++;else break;} streaks[n]=s;
+  });
+  const ironDisc={};
+  Object.entries(playerDates).forEach(([n,dates])=>{
+    const first=[...dates].sort()[0],elig=evDates.filter(d=>d>=first);
+    const played=elig.filter(d=>dates.has(d)).length;
+    if(elig.length>0) ironDisc[n]={played,total:elig.length,pct:Math.round(played/elig.length*100)};
+  });
+  const medal=i=>i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.';
+  const board=(title,emoji,rows,valFn,subFn)=>{
+    const rh=rows.length===0?'<div style="color:var(--text-muted);font-size:12px;padding:8px 0">No data yet</div>':
+      rows.map((r,i)=>'<div class="stats-row"><span class="stats-rank">'+medal(i)+'</span><span class="stats-name">'+r[0]+(subFn?'<br><span style="font-size:10px;color:var(--text-muted)">'+subFn(r)+'</span>':'')+'</span><span class="stats-val">'+valFn(r)+'</span></div>').join('');
+    return '<div class="stats-card"><div class="stats-card-title">'+emoji+' '+title+'</div>'+rh+'</div>';
+  };
+  const top=(obj,n)=>Object.entries(obj).sort((a,b)=>b[1]-a[1]).slice(0,n);
+  el.innerHTML='<div class="stats-screen"><button class="btn btn-sm" onclick="showPage('splash')" style="margin-bottom:16px">← Back</button>'+
+    '<div style="font-family:Barlow Condensed,sans-serif;font-size:22px;letter-spacing:2px;margin-bottom:4px">🏆 SEASON STATS</div>'+
+    '<div style="font-size:11px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:20px">2026 · '+(allEvents?.length||0)+' events · '+rounds.length+' rounds logged</div>'+
+    '<div class="stats-grid">'+
+    board('Season Attendance','📅',top(attend,8),r=>r[1]+' rounds')+
+    board('Current Streak','🔥',Object.entries(streaks).sort((a,b)=>b[1]-a[1]).slice(0,8),r=>r[1]+' weeks')+
+    board('Course Regular','📍',Object.entries(courseMap).map(([n,cs])=>{const t=Object.entries(cs).sort((a,b)=>b[1]-a[1])[0];return[n,t[1],t[0]];}).sort((a,b)=>b[1]-a[1]).slice(0,8),r=>r[1]+' rounds',r=>r[2])+
+    board('Weather Warrior','🌦',top(weather,8),r=>r[1]+' rough rounds')+
+    board('Most Improved','📈',Object.entries(tagImp).map(([n,d])=>[n,(d.first||99)-(d.best||99)]).filter(r=>r[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,8),r=>'↑'+r[1]+' spots')+
+    board('Iron Disc','⭐',Object.entries(ironDisc).sort((a,b)=>b[1].pct-a[1].pct).slice(0,8),r=>r[1].pct+'%',r=>r[1].played+'/'+r[1].total+' events')+
+    '</div></div>';
+}
 async function saveNoteOrder(orderedIds) {
   await db.from('settings').upsert({ key: 'note_order', value: JSON.stringify(orderedIds) }, { onConflict: 'key' });
 }
