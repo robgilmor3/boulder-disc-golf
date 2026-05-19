@@ -1,6 +1,14 @@
 {
   "buildCommand": "bash build.sh",
   "outputDirectory": ".",
+  "headers": [
+    {
+      "source": "/(.*\\.html)",
+      "headers": [
+        { "key": "Content-Type", "value": "text/html; charset=utf-8" }
+      ]
+    }
+  ],
   "routes": [
     { "src": "/tags", "dest": "/tags.html" }
   ]
