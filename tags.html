@@ -335,8 +335,14 @@
     justify-content: flex-start;
   }
   .event-card-left {
-    flex: 1;
     min-width: 0;
+    flex-shrink: 0;
+  }
+  .event-weather-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   /* ── Weather bar ── */
@@ -1348,7 +1354,7 @@ async function renderSplash() {
               </div>
               ${!ev.cancelled ? `<button class="btn btn-primary btn-sm" style="margin-top:10px" onclick="openRegisterForEvent(${ev.id})">Register →</button>` : ''}
             </div>
-            <div id="weather-card-${ev.id}" class="event-weather-bar"></div>
+            <div class="event-weather-wrapper"><div id="weather-card-${ev.id}" class="event-weather-bar"></div></div>
           </div>
         </div>
       `;
@@ -2319,7 +2325,8 @@ function wxNeedsRefresh(evId, evDate, evTime) {
     if (lastDate !== new Date().toDateString()) return true;      // new day
     const evMs = new Date(evDate + 'T' + (evTime || '09:00')).getTime();
     const hoursTo = (evMs - now) / 3600000;
-    if (hoursTo <= 4 && (now - ts) > 30 * 60 * 1000) return true; // <4h to event, stale 30m
+    if (hoursTo <= 1  && (now - ts) > 10 * 60 * 1000) return true; // <1h to event, stale 10m
+    if (hoursTo <= 4  && (now - ts) > 20 * 60 * 1000) return true; // <4h to event, stale 20m
     return false;
   } catch { return true; }
 }
