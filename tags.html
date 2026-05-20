@@ -331,72 +331,85 @@
   .event-card-inner { display: block; }
 
   /* Weather bar — full-width horizontal strip at bottom of event card */
+  /* ── Weather bar ── */
   .event-weather-bar {
     display: none;
     margin-top: 14px;
-    background: linear-gradient(135deg, #1a2744 0%, #141e38 60%, #0e1628 100%);
-    border: 1px solid rgba(61,220,110,0.25);
+    background: linear-gradient(160deg, #19243d 0%, #111829 55%, #0b1020 100%);
+    border: 1px solid rgba(61,220,110,0.2);
     border-radius: 10px;
     overflow: hidden;
     font-family: 'Barlow Condensed', sans-serif;
+    letter-spacing: 0.5px;
   }
-  .ewb-location {
-    text-align: center;
-    font-size: 11px;
+  /* Top bar: course name */
+  .ewb-course {
+    padding: 6px 14px;
+    font-size: 10px;
     letter-spacing: 3px;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.4);
-    padding: 8px 12px 6px;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
+    color: rgba(61,220,110,0.6);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-  .ewb-body {
-    display: flex;
-    align-items: stretch;
-  }
-  /* Left: current conditions */
-  .ewb-current {
-    padding: 10px 14px 10px 12px;
+  /* Body: left panel + hourly columns */
+  .ewb-body { display: flex; align-items: stretch; }
+
+  /* LEFT: event-start forecast */
+  .ewb-left {
+    min-width: 130px;
+    max-width: 140px;
+    padding: 10px 12px 10px 14px;
     border-right: 1px solid rgba(255,255,255,0.07);
     display: flex;
     flex-direction: column;
     justify-content: center;
-    min-width: 100px;
-    gap: 2px;
-  }
-  .ewb-current .ewb-now {
-    display: flex; align-items: center; gap: 8px;
-  }
-  .ewb-current .ewb-icon  { font-size: 30px; line-height: 1; }
-  .ewb-current .ewb-temp  {
-    font-family:'Bebas Neue',sans-serif; font-size:30px;
-    color:#fff; line-height:1; letter-spacing:1px;
-  }
-  .ewb-current .ewb-hilo  {
-    font-size: 11px; color: rgba(180,200,255,0.5); letter-spacing: 0.5px; margin-top:1px;
-  }
-  .ewb-current .ewb-wind  {
-    font-size: 11px; color: rgba(160,190,255,0.6); margin-top: 3px; letter-spacing: 0.5px;
-  }
-  /* Right: hourly columns */
-  .ewb-hours {
-    display: flex;
-    flex: 1;
-  }
-  .ewb-hour {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 8px 4px;
-    border-left: 1px solid rgba(255,255,255,0.05);
     gap: 3px;
   }
-  .ewb-hour .ewb-htime  { font-size:11px; letter-spacing:1px; color:rgba(255,255,255,0.35); }
-  .ewb-hour .ewb-hicon  { font-size:22px; line-height:1; }
-  .ewb-hour .ewb-htemp  { font-size:14px; color:#fff; letter-spacing:0.5px; font-weight:600; }
-  .ewb-hour .ewb-harrow { font-size:13px; color:rgba(100,180,255,0.7); line-height:1; }
-  .ewb-hour .ewb-hwind  { font-size:11px; color:rgba(160,190,255,0.5); letter-spacing:0.5px; }
+  .ewb-left .ewb-datetime {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 4px;
+  }
+  .ewb-left .ewb-main {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ewb-left .ewb-icon { font-size: 32px; line-height: 1; filter: drop-shadow(0 1px 6px rgba(255,255,255,0.15)); }
+  .ewb-left .ewb-temp { font-family:'Bebas Neue',sans-serif; font-size:34px; color:#fff; line-height:1; letter-spacing:2px; }
+  .ewb-left .ewb-hilo { font-size:11px; color:rgba(180,200,255,0.45); margin-top:2px; }
+  .ewb-left .ewb-wind { font-size:11px; color:rgba(160,190,255,0.6); margin-top:4px; display:flex; align-items:center; gap:4px; }
+  .ewb-left .ewb-arrow { font-size:15px; color:#7ec8e3; }
+  .ewb-left .ewb-cond  { font-size:10px; color:rgba(255,255,255,0.25); margin-top:3px; letter-spacing:1px; text-transform:uppercase; }
+
+  /* RIGHT: 5 hourly columns */
+  .ewb-hours { display:flex; flex:1; }
+  .ewb-hour {
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:8px 3px;
+    border-left:1px solid rgba(255,255,255,0.05);
+    gap:3px;
+    transition: background 0.2s;
+  }
+  .ewb-hour.event-time {
+    background: rgba(61,220,110,0.06);
+    border-left-color: rgba(61,220,110,0.2);
+  }
+  .ewb-hour .ewb-htime  { font-size:10px; letter-spacing:1px; color:rgba(255,255,255,0.3); text-transform:uppercase; }
+  .ewb-hour.event-time .ewb-htime { color:rgba(61,220,110,0.7); }
+  .ewb-hour .ewb-hicon  { font-size:20px; line-height:1; }
+  .ewb-hour .ewb-htemp  { font-size:13px; color:#fff; font-weight:600; }
+  .ewb-hour .ewb-harrow { font-size:12px; color:#7ec8e3; line-height:1; }
+  .ewb-hour .ewb-hwind  { font-size:10px; color:rgba(160,190,255,0.45); }
 
   /* ── TAG LEDGER ── */
   .search-box {
@@ -2248,77 +2261,152 @@ function wmoEmoji(code) {
   return '⛈️';
 }
 
+// Wind: arrow shows where wind blows TO (opposite of FROM)
 function windArrow(deg) {
-  // deg = direction wind is coming FROM; arrow shows where it's blowing TO
-  const dirs = ['↓','↙','←','↖','↑','↗','→','↘','↓'];
-  return dirs[Math.round(((deg + 180) % 360) / 45)];
+  const dirs = ['↓','↙','←','↖','↑','↗','→','↘'];
+  return dirs[Math.round(((deg + 180) % 360) / 45) % 8];
+}
+// Compass: where wind comes FROM
+function windCompass(deg) {
+  const dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+  return dirs[Math.round(deg / 22.5) % 16];
+}
+function fmtHour(h) {
+  if (h === 0)  return '12 AM';
+  if (h < 12)   return h + ' AM';
+  if (h === 12) return '12 PM';
+  return (h - 12) + ' PM';
+}
+function fmtEventDate(dateStr, timeStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  const day  = d.toLocaleDateString('en-US', { weekday:'short' }).toUpperCase();
+  const mon  = d.toLocaleDateString('en-US', { month:'short' }).toUpperCase();
+  const date = d.getDate();
+  const [hh, mm] = (timeStr || '09:00').split(':');
+  const h = parseInt(hh, 10);
+  const ampm = h < 12 ? 'AM' : 'PM';
+  const disp = (h % 12 || 12) + (mm !== '00' ? ':' + mm : '') + ' ' + ampm;
+  return `${day} · ${mon} ${date} · ${disp}`;
+}
+
+// ── Weather caching (localStorage) ─────────────────────────
+function wxCacheKey(evId) { return 'wx2_' + evId; }
+function wxNeedsRefresh(evId, evDate, evTime) {
+  try {
+    const raw = localStorage.getItem(wxCacheKey(evId));
+    if (!raw) return true;
+    const { ts } = JSON.parse(raw);
+    const now = Date.now();
+    const lastDate = new Date(ts).toDateString();
+    if (lastDate !== new Date().toDateString()) return true;      // new day
+    const evMs = new Date(evDate + 'T' + (evTime || '09:00')).getTime();
+    const hoursTo = (evMs - now) / 3600000;
+    if (hoursTo <= 4 && (now - ts) > 30 * 60 * 1000) return true; // <4h to event, stale 30m
+    return false;
+  } catch { return true; }
+}
+function wxReadCache(evId) {
+  try { return JSON.parse(localStorage.getItem(wxCacheKey(evId)))?.data || null; }
+  catch { return null; }
+}
+function wxWriteCache(evId, data) {
+  try { localStorage.setItem(wxCacheKey(evId), JSON.stringify({ ts: Date.now(), data })); }
+  catch {}
 }
 
 async function fetchWeatherForCards() {
   const today = new Date().toISOString().split('T')[0];
   const upcoming = (state.events || []).filter(ev => !ev.cancelled && ev.date >= today);
+
   for (const ev of upcoming) {
     const el = document.getElementById('weather-card-' + ev.id);
     if (!el) continue;
     const coords = COURSE_COORDS[ev.course] || DEFAULT_COORDS;
-    try {
-      // Fetch both daily (hi/lo) and hourly (column forecasts)
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}` +
-        `&daily=weathercode,temperature_2m_max,temperature_2m_min` +
-        `&hourly=temperature_2m,weathercode,windspeed_10m,winddirection_10m` +
-        `&temperature_unit=fahrenheit&windspeed_unit=mph&timezone=America%2FDenver` +
-        `&start_date=${ev.date}&end_date=${ev.date}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      if (!data.daily || !data.hourly) continue;
 
-      // Daily hi/lo + condition
-      const dCode = data.daily.weathercode[0];
-      const hi    = Math.round(data.daily.temperature_2m_max[0]);
-      const lo    = Math.round(data.daily.temperature_2m_min[0]);
+    // Use cache when valid, otherwise fetch
+    let data = null;
+    if (!wxNeedsRefresh(ev.id, ev.date, ev.time)) {
+      data = wxReadCache(ev.id);
+    }
+    if (!data) {
+      try {
+        const url = `https://api.open-meteo.com/v1/forecast` +
+          `?latitude=${coords.lat}&longitude=${coords.lon}` +
+          `&daily=weathercode,temperature_2m_max,temperature_2m_min` +
+          `&hourly=temperature_2m,weathercode,windspeed_10m,winddirection_10m` +
+          `&temperature_unit=fahrenheit&windspeed_unit=mph&timezone=America%2FDenver` +
+          `&start_date=${ev.date}&end_date=${ev.date}`;
+        const res = await fetch(url);
+        data = await res.json();
+        if (!data.daily || !data.hourly) continue;
+        wxWriteCache(ev.id, data);
+      } catch(e) { console.warn('weather fetch:', e); continue; }
+    }
 
-      // Pick 4 hourly slots starting at match time (or 9am default)
-      const matchHour = ev.time ? parseInt(ev.time.split(':')[0], 10) : 9;
-      const slots = [0,3,6,9].map(offset => {
-        const h = Math.min(matchHour + offset, 23);
-        return {
-          time: h < 12 ? h + 'am' : h === 12 ? '12pm' : (h-12) + 'pm',
-          temp: Math.round(data.hourly.temperature_2m[h]),
-          code: data.hourly.weathercode[h],
-          wind: Math.round(data.hourly.windspeed_10m[h]),
-          arrow: windArrow(data.hourly.winddirection_10m[h])
-        };
-      });
+    const hi    = Math.round(data.daily.temperature_2m_max[0]);
+    const lo    = Math.round(data.daily.temperature_2m_min[0]);
+    const dCode = data.daily.weathercode[0];
+    const cond  = dCode===0?'Clear':dCode<=3?'Partly Cloudy':dCode<=48?'Foggy':
+                  dCode<=67?'Rain':dCode<=77?'Snow':dCode<=82?'Showers':
+                  dCode<=86?'Snow Showers':'Storms';
 
-      // Current = match-hour conditions
-      const cur = slots[0];
-      const condText = dCode===0?'Clear':dCode<=3?'Partly Cloudy':dCode<=48?'Foggy':dCode<=67?'Rainy':dCode<=77?'Snowy':dCode<=82?'Showers':dCode<=86?'Snow Showers':'Storms';
+    const matchHour = ev.time ? parseInt(ev.time.split(':')[0], 10) : 9;
 
-      el.innerHTML =
-        `<div class="ewb-location">${ev.course}</div>` +
-        `<div class="ewb-body">` +
-          `<div class="ewb-current">` +
-            `<div class="ewb-now">` +
-              `<span class="ewb-icon">${wmoEmoji(cur.code)}</span>` +
-              `<span class="ewb-temp">${cur.temp}°F</span>` +
-            `</div>` +
-            `<div class="ewb-hilo">Hi ${hi}° / Lo ${lo}°</div>` +
-            `<div class="ewb-wind">${cur.arrow} ${cur.wind} mph · ${condText}</div>` +
+    // Left panel = event start hour
+    const lh = Math.max(0, Math.min(23, matchHour));
+    const leftSlot = {
+      temp:  Math.round(data.hourly.temperature_2m[lh]),
+      code:  data.hourly.weathercode[lh],
+      wind:  Math.round(data.hourly.windspeed_10m[lh]),
+      arrow: windArrow(data.hourly.winddirection_10m[lh]),
+      comp:  windCompass(data.hourly.winddirection_10m[lh])
+    };
+
+    // Right: 5 hours — 2 before event, event, 2 after
+    const hourOffsets = [-2, -1, 0, 1, 2];
+    const hourSlots = hourOffsets.map(off => {
+      const h = Math.max(0, Math.min(23, matchHour + off));
+      return {
+        h, isEvent: off === 0,
+        time:  fmtHour(h),
+        temp:  Math.round(data.hourly.temperature_2m[h]),
+        code:  data.hourly.weathercode[h],
+        wind:  Math.round(data.hourly.windspeed_10m[h]),
+        arrow: windArrow(data.hourly.winddirection_10m[h])
+      };
+    });
+
+    el.innerHTML =
+      `<div class="ewb-course">${ev.course}</div>` +
+      `<div class="ewb-body">` +
+        // LEFT panel
+        `<div class="ewb-left">` +
+          `<div class="ewb-datetime">${fmtEventDate(ev.date, ev.time)}</div>` +
+          `<div class="ewb-main">` +
+            `<span class="ewb-icon">${wmoEmoji(leftSlot.code)}</span>` +
+            `<span class="ewb-temp">${leftSlot.temp}°F</span>` +
           `</div>` +
-          `<div class="ewb-hours">` +
-            slots.slice(1).map(s =>
-              `<div class="ewb-hour">` +
-                `<div class="ewb-htime">${s.time}</div>` +
-                `<div class="ewb-hicon">${wmoEmoji(s.code)}</div>` +
-                `<div class="ewb-htemp">${s.temp}°F</div>` +
-                `<div class="ewb-harrow">${s.arrow}</div>` +
-                `<div class="ewb-hwind">${s.wind} mph</div>` +
-              `</div>`
-            ).join('') +
+          `<div class="ewb-hilo">Hi ${hi}° &middot; Lo ${lo}°</div>` +
+          `<div class="ewb-wind">` +
+            `<span class="ewb-arrow">${leftSlot.arrow}</span>` +
+            `<span>${leftSlot.wind} mph ${leftSlot.comp}</span>` +
           `</div>` +
-        `</div>`;
-      el.style.display = 'block';
-    } catch(e) { console.warn('weather:', e); }
+          `<div class="ewb-cond">${cond}</div>` +
+        `</div>` +
+        // RIGHT hourly columns
+        `<div class="ewb-hours">` +
+          hourSlots.map(s =>
+            `<div class="ewb-hour${s.isEvent ? ' event-time' : ''}">` +
+              `<div class="ewb-htime">${s.time}</div>` +
+              `<div class="ewb-hicon">${wmoEmoji(s.code)}</div>` +
+              `<div class="ewb-htemp">${s.temp}°F</div>` +
+              `<div class="ewb-harrow">${s.arrow}</div>` +
+              `<div class="ewb-hwind">${s.wind} mph</div>` +
+            `</div>`
+          ).join('') +
+        `</div>` +
+      `</div>`;
+    el.style.display = 'block';
   }
 }
 async function quickAddNote() {
