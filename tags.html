@@ -328,30 +328,67 @@
   .note-edit-btn:hover, .note-del-btn:hover { opacity: 1 !important; }
   .note-item { align-items: center; }
   /* Event card two-column layout */
-  .event-card-inner { display: flex; gap: 14px; align-items: flex-start; }
-  .event-card-left  { flex: 1; min-width: 0; }
+  .event-card-inner {
+    display: flex;
+    gap: 0;
+    align-items: center;
+  }
+  .event-card-left { flex: 1; min-width: 0; }
 
   /* Weather tile — right column */
   .event-weather-tile {
     flex-shrink: 0;
-    width: 108px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.09);
-    border-radius: 12px;
-    padding: 14px 10px 12px;
+    width: 152px;
+    margin-left: 14px;
+    margin-right: 10px;
+    align-self: center;
+    background: linear-gradient(160deg, rgba(28,52,100,0.7) 0%, rgba(14,30,65,0.85) 60%, rgba(8,18,45,0.9) 100%);
+    border: 1px solid rgba(120,160,255,0.18);
+    border-radius: 14px;
+    padding: 14px 12px 12px;
     display: none;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 2px;
     text-align: center;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 4px 20px rgba(0,0,0,0.3);
+    position: relative;
+    overflow: hidden;
   }
-  .event-weather-tile .wt-icon  { font-size: 38px; line-height: 1; margin-bottom: 2px; }
-  .event-weather-tile .wt-hi    { font-family:'Bebas Neue',sans-serif; font-size:28px; color:var(--text); line-height:1; letter-spacing:1px; }
-  .event-weather-tile .wt-lo    { font-size:11px; color:var(--text-muted); letter-spacing:0.5px; margin-bottom:4px; }
-  .event-weather-tile .wt-row   { font-family:'Barlow Condensed',sans-serif; font-size:12px; letter-spacing:1px; color:var(--text-dim); display:flex; align-items:center; gap:4px; }
+  /* Subtle glow behind the emoji */
+  .event-weather-tile::before {
+    content: '';
+    position: absolute;
+    top: -10px; left: 50%; transform: translateX(-50%);
+    width: 80px; height: 60px;
+    background: radial-gradient(ellipse, rgba(180,210,255,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .event-weather-tile .wt-icon  {
+    font-size: 42px; line-height: 1; margin-bottom: 4px; position: relative; z-index: 1;
+    filter: drop-shadow(0 2px 8px rgba(255,255,255,0.2));
+  }
+  .event-weather-tile .wt-hi    {
+    font-family:'Bebas Neue',sans-serif; font-size:34px; color:#fff;
+    line-height:1; letter-spacing:2px;
+  }
+  .event-weather-tile .wt-lo    {
+    font-size:11px; color:rgba(180,200,255,0.5); letter-spacing:0.5px; margin-bottom:6px;
+  }
+  .event-weather-tile .wt-divider {
+    width: 80%; height: 1px; background: rgba(255,255,255,0.08); margin: 4px 0 6px;
+  }
+  .event-weather-tile .wt-stats {
+    display: flex; gap: 10px; align-items: center; justify-content: center;
+    font-family:'Barlow Condensed',sans-serif; font-size:12px; letter-spacing:1px;
+  }
   .event-weather-tile .wt-rain  { color:#7ec8e3; }
-  .event-weather-tile .wt-wind  { color:rgba(255,255,255,0.4); }
-  .event-weather-tile .wt-label { font-family:'Barlow Condensed',sans-serif; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.2); margin-top:6px; }
+  .event-weather-tile .wt-wind  { color:rgba(200,215,255,0.55); }
+  .event-weather-tile .wt-dot   { width:3px; height:3px; border-radius:50%; background:rgba(255,255,255,0.2); flex-shrink:0; }
+  .event-weather-tile .wt-label {
+    font-family:'Barlow Condensed',sans-serif; font-size:10px; letter-spacing:2px;
+    text-transform:uppercase; color:rgba(180,200,255,0.35); margin-top:6px;
+  }
 
   /* ── TAG LEDGER ── */
   .search-box {
@@ -2224,13 +2261,17 @@ async function fetchWeatherForCards() {
       const lo    = Math.round(data.daily.temperature_2m_min[0]);
       const rain  = data.daily.precipitation_probability_max[0] ?? 0;
       const wind  = Math.round(data.daily.windspeed_10m_max[0]);
-      const condText = code===0?'Clear':code<=3?'P. Cloudy':code<=48?'Foggy':code<=67?'Rainy':code<=77?'Snowy':code<=82?'Showers':code<=86?'Snow Shwrs':'Storms';
+      const condText = code===0?'Clear':code<=3?'Partly Cloudy':code<=48?'Foggy':code<=67?'Rainy':code<=77?'Snowy':code<=82?'Showers':code<=86?'Snow Showers':'Storms';
       el.innerHTML =
         `<div class="wt-icon">${wmoEmoji(code)}</div>` +
-        `<div class="wt-hi">${hi}°</div>` +
-        `<div class="wt-lo">Lo ${lo}°F</div>` +
-        `<div class="wt-row wt-rain">💧 ${rain}%</div>` +
-        `<div class="wt-row wt-wind">💨 ${wind} mph</div>` +
+        `<div class="wt-hi">${hi}°<span style="font-size:16px;opacity:0.5">F</span></div>` +
+        `<div class="wt-lo">Low ${lo}°F</div>` +
+        `<div class="wt-divider"></div>` +
+        `<div class="wt-stats">` +
+          `<span class="wt-rain">💧 ${rain}%</span>` +
+          `<span class="wt-dot"></span>` +
+          `<span class="wt-wind">💨 ${wind} mph</span>` +
+        `</div>` +
         `<div class="wt-label">${condText}</div>`;
       el.style.display = 'flex';
     } catch(e) { /* weather unavailable, just hide */ }
