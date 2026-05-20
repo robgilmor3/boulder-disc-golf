@@ -1521,16 +1521,51 @@ async function showPlayerStats(playerId) {
 
 async function initMatch() {
   const today = new Date().toISOString().split('T')[0];
-  document.getElementById('matchDate').value = today;
-  // Load registrants from Supabase for the selected event
-  if (state.selectedEventId) {
-    try {
-      const { data: ev } = await db.from('events').select('registered').eq('id', state.selectedEventId).single();
-      if (ev?.registered) {
-        state.registrants = Array.isArray(ev.registered) ? ev.registered : JSON.parse(ev.registered);
-      }
-    } catch(e) { console.error('load registrants:', e); }
+
+  // Auto-detect today's event if none selected yet
+  if (!state.selectedEventId && state.events?.length) {
+    const todayEv = state.events.find(ev => !ev.cancelled && ev.date === today)
+                 || state.events.find(ev => !ev.cancelled && ev.date >= today);
+    if (todayEv) {
+      state.selectedEventId = todayEv.id;
+    }
   }
+
+  // Pre-fill event details from the selected event
+  if (state.selectedEventId) {
+    const ev = state.events?.find(e => e.id === state.selectedEventId);
+    if (ev) {
+      const courseEl = document.getElementById('matchCourse');
+      if (courseEl) {
+        // Select matching option or add it
+        const opt = [...courseEl.options].find(o => o.value === ev.course);
+        if (opt) { courseEl.value = ev.course; }
+        else {
+          const o = new Option(ev.course, ev.course, true, true);
+          courseEl.add(o);
+        }
+      }
+      if (ev.date) document.getElementById('matchDate').value = ev.date;
+      if (ev.time) document.getElementById('matchTime').value = ev.time;
+    }
+
+    // Load registrants fresh from Supabase
+    try {
+      const { data: evData } = await db.from('events').select('registered').eq('id', state.selectedEventId).single();
+      if (evData?.registered) {
+        state.registrants = Array.isArray(evData.registered)
+          ? evData.registered : JSON.parse(evData.registered);
+        // Sync back to state.events too
+        const stateEv = state.events?.find(e => e.id === state.selectedEventId);
+        if (stateEv) stateEv.registered = state.registrants;
+      } else {
+        state.registrants = [];
+      }
+    } catch(e) { console.error('load registrants:', e); state.registrants = []; }
+  } else {
+    document.getElementById('matchDate').value = today;
+  }
+
   renderRegistrantList();
 }
 
