@@ -2325,8 +2325,9 @@ function wxNeedsRefresh(evId, evDate, evTime) {
     if (lastDate !== new Date().toDateString()) return true;      // new day
     const evMs = new Date(evDate + 'T' + (evTime || '09:00')).getTime();
     const hoursTo = (evMs - now) / 3600000;
-    if (hoursTo <= 1  && (now - ts) > 10 * 60 * 1000) return true; // <1h to event, stale 10m
-    if (hoursTo <= 4  && (now - ts) > 20 * 60 * 1000) return true; // <4h to event, stale 20m
+    if (hoursTo <= 0.5  && (now - ts) > 10 * 60 * 1000) return true; // <30min to event, stale 10m
+    if (hoursTo <= 3    && (now - ts) > 30 * 60 * 1000) return true; // <3h to event, stale 30m
+    if (hoursTo <= 24   && (now - ts) > 2 * 60 * 60 * 1000) return true; // <24h to event, stale 2h
     return false;
   } catch { return true; }
 }
