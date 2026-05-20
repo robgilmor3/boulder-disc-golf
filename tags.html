@@ -312,6 +312,36 @@
 
   .note-item:last-child { border-bottom: none; }
   .note-item::before { content: '›'; color: var(--gold); font-size: 16px; line-height: 1.3; flex-shrink: 0; }
+  .note-item.draggable::before { display: none; }
+  .drag-handle {
+    cursor: grab; color: var(--text-muted); font-size: 20px; padding: 0 6px 0 2px;
+    flex-shrink: 0; user-select: none; line-height: 1; opacity: 0.45; touch-action: none;
+    font-family: serif; letter-spacing: -1px;
+  }
+  .drag-handle:active { cursor: grabbing; opacity: 0.9; }
+  .note-edit-btn, .note-del-btn {
+    background: none; border: none; cursor: pointer; font-size: 13px;
+    padding: 2px 5px; opacity: 0; transition: opacity 0.2s; flex-shrink: 0; color: var(--text);
+  }
+  .note-item:hover .note-edit-btn,
+  .note-item:hover .note-del-btn { opacity: 0.55; }
+  .note-edit-btn:hover, .note-del-btn:hover { opacity: 1 !important; }
+  .note-item { align-items: center; }
+  /* Weather widget on event cards */
+  .event-weather {
+    margin-top: 8px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .event-weather .w-temp { color: var(--text); font-size: 15px; font-weight: 600; }
+  .event-weather .w-rain { color: #7ec8e3; }
+  .event-weather .w-wind { color: rgba(255,255,255,0.45); }
 
   /* ── TAG LEDGER ── */
   .search-box {
@@ -1211,15 +1241,29 @@ async function renderSplash() {
             ${!ev.cancelled ? `<span style="color:var(--gold);">💰 $${aceTotal.toFixed(0)} ace pool${aceCapped ? ' 🔒 CAPPED' : ''}</span>` : ''}
           </div>
           ${!ev.cancelled ? `<button class="btn btn-primary btn-sm" style="margin-top:10px" onclick="openRegisterForEvent(${ev.id})">Register →</button>` : ''}
+          <div id="weather-card-${ev.id}" class="event-weather" style="display:none"></div>
         </div>
       `;
     }).join('');
   }
 
   const notesEl = document.getElementById('notesList');
+  const isAdmin = state.currentUser && ['god','admin','scorer'].includes(state.currentUser.role);
   notesEl.innerHTML = state.notes.length
-    ? state.notes.map(n => `<div class="note-item">${n.content}</div>`).join('')
+    ? state.notes.map(n => `
+        <div class="note-item${isAdmin ? ' draggable' : ''}" data-note-id="${n.id}">
+          ${isAdmin ? `<span class="drag-handle" title="Drag to reorder">&#9776;</span>` : ''}
+          <span class="note-content" id="note-content-${n.id}" style="flex:1">${n.content}</span>
+          ${isAdmin ? `
+            <button class="note-edit-btn" onclick="startEditNote(${n.id})" title="Edit">✏️</button>
+            <button class="note-del-btn" onclick="deleteNote(${n.id})" title="Delete">✕</button>
+          ` : ''}
+        </div>`).join('')
     : '<div style="color:var(--text-muted);font-size:13px">No notes posted.</div>';
+  if (isAdmin && state.notes.length) applyNoteReorder(notesEl);
+
+  // Fetch weather for upcoming events
+  fetchWeatherForCards();
 }
 
 function openRegisterForEvent(id) {
@@ -2029,45 +2073,152 @@ async function saveNoteOrder(orderedIds) {
 }
 
 async function applyNoteReorder(noteEl) {
-  let longPressTimer, dragItem = null, dragStartY = 0;
-  const items = Array.from(noteEl.querySelectorAll('[data-note-id]'));
-  items.forEach(item => {
-    item.style.cursor = 'grab';
-    item.addEventListener('touchstart', e => {
-      longPressTimer = setTimeout(() => {
-        dragItem = item;
-        item.style.opacity = '0.5';
-        item.style.transform = 'scale(1.02)';
-        dragStartY = e.touches[0].clientY;
-      }, 350);
-    }, { passive: true });
-    item.addEventListener('touchmove', e => {
-      if (!dragItem) return;
-      e.preventDefault();
-      const y = e.touches[0].clientY;
-      const siblings = Array.from(noteEl.querySelectorAll('[data-note-id]')).filter(s => s !== dragItem);
-      siblings.forEach(sib => {
-        const rect = sib.getBoundingClientRect();
-        if (y > rect.top && y < rect.bottom) {
-          const mid = rect.top + rect.height / 2;
-          noteEl.insertBefore(dragItem, y < mid ? sib : sib.nextSibling);
-        }
-      });
-    }, { passive: false });
-    item.addEventListener('touchend', async () => {
-      clearTimeout(longPressTimer);
-      if (!dragItem) return;
-      dragItem.style.opacity = '';
-      dragItem.style.transform = '';
-      dragItem = null;
-      const newOrder = Array.from(noteEl.querySelectorAll('[data-note-id]')).map(el => el.dataset.noteId);
-      await saveNoteOrder(newOrder);
+  let dragItem = null;
+
+  function endDrag() {
+    if (!dragItem) return;
+    dragItem.style.opacity = '';
+    dragItem.style.boxShadow = '';
+    dragItem = null;
+    const newOrder = [...noteEl.querySelectorAll('[data-note-id]')].map(el => el.dataset.noteId);
+    saveNoteOrder(newOrder);
+  }
+
+  function moveDrag(y) {
+    if (!dragItem) return;
+    const siblings = [...noteEl.querySelectorAll('[data-note-id]')].filter(s => s !== dragItem);
+    siblings.forEach(sib => {
+      const rect = sib.getBoundingClientRect();
+      if (y > rect.top && y < rect.bottom) {
+        const mid = rect.top + rect.height / 2;
+        noteEl.insertBefore(dragItem, y < mid ? sib : sib.nextSibling);
+      }
     });
-    item.addEventListener('touchcancel', () => {
-      clearTimeout(longPressTimer);
-      if (dragItem) { dragItem.style.opacity = ''; dragItem.style.transform = ''; dragItem = null; }
+  }
+
+  noteEl.querySelectorAll('.drag-handle').forEach(handle => {
+    // Touch
+    handle.addEventListener('touchstart', e => {
+      dragItem = handle.closest('[data-note-id]');
+      dragItem.style.opacity = '0.55';
+      dragItem.style.boxShadow = '0 4px 20px rgba(0,0,0,0.5)';
+      e.preventDefault();
+    }, { passive: false });
+
+    // Mouse
+    handle.addEventListener('mousedown', e => {
+      dragItem = handle.closest('[data-note-id]');
+      dragItem.style.opacity = '0.55';
+      dragItem.style.boxShadow = '0 4px 20px rgba(0,0,0,0.5)';
+      e.preventDefault();
     });
   });
+
+  noteEl.addEventListener('touchmove', e => {
+    if (!dragItem) return;
+    e.preventDefault();
+    moveDrag(e.touches[0].clientY);
+  }, { passive: false });
+
+  noteEl.addEventListener('touchend', endDrag);
+  noteEl.addEventListener('touchcancel', endDrag);
+
+  // Mouse drag is document-wide so it works if cursor leaves noteEl
+  document.addEventListener('mousemove', e => moveDrag(e.clientY));
+  document.addEventListener('mouseup', endDrag);
+}
+
+// ── Inline note editing ──────────────────────────────────
+function startEditNote(id) {
+  const span = document.getElementById('note-content-' + id);
+  if (!span) return;
+  const current = span.textContent.trim();
+  // Replace the span + its sibling buttons with an edit row
+  const item = span.closest('[data-note-id]');
+  const handle = item.querySelector('.drag-handle');
+  // Hide handle while editing
+  if (handle) handle.style.display = 'none';
+  span.outerHTML = `
+    <input id="note-edit-${id}" type="text" value="${current.replace(/"/g,'&quot;')}"
+      style="flex:1;padding:4px 10px;border-radius:6px;border:1px solid var(--border);
+             background:var(--surface2);color:var(--text);font-family:inherit;font-size:13px;"
+      onkeydown="if(event.key==='Enter')saveNoteEdit(${id});if(event.key==='Escape')renderSplash();">
+    <button class="btn btn-primary btn-sm" onclick="saveNoteEdit(${id})" style="padding:4px 10px;margin-left:4px">✓</button>
+    <button class="btn btn-secondary btn-sm" onclick="renderSplash()" style="padding:4px 10px">✕</button>
+  `;
+  // Hide existing edit/delete buttons while in edit mode
+  item.querySelectorAll('.note-edit-btn,.note-del-btn').forEach(b => b.style.display='none');
+  const input = document.getElementById('note-edit-' + id);
+  if (input) { input.focus(); input.select(); }
+}
+
+async function saveNoteEdit(id) {
+  const input = document.getElementById('note-edit-' + id);
+  if (!input) return;
+  const newContent = input.value.trim();
+  if (!newContent) return showToast('Note can\'t be empty.', true);
+  try {
+    await db.from('notes').update({ content: newContent }).eq('id', id);
+    const note = state.notes.find(n => n.id === id);
+    if (note) note.content = newContent;
+    showToast('Note updated!');
+    renderSplash();
+    if (document.getElementById('page-admin')?.classList.contains('active')) renderAdmin();
+  } catch(e) { showToast('Error saving note.', true); }
+}
+
+// ── Weather for event cards ──────────────────────────────
+const COURSE_COORDS = {
+  'Valmont DGC':                  { lat: 40.0167, lon: -105.2286 },
+  'Valmont Bike Park DGC':        { lat: 40.0167, lon: -105.2286 },
+  'Harlow Platts Community Park': { lat: 40.0094, lon: -105.2616 },
+  'East Interlocken Park':        { lat: 39.9555, lon: -105.1074 },
+  'Wondervu DGC':                 { lat: 39.9501, lon: -105.4050 },
+  'Coal Creek Trail DGC':         { lat: 39.9900, lon: -105.1900 },
+  'Scott Carpenter Park DGC':     { lat: 40.0092, lon: -105.2605 },
+};
+const DEFAULT_COORDS = { lat: 40.015, lon: -105.2705 };
+
+function wmoEmoji(code) {
+  if (code === 0)              return '☀️';
+  if (code <= 3)               return '⛅';
+  if (code <= 48)              return '🌫️';
+  if (code <= 67)              return '🌧️';
+  if (code <= 77)              return '❄️';
+  if (code <= 82)              return '🌦️';
+  if (code <= 86)              return '🌨️';
+  return '⛈️';
+}
+
+async function fetchWeatherForCards() {
+  const today = new Date().toISOString().split('T')[0];
+  // Only show weather for upcoming (non-cancelled) events within 14 days
+  const upcoming = (state.events || []).filter(ev => !ev.cancelled && ev.date >= today);
+  for (const ev of upcoming) {
+    const el = document.getElementById('weather-card-' + ev.id);
+    if (!el) continue;
+    const coords = COURSE_COORDS[ev.course] || DEFAULT_COORDS;
+    try {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}` +
+        `&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max,windspeed_10m_max` +
+        `&temperature_unit=fahrenheit&windspeed_unit=mph&timezone=America%2FDenver` +
+        `&start_date=${ev.date}&end_date=${ev.date}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (!data.daily) continue;
+      const code  = data.daily.weathercode[0];
+      const hi    = Math.round(data.daily.temperature_2m_max[0]);
+      const lo    = Math.round(data.daily.temperature_2m_min[0]);
+      const rain  = data.daily.precipitation_probability_max[0] ?? 0;
+      const wind  = Math.round(data.daily.windspeed_10m_max[0]);
+      el.innerHTML =
+        `<span>${wmoEmoji(code)}</span>` +
+        `<span class="w-temp">${hi}°<span style="opacity:.5;font-size:12px">/${lo}°F</span></span>` +
+        `<span class="w-rain">💧 ${rain}%</span>` +
+        `<span class="w-wind">💨 ${wind} mph</span>`;
+      el.style.display = 'flex';
+    } catch(e) { /* weather unavailable, just hide */ }
+  }
 }
 async function quickAddNote() {
   const ta = document.getElementById('quickNoteInput');
