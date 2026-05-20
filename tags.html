@@ -2314,7 +2314,7 @@ function fmtEventDate(dateStr, timeStr) {
 }
 
 // ── Weather caching (localStorage) ─────────────────────────
-function wxCacheKey(evId) { return 'wx3_' + evId; }
+function wxCacheKey(evId) { return 'wx4_' + evId; }
 function wxNeedsRefresh(evId, evDate, evTime) {
   try {
     const raw = localStorage.getItem(wxCacheKey(evId));
@@ -2395,30 +2395,61 @@ async function fetchWeatherForCards() {
       periods = wxReadCache(ev.id);
     }
     if (!periods) {
+      // Try NWS first, fall back to Open-Meteo
       try {
         const gridKey = coords.lat + ',' + coords.lon;
         let hourlyUrl = _nwsGridCache[gridKey];
         if (!hourlyUrl) {
-          const ptRes = await fetch(
-            `https://api.weather.gov/points/${coords.lat},${coords.lon}`,
-            { headers: { 'User-Agent': 'BoulderDiscGolf/1.0 (gilmoremail@gmail.com)', 'Accept': 'application/geo+json' } }
-          );
+          const ptRes = await fetch(`https://api.weather.gov/points/${coords.lat},${coords.lon}`);
+          if (!ptRes.ok) throw new Error('NWS points ' + ptRes.status);
           const ptData = await ptRes.json();
-          hourlyUrl = ptData.properties.forecastHourly;
+          hourlyUrl = ptData.properties?.forecastHourly;
+          if (!hourlyUrl) throw new Error('No hourlyUrl in NWS response');
           _nwsGridCache[gridKey] = hourlyUrl;
         }
-        const fRes = await fetch(hourlyUrl,
-          { headers: { 'User-Agent': 'BoulderDiscGolf/1.0 (gilmoremail@gmail.com)', 'Accept': 'application/geo+json' } }
-        );
+        const fRes = await fetch(hourlyUrl);
+        if (!fRes.ok) throw new Error('NWS hourly ' + fRes.status);
         const fData = await fRes.json();
-        periods = fData.properties.periods;
-        if (!periods?.length) continue;
+        periods = fData.properties?.periods;
+        if (!periods?.length) throw new Error('Empty NWS periods');
         wxWriteCache(ev.id, periods);
-      } catch(e) { console.warn('NWS weather fetch:', e); continue; }
+      } catch(nwsErr) {
+        console.warn('NWS failed, falling back to Open-Meteo:', nwsErr);
+        // Open-Meteo fallback
+        try {
+          const url = `https://api.open-meteo.com/v1/forecast` +
+            `?latitude=${coords.lat}&longitude=${coords.lon}` +
+            `&daily=weathercode,temperature_2m_max,temperature_2m_min` +
+            `&hourly=temperature_2m,weathercode,windspeed_10m,winddirection_10m` +
+            `&temperature_unit=fahrenheit&windspeed_unit=mph&timezone=America%2FDenver` +
+            `&start_date=${ev.date}&end_date=${ev.date}`;
+          const res = await fetch(url);
+          const omData = await res.json();
+          if (!omData.hourly) continue;
+          // Convert Open-Meteo → NWS-style periods array for unified rendering
+          periods = omData.hourly.time.map((t, i) => ({
+            startTime: t + ':00',
+            temperature: Math.round(omData.hourly.temperature_2m[i]),
+            windSpeed: Math.round(omData.hourly.windspeed_10m[i]) + ' mph',
+            windDirection: windCompass(omData.hourly.winddirection_10m[i]),
+            shortForecast: (() => {
+              const c = omData.hourly.weathercode[i];
+              return c===0?'Clear':c<=2?'Mostly Clear':c<=3?'Partly Cloudy':
+                     c<=48?'Foggy':c<=67?'Rain Showers':c<=77?'Snow':
+                     c<=82?'Showers':c<=86?'Snow Showers':'Thunderstorms';
+            })(),
+            _omHiLo: i===0 ? { hi: Math.round(omData.daily.temperature_2m_max[0]),
+                                lo: Math.round(omData.daily.temperature_2m_min[0]) } : null
+          }));
+          wxWriteCache(ev.id, periods);
+        } catch(e) { console.warn('Open-Meteo fallback failed:', e); continue; }
+      }
     }
 
     const matchHour = ev.time ? parseInt(ev.time.split(':')[0], 10) : 9;
-    const { hi, lo } = nwsDayHiLo(periods, ev.date);
+    // hi/lo: from NWS day range, or from Open-Meteo fallback tag
+    const _hiloFallback = periods.find(p => p._omHiLo)?._omHiLo;
+    const { hi, lo } = _hiloFallback || nwsDayHiLo(periods, ev.date);
     const leftP = nwsFindPeriod(periods, ev.date, matchHour) || periods[0];
     const leftSlot = {
       temp:  leftP.temperature,
