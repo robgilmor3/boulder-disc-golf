@@ -1251,8 +1251,23 @@ async function loadEvents() {
 }
 
 async function loadNotes() {
-  const { data, error } = await db.from('notes').select('*').order('created_at', { ascending: true });
-  if (!error && data) state.notes = data;
+  const [{ data, error }, { data: orderData }] = await Promise.all([
+    db.from('notes').select('*').order('created_at', { ascending: true }),
+    db.from('settings').select('value').eq('key', 'note_order').maybeSingle()
+  ]);
+  if (!error && data) {
+    if (orderData?.value) {
+      try {
+        const order = JSON.parse(orderData.value).map(String);
+        const byId = Object.fromEntries(data.map(n => [String(n.id), n]));
+        const sorted = order.map(id => byId[id]).filter(Boolean);
+        const unsorted = data.filter(n => !order.includes(String(n.id)));
+        state.notes = [...sorted, ...unsorted];
+      } catch { state.notes = data; }
+    } else {
+      state.notes = data;
+    }
+  }
   return state.notes;
 }
 
@@ -2131,60 +2146,49 @@ async function saveNoteOrder(orderedIds) {
   await db.from('settings').upsert({ key: 'note_order', value: JSON.stringify(orderedIds) }, { onConflict: 'key' });
 }
 
-async function applyNoteReorder(noteEl) {
+function applyNoteReorder(noteEl) {
+  // Use pointer events — one unified path for mouse + touch, no listener leaks
   let dragItem = null;
 
-  function endDrag() {
+  function onMove(e) {
     if (!dragItem) return;
-    dragItem.style.opacity = '';
-    dragItem.style.boxShadow = '';
-    dragItem = null;
-    const newOrder = [...noteEl.querySelectorAll('[data-note-id]')].map(el => el.dataset.noteId);
-    saveNoteOrder(newOrder);
+    const y = e.clientY ?? e.touches?.[0]?.clientY;
+    if (y == null) return;
+    const siblings = [...noteEl.querySelectorAll('[data-note-id]')].filter(s => s !== dragItem);
+    for (const sib of siblings) {
+      const r = sib.getBoundingClientRect();
+      if (y >= r.top && y <= r.bottom) {
+        noteEl.insertBefore(dragItem, y < r.top + r.height / 2 ? sib : sib.nextSibling);
+        break;
+      }
+    }
   }
 
-  function moveDrag(y) {
+  async function onEnd() {
     if (!dragItem) return;
-    const siblings = [...noteEl.querySelectorAll('[data-note-id]')].filter(s => s !== dragItem);
-    siblings.forEach(sib => {
-      const rect = sib.getBoundingClientRect();
-      if (y > rect.top && y < rect.bottom) {
-        const mid = rect.top + rect.height / 2;
-        noteEl.insertBefore(dragItem, y < mid ? sib : sib.nextSibling);
-      }
-    });
+    dragItem.style.opacity = '';
+    dragItem.style.transform = '';
+    dragItem.style.boxShadow = '';
+    dragItem = null;
+    document.removeEventListener('pointermove', onMove);
+    document.removeEventListener('pointerup', onEnd);
+    const newOrder = [...noteEl.querySelectorAll('[data-note-id]')].map(el => el.dataset.noteId);
+    await saveNoteOrder(newOrder);
+    showToast('Order saved!');
   }
 
   noteEl.querySelectorAll('.drag-handle').forEach(handle => {
-    // Touch
-    handle.addEventListener('touchstart', e => {
+    handle.addEventListener('pointerdown', e => {
       dragItem = handle.closest('[data-note-id]');
       dragItem.style.opacity = '0.55';
-      dragItem.style.boxShadow = '0 4px 20px rgba(0,0,0,0.5)';
-      e.preventDefault();
-    }, { passive: false });
-
-    // Mouse
-    handle.addEventListener('mousedown', e => {
-      dragItem = handle.closest('[data-note-id]');
-      dragItem.style.opacity = '0.55';
-      dragItem.style.boxShadow = '0 4px 20px rgba(0,0,0,0.5)';
+      dragItem.style.transform = 'scale(1.01)';
+      dragItem.style.boxShadow = '0 6px 24px rgba(0,0,0,0.5)';
+      handle.setPointerCapture(e.pointerId);
+      document.addEventListener('pointermove', onMove);
+      document.addEventListener('pointerup', onEnd);
       e.preventDefault();
     });
   });
-
-  noteEl.addEventListener('touchmove', e => {
-    if (!dragItem) return;
-    e.preventDefault();
-    moveDrag(e.touches[0].clientY);
-  }, { passive: false });
-
-  noteEl.addEventListener('touchend', endDrag);
-  noteEl.addEventListener('touchcancel', endDrag);
-
-  // Mouse drag is document-wide so it works if cursor leaves noteEl
-  document.addEventListener('mousemove', e => moveDrag(e.clientY));
-  document.addEventListener('mouseup', endDrag);
 }
 
 // ── Inline note editing ──────────────────────────────────
@@ -2349,6 +2353,7 @@ function doLogin() {
     document.getElementById('loginErr').style.display = 'none';
     closeModal('loginModal');
     showToast(`Welcome, ${cred.name.split(' ')[0]}!`);
+    renderSplash(); // re-render so drag handles + edit buttons appear
   } else {
     document.getElementById('loginErr').style.display = 'block';
   }
