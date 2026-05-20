@@ -327,21 +327,31 @@
   .note-item:hover .note-del-btn { opacity: 0.55; }
   .note-edit-btn:hover, .note-del-btn:hover { opacity: 1 !important; }
   .note-item { align-items: center; }
-  /* Weather widget on event cards */
-  .event-weather {
-    margin-top: 8px;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 13px;
-    letter-spacing: 1px;
-    color: var(--text-dim);
-    display: flex;
+  /* Event card two-column layout */
+  .event-card-inner { display: flex; gap: 14px; align-items: flex-start; }
+  .event-card-left  { flex: 1; min-width: 0; }
+
+  /* Weather tile — right column */
+  .event-weather-tile {
+    flex-shrink: 0;
+    width: 108px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 12px;
+    padding: 14px 10px 12px;
+    display: none;
+    flex-direction: column;
     align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
+    gap: 4px;
+    text-align: center;
   }
-  .event-weather .w-temp { color: var(--text); font-size: 15px; font-weight: 600; }
-  .event-weather .w-rain { color: #7ec8e3; }
-  .event-weather .w-wind { color: rgba(255,255,255,0.45); }
+  .event-weather-tile .wt-icon  { font-size: 38px; line-height: 1; margin-bottom: 2px; }
+  .event-weather-tile .wt-hi    { font-family:'Bebas Neue',sans-serif; font-size:28px; color:var(--text); line-height:1; letter-spacing:1px; }
+  .event-weather-tile .wt-lo    { font-size:11px; color:var(--text-muted); letter-spacing:0.5px; margin-bottom:4px; }
+  .event-weather-tile .wt-row   { font-family:'Barlow Condensed',sans-serif; font-size:12px; letter-spacing:1px; color:var(--text-dim); display:flex; align-items:center; gap:4px; }
+  .event-weather-tile .wt-rain  { color:#7ec8e3; }
+  .event-weather-tile .wt-wind  { color:rgba(255,255,255,0.4); }
+  .event-weather-tile .wt-label { font-family:'Barlow Condensed',sans-serif; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.2); margin-top:6px; }
 
   /* ── TAG LEDGER ── */
   .search-box {
@@ -865,10 +875,6 @@
           <div id="playerDropdown" style="display:none; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius); margin-top:4px; max-height:180px; overflow-y:auto;"></div>
           <div id="pdgaLookupStatus" style="display:none;margin-top:6px;font-size:12px;color:var(--text-muted);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;"></div>
         </div>
-        <div class="form-row">
-          <label>Current Tag #</label>
-          <input type="number" id="regTag" placeholder="1–350" min="1" max="350">
-        </div>
         <div id="newPlayerFields" style="display:none">
           <div class="form-row">
             <label>Full Name <span style="color:var(--text-muted);font-weight:300">(new player)</span></label>
@@ -878,6 +884,14 @@
             <label>PDGA# <span style="color:var(--text-muted);font-weight:300">(optional)</span></label>
             <input type="text" id="newPlayerPDGA" placeholder="Leave blank if none">
           </div>
+        </div>
+        <div class="form-row">
+          <label>Nickname <span style="color:var(--text-muted);font-weight:300">(optional)</span></label>
+          <input type="text" id="regNickname" placeholder="e.g. Chains, Birdie Rob...">
+        </div>
+        <div class="form-row">
+          <label>Current Tag #</label>
+          <input type="number" id="regTag" placeholder="1–350" min="1" max="350">
         </div>
         <div class="flex-gap mt-8">
           <button class="btn btn-primary" onclick="addRegistrant()">Add to Match</button>
@@ -1072,10 +1086,13 @@
     <h2>Register for Match</h2>
     <div id="modalEventInfo" style="font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;margin-bottom:14px;"></div>
     <div class="form-row">
-      <label>Your Name or PDGA#</label>
-      <input type="text" id="modalNickname" placeholder="Nickname (optional)" style="margin-bottom:8px;width:100%;padding:8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;">
-          <input type="text" id="modalRegSearch" placeholder="Start typing..." oninput="searchPlayerModal(this.value)" autocomplete="off">
+      <label>Name or PDGA#</label>
+      <input type="text" id="modalRegSearch" placeholder="Type name or PDGA number..." oninput="searchPlayerModal(this.value)" autocomplete="off">
       <div id="modalDropdown" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);margin-top:4px;max-height:160px;overflow-y:auto;"></div>
+    </div>
+    <div class="form-row">
+      <label>Nickname <span style="font-size:11px;font-weight:300;color:var(--text-muted)">(optional)</span></label>
+      <input type="text" id="modalNickname" placeholder="e.g. Chains, Birdie Rob...">
     </div>
     <div class="form-row">
       <label>Current Tag #</label>
@@ -1230,18 +1247,22 @@ async function renderSplash() {
         <div class="event-card ${isToday ? 'today' : ''} ${ev.cancelled ? 'cancelled' : ''}">
           ${isToday ? '<span class="badge badge-green">TODAY</span>' : ''}
           ${ev.cancelled ? '<span class="badge badge-red">CANCELLED</span>' : ''}
-          <div class="event-title ${ev.cancelled ? 'cancelled-text' : ''}">${ev.title || 'Tag Match'}</div>
-          <div class="event-meta">
-            <strong>📍</strong> ${ev.course}<br>
-            <strong>📅</strong> ${dateStr} &nbsp; <strong>🕗</strong> ${timeStr}
-            ${ev.host ? `<br><strong>🎙️</strong> Hosted by ${ev.host}` : ''}
+          <div class="event-card-inner">
+            <div class="event-card-left">
+              <div class="event-title ${ev.cancelled ? 'cancelled-text' : ''}">${ev.title || 'Tag Match'}</div>
+              <div class="event-meta">
+                <strong>📍</strong> ${ev.course}<br>
+                <strong>📅</strong> ${dateStr} &nbsp; <strong>🕗</strong> ${timeStr}
+                ${ev.host ? `<br><strong>🎙️</strong> Hosted by ${ev.host}` : ''}
+              </div>
+              <div style="display:flex;gap:16px;margin-top:10px;flex-wrap:wrap;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;">
+                <span id="reg-count-${ev.id}" style="color:var(--green);cursor:pointer;text-decoration:underline dotted;" onclick="showRegisteredPlayers(${ev.id})" title="Tap to see who's registered">👥 ${playerCount} registered</span>
+                ${!ev.cancelled ? `<span style="color:var(--gold);">💰 $${aceTotal.toFixed(0)} ace pool${aceCapped ? ' 🔒 CAPPED' : ''}</span>` : ''}
+              </div>
+              ${!ev.cancelled ? `<button class="btn btn-primary btn-sm" style="margin-top:10px" onclick="openRegisterForEvent(${ev.id})">Register →</button>` : ''}
+            </div>
+            <div id="weather-card-${ev.id}" class="event-weather-tile"></div>
           </div>
-          <div style="display:flex;gap:16px;margin-top:10px;flex-wrap:wrap;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;">
-            <span id="reg-count-${ev.id}" style="color:var(--green);cursor:pointer;text-decoration:underline dotted;" onclick="showRegisteredPlayers(${ev.id})" title="Tap to see who's registered">👥 ${playerCount} registered</span>
-            ${!ev.cancelled ? `<span style="color:var(--gold);">💰 $${aceTotal.toFixed(0)} ace pool${aceCapped ? ' 🔒 CAPPED' : ''}</span>` : ''}
-          </div>
-          ${!ev.cancelled ? `<button class="btn btn-primary btn-sm" style="margin-top:10px" onclick="openRegisterForEvent(${ev.id})">Register →</button>` : ''}
-          <div id="weather-card-${ev.id}" class="event-weather" style="display:none"></div>
         </div>
       `;
     }).join('');
@@ -1595,7 +1616,7 @@ function selectPlayerModal(name, tag) {
 
 async function addRegistrant() {
   const searchVal = document.getElementById('regSearch').value.trim();
-  const nickname = document.getElementById('modalNickname')?.value.trim() || '';
+  const nickname = document.getElementById('regNickname')?.value.trim() || '';
     const newName = document.getElementById('newPlayerName').value.trim();
   const name = newName || searchVal;
   const pdga = document.getElementById('newPlayerPDGA') ? document.getElementById('newPlayerPDGA').value.trim() : '';
@@ -1620,6 +1641,7 @@ async function addRegistrant() {
 function clearRegForm() {
   document.getElementById('regSearch').value = '';
   document.getElementById('regTag').value = '';
+  document.getElementById('regNickname').value = '';
   document.getElementById('newPlayerName').value = '';
   if (document.getElementById('newPlayerPDGA')) document.getElementById('newPlayerPDGA').value = '';
   document.getElementById('newPlayerFields').style.display = 'none';
@@ -2202,11 +2224,14 @@ async function fetchWeatherForCards() {
       const lo    = Math.round(data.daily.temperature_2m_min[0]);
       const rain  = data.daily.precipitation_probability_max[0] ?? 0;
       const wind  = Math.round(data.daily.windspeed_10m_max[0]);
+      const condText = code===0?'Clear':code<=3?'P. Cloudy':code<=48?'Foggy':code<=67?'Rainy':code<=77?'Snowy':code<=82?'Showers':code<=86?'Snow Shwrs':'Storms';
       el.innerHTML =
-        `<span>${wmoEmoji(code)}</span>` +
-        `<span class="w-temp">${hi}°<span style="opacity:.5;font-size:12px">/${lo}°F</span></span>` +
-        `<span class="w-rain">💧 ${rain}%</span>` +
-        `<span class="w-wind">💨 ${wind} mph</span>`;
+        `<div class="wt-icon">${wmoEmoji(code)}</div>` +
+        `<div class="wt-hi">${hi}°</div>` +
+        `<div class="wt-lo">Lo ${lo}°F</div>` +
+        `<div class="wt-row wt-rain">💧 ${rain}%</div>` +
+        `<div class="wt-row wt-wind">💨 ${wind} mph</div>` +
+        `<div class="wt-label">${condText}</div>`;
       el.style.display = 'flex';
     } catch(e) { /* weather unavailable, just hide */ }
   }
