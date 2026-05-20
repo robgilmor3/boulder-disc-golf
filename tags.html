@@ -2347,8 +2347,12 @@ const _nwsGridCache = {}; // in-memory: "lat,lon" → hourlyForecast URL
 function nwsEmoji(forecast) {
   const f = (forecast || '').toLowerCase();
   // Returns styled HTML spans using plain Unicode (colorable, not emoji)
-  if (f.includes('thunder'))
+  if (f.includes('thunder')) {
+    // "chance" or "slight chance" = rain hybrid, not full lightning
+    if (f.includes('chance') || f.includes('slight'))
+      return '<span style="color:#8a8a8a">&#9729;</span><span style="color:#6ab0d4;font-size:0.65em;vertical-align:middle"> &#124;&#124;&#124;</span>';
     return '<span style="color:#8a8a8a;font-size:0.9em">&#9729;</span><span style="color:#ffd700">&#9889;</span>';
+  }
   if (f.includes('blizzard') || f.includes('ice storm') || f.includes('sleet') || f.includes('freezing'))
     return '<span style="color:#b8d4dc">&#10052;</span>';
   if (f.includes('snow') || f.includes('flurr'))
