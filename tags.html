@@ -2346,21 +2346,30 @@ const _nwsGridCache = {}; // in-memory: "lat,lon" → hourlyForecast URL
 
 function nwsEmoji(forecast) {
   const f = (forecast || '').toLowerCase();
-  if (f.includes('thunder')) return '⛈️';
-  if (f.includes('blizzard') || f.includes('ice storm')) return '❄️';
-  if (f.includes('snow') || f.includes('flurr')) return '🌨️';
-  if (f.includes('sleet') || f.includes('freezing')) return '🌨️';
-  if (f.includes('fog') || f.includes('haze')) return '🌫️';
-  if (f.includes('rain') || f.includes('shower') || f.includes('drizzle')) {
-    return (f.includes('slight') || f.includes('chance')) ? '🌦️' : '🌧️';
-  }
-  if (f.includes('mostly cloudy') || f.includes('overcast')) return '🌥️';
-  if (f.includes('partly')) return '⛅';
-  if (f.includes('mostly clear') || f.includes('mostly sunny')) return '🌤️';
-  if (f.includes('clear') || f.includes('sunny')) return '☀️';
-  if (f.includes('cloud')) return '☁️';
-  if (f.includes('wind')) return '💨';
-  return '🌡️';
+  // Returns styled HTML spans using plain Unicode (colorable, not emoji)
+  if (f.includes('thunder'))
+    return '<span style="color:#8a8a8a;font-size:0.9em">&#9729;</span><span style="color:#ffd700">&#9889;</span>';
+  if (f.includes('blizzard') || f.includes('ice storm') || f.includes('sleet') || f.includes('freezing'))
+    return '<span style="color:#b8d4dc">&#10052;</span>';
+  if (f.includes('snow') || f.includes('flurr'))
+    return '<span style="color:#c8dce0">&#10052;</span>';
+  if (f.includes('fog') || f.includes('haze'))
+    return '<span style="color:#aaaaaa">&#9832;</span>';
+  if (f.includes('rain') || f.includes('shower') || f.includes('drizzle'))
+    return '<span style="color:#8a8a8a">&#9729;</span><span style="color:#6ab0d4;font-size:0.65em;vertical-align:middle"> &#124;&#124;&#124;</span>';
+  if (f.includes('mostly cloudy') || f.includes('overcast'))
+    return '<span style="color:#888">&#9729;</span>';
+  if (f.includes('partly'))
+    return '<span style="color:#ffd700">&#9728;</span><span style="color:#999;font-size:0.75em">&#9729;</span>';
+  if (f.includes('mostly clear') || f.includes('mostly sunny'))
+    return '<span style="color:#ffcc00">&#9728;</span>';
+  if (f.includes('clear') || f.includes('sunny'))
+    return '<span style="color:#FFD700">&#9728;</span>';
+  if (f.includes('cloud'))
+    return '<span style="color:#888">&#9729;</span>';
+  if (f.includes('wind'))
+    return '<span style="color:#aaa;letter-spacing:-2px">&#126;&#126;&#126;</span>';
+  return '<span style="color:#aaa">&#8212;</span>';
 }
 function nwsWindArrow(dir) {
   return {'N':'↓','NNE':'↓','NE':'↙','ENE':'↙','E':'←','ESE':'↖','SE':'↖',
