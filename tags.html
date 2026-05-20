@@ -989,13 +989,16 @@
     <!-- Step 2: Scores -->
     <div id="matchStep2" style="display:none">
       <div class="card">
-        <div class="card-title">📊 Enter Final Scores</div>
-        <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px">Total strokes for each player. Lower = better.</p>
+        <div class="card-title" style="display:flex;align-items:center;justify-content:space-between;">
+          <span>📊 Score Status</span>
+          <button class="btn btn-secondary btn-sm" onclick="refreshTDScores()" style="font-size:11px;letter-spacing:1px;">↻ Refresh</button>
+        </div>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px">✅ = player submitted · ⏳ = enter manually</p>
         <div id="scoreList"></div>
         <div class="divider"></div>
         <div class="flex-gap">
           <button class="btn btn-secondary" onclick="backToStep1()">← Back</button>
-          <button class="btn btn-primary" onclick="calculateResults()">Calculate Tags →</button>
+          <button class="btn btn-primary" id="calcTagsBtn" onclick="calculateResults()" disabled>Calculate Tags →</button>
         </div>
       </div>
     </div>
@@ -1354,6 +1357,19 @@ async function renderSplash() {
                 ${!ev.cancelled ? `<span style="color:var(--gold);">💰 $${aceTotal.toFixed(0)} ace pool${aceCapped ? ' 🔒 CAPPED' : ''}</span>` : ''}
               </div>
               ${!ev.cancelled ? `<button class="btn btn-primary btn-sm" style="margin-top:10px;display:block;width:fit-content;padding:12px 20px;" onclick="openRegisterForEvent(${ev.id})">Register →</button>` : ''}
+              ${isToday && !ev.cancelled && registered.length > 0 ? `
+                <div id="score-submit-${ev.id}" class="score-submit-section">
+                  <div class="score-submit-label">Submit Your Score</div>
+                  <div class="score-submit-row">
+                    <select id="score-player-${ev.id}">
+                      <option value="">— Your name —</option>
+                      ${registered.map(r => `<option value="${r.name}">${r.name} (#${r.tag})</option>`).join('')}
+                    </select>
+                    <input id="score-val-${ev.id}" type="number" min="18" max="120" placeholder="Strokes">
+                    <button class="btn btn-secondary btn-sm" onclick="submitPlayerScore(${ev.id})">Submit ✓</button>
+                  </div>
+                </div>
+              ` : ''}
             </div>
             <div class="event-weather-wrapper"><div id="weather-card-${ev.id}" class="event-weather-bar"></div></div>
           </div>
@@ -1807,23 +1823,109 @@ function removeRegistrant(name) {
 
 function goToScoring() {
   setStep(2);
+  renderScoreList();
+}
+
+function renderScoreList() {
   const el = document.getElementById('scoreList');
-  el.innerHTML = [...state.registrants].sort((a,b) => a.tag - b.tag).map(r => `
-    <div class="registrant-item" style="margin-bottom:8px">
-      <span class="reg-tag">#${r.tag}</span>
-      <span class="reg-name">${r.name}</span>
-      <input class="score-input" type="number" min="18" max="120" placeholder="—" id="score_${r.name.replace(/\W/g,'_')}">
-    </div>
-  `).join('');
+  const btn = document.getElementById('calcTagsBtn');
+  const sorted = [...state.registrants].sort((a,b) => a.tag - b.tag);
+  const allScored = sorted.length > 0 && sorted.every(r => r.score && !isNaN(r.score));
+  if (btn) btn.disabled = !allScored;
+
+  el.innerHTML = sorted.map(r => {
+    const hasScore = r.score && !isNaN(parseInt(r.score));
+    const sid = 'score_' + r.name.replace(/\W/g,'_');
+    return `
+      <div class="score-status-item">
+        <span class="reg-tag">#${r.tag}</span>
+        <span class="reg-name">${r.name}</span>
+        ${hasScore
+          ? `<span class="score-badge-done" title="${r.score_by === 'player' ? 'Player submitted' : 'TD entered'}">✅</span>
+             <span class="score-done-val">${r.score}✦</span>`
+          : `<span class="score-badge-pending">⏳</span>
+             <input class="score-input score-pending-input" type="number" min="18" max="120"
+               placeholder="—" id="${sid}"
+               onchange="saveTDScore('${r.name}', this.value)">`
+        }
+      </div>`;
+  }).join('');
+}
+
+function saveTDScore(name, val) {
+  const score = parseInt(val);
+  if (!score || isNaN(score) || score < 18) return;
+  const r = state.registrants.find(r => r.name === name);
+  if (!r) return;
+  r.score = score;
+  r.score_by = 'td';
+  persistRegistrants();
+  renderScoreList();
+}
+
+async function refreshTDScores() {
+  if (!state.selectedEventId) return;
+  try {
+    const { data: evData } = await db.from('events').select('registered').eq('id', state.selectedEventId).single();
+    if (evData?.registered) {
+      state.registrants = Array.isArray(evData.registered) ? evData.registered : JSON.parse(evData.registered);
+      const stateEv = state.events?.find(e => e.id === state.selectedEventId);
+      if (stateEv) stateEv.registered = state.registrants;
+    }
+  } catch(e) { console.error('refresh scores:', e); }
+  renderScoreList();
+  showToast('Scores refreshed.');
+}
+
+async function submitPlayerScore(eventId) {
+  const nameEl = document.getElementById('score-player-' + eventId);
+  const scoreEl = document.getElementById('score-val-' + eventId);
+  const name = nameEl?.value;
+  const score = parseInt(scoreEl?.value);
+  if (!name) return showToast('Select your name first.', true);
+  if (!score || isNaN(score) || score < 18) return showToast('Enter a valid stroke count.', true);
+
+  try {
+    const { data: evData } = await db.from('events').select('registered').eq('id', eventId).single();
+    let registrants = evData?.registered
+      ? (Array.isArray(evData.registered) ? evData.registered : JSON.parse(evData.registered)) : [];
+    const idx = registrants.findIndex(r => r.name === name);
+    if (idx === -1) return showToast('Name not found in this event.', true);
+
+    registrants[idx].score = score;
+    registrants[idx].score_by = 'player';
+    registrants[idx].score_at = new Date().toISOString();
+
+    const { error } = await db.from('events')
+      .update({ registered: JSON.stringify(registrants) }).eq('id', eventId);
+    if (error) throw error;
+
+    // Sync local state
+    const stateEv = state.events?.find(e => e.id === eventId);
+    if (stateEv) stateEv.registered = registrants;
+    if (state.selectedEventId === eventId) state.registrants = registrants;
+
+    const section = document.getElementById('score-submit-' + eventId);
+    if (section) section.innerHTML =
+      `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:1px;">✅ Score submitted for ${name} — ${score} strokes</div>`;
+    showToast('Score submitted!');
+  } catch(e) {
+    console.error('submitPlayerScore:', e);
+    showToast('Error saving score.', true);
+  }
 }
 
 function calculateResults() {
   const scored = state.registrants.map(r => {
+    // Use player-submitted score, or fall back to TD's manual input
     const inp = document.getElementById('score_' + r.name.replace(/\W/g,'_'));
-    return { ...r, score: inp ? parseInt(inp.value) : null };
+    const score = (r.score && !isNaN(parseInt(r.score)))
+      ? parseInt(r.score)
+      : (inp ? parseInt(inp.value) : null);
+    return { ...r, score };
   });
 
-  if (scored.some(r => !r.score || isNaN(r.score))) return showToast('Enter scores for all players.', true);
+  if (scored.some(r => !r.score || isNaN(r.score))) return showToast('All players need a score before committing.', true);
 
   scored.sort((a,b) => a.score !== b.score ? a.score - b.score : a.tag - b.tag);
   const tags = [...scored].map(r => r.tag).sort((a,b) => a-b);
