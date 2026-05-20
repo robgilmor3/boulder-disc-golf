@@ -1318,20 +1318,24 @@ async function renderSplash() {
       const aceCapped = aceCap && aceTotal >= aceCap;
       return `
         <div class="event-card ${isToday ? 'today' : ''} ${ev.cancelled ? 'cancelled' : ''}">
-          ${isToday ? '<span class="badge badge-green">TODAY</span>' : ''}
-          ${ev.cancelled ? '<span class="badge badge-red">CANCELLED</span>' : ''}
-          <div class="event-title ${ev.cancelled ? 'cancelled-text' : ''}">${ev.title || 'Tag Match'}</div>
-          <div class="event-meta">
-            <strong>📍</strong> ${ev.course}<br>
-            <strong>📅</strong> ${dateStr} &nbsp; <strong>🕗</strong> ${timeStr}
-            ${ev.host ? `<br><strong>🎙️</strong> Hosted by ${ev.host}` : ''}
+          <div class="event-card-inner">
+            <div class="event-card-left">
+              ${isToday ? '<span class="badge badge-green">TODAY</span>' : ''}
+              ${ev.cancelled ? '<span class="badge badge-red">CANCELLED</span>' : ''}
+              <div class="event-title ${ev.cancelled ? 'cancelled-text' : ''}">${ev.title || 'Tag Match'}</div>
+              <div class="event-meta">
+                <strong>📍</strong> ${ev.course}<br>
+                <strong>📅</strong> ${dateStr} &nbsp; <strong>🕗</strong> ${timeStr}
+                ${ev.host ? `<br><strong>🎙️</strong> Hosted by ${ev.host}` : ''}
+              </div>
+              <div style="display:flex;gap:16px;margin-top:10px;flex-wrap:wrap;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;">
+                <span id="reg-count-${ev.id}" style="color:var(--green);cursor:pointer;text-decoration:underline dotted;" onclick="showRegisteredPlayers(${ev.id})" title="Tap to see who's registered">👥 ${playerCount} registered</span>
+                ${!ev.cancelled ? `<span style="color:var(--gold);">💰 $${aceTotal.toFixed(0)} ace pool${aceCapped ? ' 🔒 CAPPED' : ''}</span>` : ''}
+              </div>
+              ${!ev.cancelled ? `<button class="btn btn-primary btn-sm" style="margin-top:10px" onclick="openRegisterForEvent(${ev.id})">Register →</button>` : ''}
+            </div>
+            <div id="weather-card-${ev.id}" class="event-weather-bar"></div>
           </div>
-          <div style="display:flex;gap:16px;margin-top:10px;flex-wrap:wrap;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;">
-            <span id="reg-count-${ev.id}" style="color:var(--green);cursor:pointer;text-decoration:underline dotted;" onclick="showRegisteredPlayers(${ev.id})" title="Tap to see who's registered">👥 ${playerCount} registered</span>
-            ${!ev.cancelled ? `<span style="color:var(--gold);">💰 $${aceTotal.toFixed(0)} ace pool${aceCapped ? ' 🔒 CAPPED' : ''}</span>` : ''}
-          </div>
-          ${!ev.cancelled ? `<button class="btn btn-primary btn-sm" style="margin-top:10px" onclick="openRegisterForEvent(${ev.id})">Register →</button>` : ''}
-          <div id="weather-card-${ev.id}" class="event-weather-bar"></div>
         </div>
       `;
     }).join('');
@@ -2363,7 +2367,7 @@ async function fetchWeatherForCards() {
     };
 
     // Right: 5 hours — 2 before event, event, 2 after
-    const hourOffsets = [-2, -1, 0, 1, 2];
+    const hourOffsets = [-1, 0, 1, 2, 3];
     const hourSlots = hourOffsets.map(off => {
       const h = Math.max(0, Math.min(23, matchHour + off));
       return {
@@ -2377,7 +2381,6 @@ async function fetchWeatherForCards() {
     });
 
     el.innerHTML =
-      `<div class="ewb-course">${ev.course}</div>` +
       `<div class="ewb-body">` +
         // LEFT panel
         `<div class="ewb-left">` +
