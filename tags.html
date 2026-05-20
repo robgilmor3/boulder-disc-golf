@@ -341,8 +341,9 @@
   .event-weather-wrapper {
     flex: 1;
     display: flex;
-    justify-content: center;
+    justify-content: flex-end;
     align-items: center;
+    padding-right: 32px;
   }
 
   /* ── Weather bar ── */
@@ -1352,7 +1353,7 @@ async function renderSplash() {
                 <span id="reg-count-${ev.id}" style="color:var(--green);cursor:pointer;text-decoration:underline dotted;" onclick="showRegisteredPlayers(${ev.id})" title="Tap to see who's registered">👥 ${playerCount} registered</span>
                 ${!ev.cancelled ? `<span style="color:var(--gold);">💰 $${aceTotal.toFixed(0)} ace pool${aceCapped ? ' 🔒 CAPPED' : ''}</span>` : ''}
               </div>
-              ${!ev.cancelled ? `<button class="btn btn-primary btn-sm" style="margin-top:10px" onclick="openRegisterForEvent(${ev.id})">Register →</button>` : ''}
+              ${!ev.cancelled ? `<button class="btn btn-primary btn-sm" style="margin-top:10px;display:block;width:fit-content;padding:12px 20px;" onclick="openRegisterForEvent(${ev.id})">Register →</button>` : ''}
             </div>
             <div class="event-weather-wrapper"><div id="weather-card-${ev.id}" class="event-weather-bar"></div></div>
           </div>
