@@ -2314,7 +2314,7 @@ function fmtEventDate(dateStr, timeStr) {
 }
 
 // ── Weather caching (localStorage) ─────────────────────────
-function wxCacheKey(evId) { return 'wx2_' + evId; }
+function wxCacheKey(evId) { return 'wx3_' + evId; }
 function wxNeedsRefresh(evId, evDate, evTime) {
   try {
     const raw = localStorage.getItem(wxCacheKey(evId));
