@@ -327,20 +327,33 @@
   .note-item:hover .note-del-btn { opacity: 0.55; }
   .note-edit-btn:hover, .note-del-btn:hover { opacity: 1 !important; }
   .note-item { align-items: center; }
-  /* Event card — no special inner layout needed, weather bar goes below */
-  .event-card-inner { display: block; }
+  /* ── Event card inner: flex row, weather on the right ── */
+  .event-card-inner {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .event-card-left {
+    flex: 1;
+    min-width: 0;
+  }
 
-  /* Weather bar — full-width horizontal strip at bottom of event card */
   /* ── Weather bar ── */
   .event-weather-bar {
     display: none;
-    margin-top: 14px;
+    width: 280px;
+    flex-shrink: 0;
+    margin-top: 0;
     background: linear-gradient(160deg, #19243d 0%, #111829 55%, #0b1020 100%);
     border: 1px solid rgba(61,220,110,0.2);
     border-radius: 10px;
     overflow: hidden;
     font-family: 'Barlow Condensed', sans-serif;
     letter-spacing: 0.5px;
+  }
+  @media (max-width: 640px) {
+    .event-card-inner { flex-direction: column; }
+    .event-weather-bar { width: 100%; }
   }
   /* Top bar: course name */
   .ewb-course {
