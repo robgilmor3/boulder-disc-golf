@@ -327,68 +327,76 @@
   .note-item:hover .note-del-btn { opacity: 0.55; }
   .note-edit-btn:hover, .note-del-btn:hover { opacity: 1 !important; }
   .note-item { align-items: center; }
-  /* Event card two-column layout */
-  .event-card-inner {
-    display: flex;
-    gap: 0;
-    align-items: center;
-  }
-  .event-card-left { flex: 1; min-width: 0; }
+  /* Event card — no special inner layout needed, weather bar goes below */
+  .event-card-inner { display: block; }
 
-  /* Weather tile — right column */
-  .event-weather-tile {
-    flex-shrink: 0;
-    width: 152px;
-    margin-left: 14px;
-    margin-right: 10px;
-    align-self: center;
-    background: linear-gradient(160deg, rgba(28,52,100,0.7) 0%, rgba(14,30,65,0.85) 60%, rgba(8,18,45,0.9) 100%);
-    border: 1px solid rgba(120,160,255,0.18);
-    border-radius: 14px;
-    padding: 14px 12px 12px;
+  /* Weather bar — full-width horizontal strip at bottom of event card */
+  .event-weather-bar {
     display: none;
+    margin-top: 14px;
+    background: linear-gradient(135deg, #1a2744 0%, #141e38 60%, #0e1628 100%);
+    border: 1px solid rgba(61,220,110,0.25);
+    border-radius: 10px;
+    overflow: hidden;
+    font-family: 'Barlow Condensed', sans-serif;
+  }
+  .ewb-location {
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    padding: 8px 12px 6px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .ewb-body {
+    display: flex;
+    align-items: stretch;
+  }
+  /* Left: current conditions */
+  .ewb-current {
+    padding: 10px 14px 10px 12px;
+    border-right: 1px solid rgba(255,255,255,0.07);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 100px;
+    gap: 2px;
+  }
+  .ewb-current .ewb-now {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .ewb-current .ewb-icon  { font-size: 30px; line-height: 1; }
+  .ewb-current .ewb-temp  {
+    font-family:'Bebas Neue',sans-serif; font-size:30px;
+    color:#fff; line-height:1; letter-spacing:1px;
+  }
+  .ewb-current .ewb-hilo  {
+    font-size: 11px; color: rgba(180,200,255,0.5); letter-spacing: 0.5px; margin-top:1px;
+  }
+  .ewb-current .ewb-wind  {
+    font-size: 11px; color: rgba(160,190,255,0.6); margin-top: 3px; letter-spacing: 0.5px;
+  }
+  /* Right: hourly columns */
+  .ewb-hours {
+    display: flex;
+    flex: 1;
+  }
+  .ewb-hour {
+    flex: 1;
+    display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2px;
-    text-align: center;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 4px 20px rgba(0,0,0,0.3);
-    position: relative;
-    overflow: hidden;
+    justify-content: center;
+    padding: 8px 4px;
+    border-left: 1px solid rgba(255,255,255,0.05);
+    gap: 3px;
   }
-  /* Subtle glow behind the emoji */
-  .event-weather-tile::before {
-    content: '';
-    position: absolute;
-    top: -10px; left: 50%; transform: translateX(-50%);
-    width: 80px; height: 60px;
-    background: radial-gradient(ellipse, rgba(180,210,255,0.12) 0%, transparent 70%);
-    pointer-events: none;
-  }
-  .event-weather-tile .wt-icon  {
-    font-size: 42px; line-height: 1; margin-bottom: 4px; position: relative; z-index: 1;
-    filter: drop-shadow(0 2px 8px rgba(255,255,255,0.2));
-  }
-  .event-weather-tile .wt-hi    {
-    font-family:'Bebas Neue',sans-serif; font-size:34px; color:#fff;
-    line-height:1; letter-spacing:2px;
-  }
-  .event-weather-tile .wt-lo    {
-    font-size:11px; color:rgba(180,200,255,0.5); letter-spacing:0.5px; margin-bottom:6px;
-  }
-  .event-weather-tile .wt-divider {
-    width: 80%; height: 1px; background: rgba(255,255,255,0.08); margin: 4px 0 6px;
-  }
-  .event-weather-tile .wt-stats {
-    display: flex; gap: 10px; align-items: center; justify-content: center;
-    font-family:'Barlow Condensed',sans-serif; font-size:12px; letter-spacing:1px;
-  }
-  .event-weather-tile .wt-rain  { color:#7ec8e3; }
-  .event-weather-tile .wt-wind  { color:rgba(200,215,255,0.55); }
-  .event-weather-tile .wt-dot   { width:3px; height:3px; border-radius:50%; background:rgba(255,255,255,0.2); flex-shrink:0; }
-  .event-weather-tile .wt-label {
-    font-family:'Barlow Condensed',sans-serif; font-size:10px; letter-spacing:2px;
-    text-transform:uppercase; color:rgba(180,200,255,0.35); margin-top:6px;
-  }
+  .ewb-hour .ewb-htime  { font-size:11px; letter-spacing:1px; color:rgba(255,255,255,0.35); }
+  .ewb-hour .ewb-hicon  { font-size:22px; line-height:1; }
+  .ewb-hour .ewb-htemp  { font-size:14px; color:#fff; letter-spacing:0.5px; font-weight:600; }
+  .ewb-hour .ewb-harrow { font-size:13px; color:rgba(100,180,255,0.7); line-height:1; }
+  .ewb-hour .ewb-hwind  { font-size:11px; color:rgba(160,190,255,0.5); letter-spacing:0.5px; }
 
   /* ── TAG LEDGER ── */
   .search-box {
@@ -1299,22 +1307,18 @@ async function renderSplash() {
         <div class="event-card ${isToday ? 'today' : ''} ${ev.cancelled ? 'cancelled' : ''}">
           ${isToday ? '<span class="badge badge-green">TODAY</span>' : ''}
           ${ev.cancelled ? '<span class="badge badge-red">CANCELLED</span>' : ''}
-          <div class="event-card-inner">
-            <div class="event-card-left">
-              <div class="event-title ${ev.cancelled ? 'cancelled-text' : ''}">${ev.title || 'Tag Match'}</div>
-              <div class="event-meta">
-                <strong>📍</strong> ${ev.course}<br>
-                <strong>📅</strong> ${dateStr} &nbsp; <strong>🕗</strong> ${timeStr}
-                ${ev.host ? `<br><strong>🎙️</strong> Hosted by ${ev.host}` : ''}
-              </div>
-              <div style="display:flex;gap:16px;margin-top:10px;flex-wrap:wrap;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;">
-                <span id="reg-count-${ev.id}" style="color:var(--green);cursor:pointer;text-decoration:underline dotted;" onclick="showRegisteredPlayers(${ev.id})" title="Tap to see who's registered">👥 ${playerCount} registered</span>
-                ${!ev.cancelled ? `<span style="color:var(--gold);">💰 $${aceTotal.toFixed(0)} ace pool${aceCapped ? ' 🔒 CAPPED' : ''}</span>` : ''}
-              </div>
-              ${!ev.cancelled ? `<button class="btn btn-primary btn-sm" style="margin-top:10px" onclick="openRegisterForEvent(${ev.id})">Register →</button>` : ''}
-            </div>
-            <div id="weather-card-${ev.id}" class="event-weather-tile"></div>
+          <div class="event-title ${ev.cancelled ? 'cancelled-text' : ''}">${ev.title || 'Tag Match'}</div>
+          <div class="event-meta">
+            <strong>📍</strong> ${ev.course}<br>
+            <strong>📅</strong> ${dateStr} &nbsp; <strong>🕗</strong> ${timeStr}
+            ${ev.host ? `<br><strong>🎙️</strong> Hosted by ${ev.host}` : ''}
           </div>
+          <div style="display:flex;gap:16px;margin-top:10px;flex-wrap:wrap;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;">
+            <span id="reg-count-${ev.id}" style="color:var(--green);cursor:pointer;text-decoration:underline dotted;" onclick="showRegisteredPlayers(${ev.id})" title="Tap to see who's registered">👥 ${playerCount} registered</span>
+            ${!ev.cancelled ? `<span style="color:var(--gold);">💰 $${aceTotal.toFixed(0)} ace pool${aceCapped ? ' 🔒 CAPPED' : ''}</span>` : ''}
+          </div>
+          ${!ev.cancelled ? `<button class="btn btn-primary btn-sm" style="margin-top:10px" onclick="openRegisterForEvent(${ev.id})">Register →</button>` : ''}
+          <div id="weather-card-${ev.id}" class="event-weather-bar"></div>
         </div>
       `;
     }).join('');
@@ -2244,41 +2248,77 @@ function wmoEmoji(code) {
   return '⛈️';
 }
 
+function windArrow(deg) {
+  // deg = direction wind is coming FROM; arrow shows where it's blowing TO
+  const dirs = ['↓','↙','←','↖','↑','↗','→','↘','↓'];
+  return dirs[Math.round(((deg + 180) % 360) / 45)];
+}
+
 async function fetchWeatherForCards() {
   const today = new Date().toISOString().split('T')[0];
-  // Only show weather for upcoming (non-cancelled) events within 14 days
   const upcoming = (state.events || []).filter(ev => !ev.cancelled && ev.date >= today);
   for (const ev of upcoming) {
     const el = document.getElementById('weather-card-' + ev.id);
     if (!el) continue;
     const coords = COURSE_COORDS[ev.course] || DEFAULT_COORDS;
     try {
+      // Fetch both daily (hi/lo) and hourly (column forecasts)
       const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}` +
-        `&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max,windspeed_10m_max` +
+        `&daily=weathercode,temperature_2m_max,temperature_2m_min` +
+        `&hourly=temperature_2m,weathercode,windspeed_10m,winddirection_10m` +
         `&temperature_unit=fahrenheit&windspeed_unit=mph&timezone=America%2FDenver` +
         `&start_date=${ev.date}&end_date=${ev.date}`;
       const res = await fetch(url);
       const data = await res.json();
-      if (!data.daily) continue;
-      const code  = data.daily.weathercode[0];
+      if (!data.daily || !data.hourly) continue;
+
+      // Daily hi/lo + condition
+      const dCode = data.daily.weathercode[0];
       const hi    = Math.round(data.daily.temperature_2m_max[0]);
       const lo    = Math.round(data.daily.temperature_2m_min[0]);
-      const rain  = data.daily.precipitation_probability_max[0] ?? 0;
-      const wind  = Math.round(data.daily.windspeed_10m_max[0]);
-      const condText = code===0?'Clear':code<=3?'Partly Cloudy':code<=48?'Foggy':code<=67?'Rainy':code<=77?'Snowy':code<=82?'Showers':code<=86?'Snow Showers':'Storms';
+
+      // Pick 4 hourly slots starting at match time (or 9am default)
+      const matchHour = ev.time ? parseInt(ev.time.split(':')[0], 10) : 9;
+      const slots = [0,3,6,9].map(offset => {
+        const h = Math.min(matchHour + offset, 23);
+        return {
+          time: h < 12 ? h + 'am' : h === 12 ? '12pm' : (h-12) + 'pm',
+          temp: Math.round(data.hourly.temperature_2m[h]),
+          code: data.hourly.weathercode[h],
+          wind: Math.round(data.hourly.windspeed_10m[h]),
+          arrow: windArrow(data.hourly.winddirection_10m[h])
+        };
+      });
+
+      // Current = match-hour conditions
+      const cur = slots[0];
+      const condText = dCode===0?'Clear':dCode<=3?'Partly Cloudy':dCode<=48?'Foggy':dCode<=67?'Rainy':dCode<=77?'Snowy':dCode<=82?'Showers':dCode<=86?'Snow Showers':'Storms';
+
       el.innerHTML =
-        `<div class="wt-icon">${wmoEmoji(code)}</div>` +
-        `<div class="wt-hi">${hi}°<span style="font-size:16px;opacity:0.5">F</span></div>` +
-        `<div class="wt-lo">Low ${lo}°F</div>` +
-        `<div class="wt-divider"></div>` +
-        `<div class="wt-stats">` +
-          `<span class="wt-rain">💧 ${rain}%</span>` +
-          `<span class="wt-dot"></span>` +
-          `<span class="wt-wind">💨 ${wind} mph</span>` +
-        `</div>` +
-        `<div class="wt-label">${condText}</div>`;
-      el.style.display = 'flex';
-    } catch(e) { /* weather unavailable, just hide */ }
+        `<div class="ewb-location">${ev.course}</div>` +
+        `<div class="ewb-body">` +
+          `<div class="ewb-current">` +
+            `<div class="ewb-now">` +
+              `<span class="ewb-icon">${wmoEmoji(cur.code)}</span>` +
+              `<span class="ewb-temp">${cur.temp}°F</span>` +
+            `</div>` +
+            `<div class="ewb-hilo">Hi ${hi}° / Lo ${lo}°</div>` +
+            `<div class="ewb-wind">${cur.arrow} ${cur.wind} mph · ${condText}</div>` +
+          `</div>` +
+          `<div class="ewb-hours">` +
+            slots.slice(1).map(s =>
+              `<div class="ewb-hour">` +
+                `<div class="ewb-htime">${s.time}</div>` +
+                `<div class="ewb-hicon">${wmoEmoji(s.code)}</div>` +
+                `<div class="ewb-htemp">${s.temp}°F</div>` +
+                `<div class="ewb-harrow">${s.arrow}</div>` +
+                `<div class="ewb-hwind">${s.wind} mph</div>` +
+              `</div>`
+            ).join('') +
+          `</div>` +
+        `</div>`;
+      el.style.display = 'block';
+    } catch(e) { console.warn('weather:', e); }
   }
 }
 async function quickAddNote() {
