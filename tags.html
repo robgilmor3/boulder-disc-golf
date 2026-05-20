@@ -2340,6 +2340,47 @@ function wxWriteCache(evId, data) {
   catch {}
 }
 
+// ── NWS weather helpers ──────────────────────────────────────────────────
+const _nwsGridCache = {}; // in-memory: "lat,lon" → hourlyForecast URL
+
+function nwsEmoji(forecast) {
+  const f = (forecast || '').toLowerCase();
+  if (f.includes('thunder')) return '⛈️';
+  if (f.includes('blizzard') || f.includes('ice storm')) return '❄️';
+  if (f.includes('snow') || f.includes('flurr')) return '🌨️';
+  if (f.includes('sleet') || f.includes('freezing')) return '🌨️';
+  if (f.includes('fog') || f.includes('haze')) return '🌫️';
+  if (f.includes('rain') || f.includes('shower') || f.includes('drizzle')) {
+    return (f.includes('slight') || f.includes('chance')) ? '🌦️' : '🌧️';
+  }
+  if (f.includes('mostly cloudy') || f.includes('overcast')) return '🌥️';
+  if (f.includes('partly')) return '⛅';
+  if (f.includes('mostly clear') || f.includes('mostly sunny')) return '🌤️';
+  if (f.includes('clear') || f.includes('sunny')) return '☀️';
+  if (f.includes('cloud')) return '☁️';
+  if (f.includes('wind')) return '💨';
+  return '🌡️';
+}
+function nwsWindArrow(dir) {
+  return {'N':'↓','NNE':'↓','NE':'↙','ENE':'↙','E':'←','ESE':'↖','SE':'↖',
+          'SSE':'↑','S':'↑','SSW':'↑','SW':'↗','WSW':'↗','W':'→','WNW':'↘',
+          'NW':'↘','NNW':'↓'}[dir] || '·';
+}
+function nwsParseWind(ws) {
+  const m = (ws || '').match(/(\d+)/);
+  return m ? parseInt(m[1]) : 0;
+}
+function nwsFindPeriod(periods, date, hour) {
+  const hStr = String(hour).padStart(2, '0');
+  return periods.find(p => p.startTime.startsWith(date + 'T' + hStr));
+}
+function nwsDayHiLo(periods, date) {
+  const dp = periods.filter(p => p.startTime.startsWith(date));
+  if (!dp.length) return { hi: '--', lo: '--' };
+  const temps = dp.map(p => p.temperature);
+  return { hi: Math.max(...temps), lo: Math.min(...temps) };
+}
+
 async function fetchWeatherForCards() {
   const today = new Date().toISOString().split('T')[0];
   const upcoming = (state.events || []).filter(ev => !ev.cancelled && ev.date >= today);
@@ -2349,66 +2390,65 @@ async function fetchWeatherForCards() {
     if (!el) continue;
     const coords = COURSE_COORDS[ev.course] || DEFAULT_COORDS;
 
-    // Use cache when valid, otherwise fetch
-    let data = null;
+    let periods = null;
     if (!wxNeedsRefresh(ev.id, ev.date, ev.time)) {
-      data = wxReadCache(ev.id);
+      periods = wxReadCache(ev.id);
     }
-    if (!data) {
+    if (!periods) {
       try {
-        const url = `https://api.open-meteo.com/v1/forecast` +
-          `?latitude=${coords.lat}&longitude=${coords.lon}` +
-          `&daily=weathercode,temperature_2m_max,temperature_2m_min` +
-          `&hourly=temperature_2m,weathercode,windspeed_10m,winddirection_10m` +
-          `&temperature_unit=fahrenheit&windspeed_unit=mph&timezone=America%2FDenver` +
-          `&start_date=${ev.date}&end_date=${ev.date}`;
-        const res = await fetch(url);
-        data = await res.json();
-        if (!data.daily || !data.hourly) continue;
-        wxWriteCache(ev.id, data);
-      } catch(e) { console.warn('weather fetch:', e); continue; }
+        const gridKey = coords.lat + ',' + coords.lon;
+        let hourlyUrl = _nwsGridCache[gridKey];
+        if (!hourlyUrl) {
+          const ptRes = await fetch(
+            `https://api.weather.gov/points/${coords.lat},${coords.lon}`,
+            { headers: { 'User-Agent': 'BoulderDiscGolf/1.0 (gilmoremail@gmail.com)', 'Accept': 'application/geo+json' } }
+          );
+          const ptData = await ptRes.json();
+          hourlyUrl = ptData.properties.forecastHourly;
+          _nwsGridCache[gridKey] = hourlyUrl;
+        }
+        const fRes = await fetch(hourlyUrl,
+          { headers: { 'User-Agent': 'BoulderDiscGolf/1.0 (gilmoremail@gmail.com)', 'Accept': 'application/geo+json' } }
+        );
+        const fData = await fRes.json();
+        periods = fData.properties.periods;
+        if (!periods?.length) continue;
+        wxWriteCache(ev.id, periods);
+      } catch(e) { console.warn('NWS weather fetch:', e); continue; }
     }
-
-    const hi    = Math.round(data.daily.temperature_2m_max[0]);
-    const lo    = Math.round(data.daily.temperature_2m_min[0]);
-    const dCode = data.daily.weathercode[0];
-    const cond  = dCode===0?'Clear':dCode<=3?'Partly Cloudy':dCode<=48?'Foggy':
-                  dCode<=67?'Rain':dCode<=77?'Snow':dCode<=82?'Showers':
-                  dCode<=86?'Snow Showers':'Storms';
 
     const matchHour = ev.time ? parseInt(ev.time.split(':')[0], 10) : 9;
-
-    // Left panel = event start hour
-    const lh = Math.max(0, Math.min(23, matchHour));
+    const { hi, lo } = nwsDayHiLo(periods, ev.date);
+    const leftP = nwsFindPeriod(periods, ev.date, matchHour) || periods[0];
     const leftSlot = {
-      temp:  Math.round(data.hourly.temperature_2m[lh]),
-      code:  data.hourly.weathercode[lh],
-      wind:  Math.round(data.hourly.windspeed_10m[lh]),
-      arrow: windArrow(data.hourly.winddirection_10m[lh]),
-      comp:  windCompass(data.hourly.winddirection_10m[lh])
+      temp:  leftP.temperature,
+      emoji: nwsEmoji(leftP.shortForecast),
+      wind:  nwsParseWind(leftP.windSpeed),
+      arrow: nwsWindArrow(leftP.windDirection),
+      comp:  leftP.windDirection,
+      cond:  leftP.shortForecast
     };
 
-    // Right: 5 hours — 2 before event, event, 2 after
     const hourOffsets = [-1, 0, 1, 2, 3];
     const hourSlots = hourOffsets.map(off => {
       const h = Math.max(0, Math.min(23, matchHour + off));
+      const p = nwsFindPeriod(periods, ev.date, h) || leftP;
       return {
-        h, isEvent: off === 0,
-        time:  fmtHour(h),
-        temp:  Math.round(data.hourly.temperature_2m[h]),
-        code:  data.hourly.weathercode[h],
-        wind:  Math.round(data.hourly.windspeed_10m[h]),
-        arrow: windArrow(data.hourly.winddirection_10m[h])
+        isEvent: off === 0,
+        time:    fmtHour(h),
+        temp:    p.temperature,
+        emoji:   nwsEmoji(p.shortForecast),
+        wind:    nwsParseWind(p.windSpeed),
+        arrow:   nwsWindArrow(p.windDirection)
       };
     });
 
     el.innerHTML =
       `<div class="ewb-body">` +
-        // LEFT panel
         `<div class="ewb-left">` +
           `<div class="ewb-datetime">${fmtEventDate(ev.date, ev.time)}</div>` +
           `<div class="ewb-main">` +
-            `<span class="ewb-icon">${wmoEmoji(leftSlot.code)}</span>` +
+            `<span class="ewb-icon">${leftSlot.emoji}</span>` +
             `<span class="ewb-temp">${leftSlot.temp}°F</span>` +
           `</div>` +
           `<div class="ewb-hilo">Hi ${hi}° &middot; Lo ${lo}°</div>` +
@@ -2416,14 +2456,13 @@ async function fetchWeatherForCards() {
             `<span class="ewb-arrow">${leftSlot.arrow}</span>` +
             `<span>${leftSlot.wind} mph ${leftSlot.comp}</span>` +
           `</div>` +
-          `<div class="ewb-cond">${cond}</div>` +
+          `<div class="ewb-cond">${leftSlot.cond}</div>` +
         `</div>` +
-        // RIGHT hourly columns
         `<div class="ewb-hours">` +
           hourSlots.map(s =>
             `<div class="ewb-hour${s.isEvent ? ' event-time' : ''}">` +
               `<div class="ewb-htime">${s.time}</div>` +
-              `<div class="ewb-hicon">${wmoEmoji(s.code)}</div>` +
+              `<div class="ewb-hicon">${s.emoji}</div>` +
               `<div class="ewb-htemp">${s.temp}°F</div>` +
               `<div class="ewb-harrow">${s.arrow}</div>` +
               `<div class="ewb-hwind">${s.wind} mph</div>` +
