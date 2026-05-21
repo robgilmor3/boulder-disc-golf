@@ -2270,15 +2270,16 @@ async function generateSeasonSchedule() {
 }
 
 async function renderStats() {
-  const el=document.getElementById('app');
-  el.innerHTML='<div class="stats-empty"><div style="font-size:32px">📊</div><div style="margin-top:8px">Loading…</div></div>';
-  const {data:rounds}=await db.from('rounds').select('*,events(date,course,weather_temp_f,weather_wind_mph,weather_precip_mm)').eq('season','2026').order('created_at',{ascending:true});
-  const {data:allEvents}=await db.from('events').select('id,date,course').eq('season','2026').order('date',{ascending:true});
-  const now=new Date(),seasonStart=new Date('2026-07-04'),daysTo=Math.ceil((seasonStart-now)/86400000);
-  if(!rounds||rounds.length===0){
-    el.innerHTML='<div class="stats-screen"><button class="btn btn-sm" onclick="showPage(&apos;splash&apos;)" style="margin-bottom:16px">← Back</button><div class="stats-empty"><div style="font-size:48px">🏆</div>'+(now<seasonStart?'<div style="margin-top:12px;font-size:16px">Season starts July 4th, 2026</div><div style="font-family:Barlow Condensed,sans-serif;font-size:32px;color:var(--gold);margin-top:8px">'+daysTo+' days to go</div>':'<div style="margin-top:12px">No rounds recorded yet. Stats appear after the first match.</div>')+'</div></div>';
-    return;
-  }
+  const el = document.getElementById('statsContent');
+  if (!el) return;
+  el.innerHTML = '<div class="loading"><div class="spinner"></div>Loading…</div>';
+    const {data:rounds,error:rErr} = await db.from('rounds').select('*,events(date,course,weather_temp_f,weather_wind_mph,weather_precip_mm)').eq('season','2026').order('created_at',{ascending:true});
+    const {data:allEvents} = await db.from('events').select('id,date,course').eq('season','2026').order('date',{ascending:true});
+    const now=new Date(),seasonStart=new Date('2026-07-04'),daysTo=Math.ceil((seasonStart-now)/86400000);
+    if(rErr||!rounds||rounds.length===0){
+      el.innerHTML='<div class="stats-empty" style="padding:40px 0;text-align:center"><div style="font-size:48px">🏆</div>'+(now<seasonStart?'<div style="margin-top:12px;font-size:16px">Season starts July 4th, 2026</div><div style="font-family:Barlow Condensed,sans-serif;font-size:32px;color:var(--gold);margin-top:8px">'+daysTo+' days to go</div>':'<div style="margin-top:12px;color:var(--text-muted)">No stats yet — they appear after the first committed match.</div>')+'</div>';
+      return;
+    }
   const attend={},courseMap={},weather={},tagImp={},playerDates={};
   rounds.forEach(r=>{
     const n=r.player_name;
@@ -2654,6 +2655,7 @@ async function fetchWeatherForCards() {
       `</div>`;
     el.style.display = 'block';
   }
+
 }
 async function quickAddNote() {
   const ta = document.getElementById('quickNoteInput');
