@@ -1323,13 +1323,22 @@ async function loadNotes() {
 async function renderSplash() {
   await Promise.all([loadEvents(), loadNotes()]);
 
-  const today = new Date().toISOString().split('T')[0];
+  const now = new Date();
+  const today = now.toISOString().split('T')[0];
   const el = document.getElementById('eventList');
 
-  if (!state.events.length) {
+  // Filter out events that ended more than 3 hours ago
+  const visibleEvents = state.events.filter(ev => {
+    const [h, m] = (ev.time || '12:00').split(':').map(Number);
+    const evEnd = new Date(ev.date + 'T' + String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':00');
+    evEnd.setHours(evEnd.getHours() + 3);
+    return evEnd > now;
+  });
+
+  if (!visibleEvents.length) {
     el.innerHTML = '<div class="empty">No upcoming events. Check back soon!</div>';
   } else {
-    el.innerHTML = state.events.map(ev => {
+    el.innerHTML = visibleEvents.map(ev => {
       const isToday = ev.date === today;
       const d = new Date(ev.date + 'T12:00:00');
       const dateStr = d.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
