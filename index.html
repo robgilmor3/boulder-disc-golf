@@ -38,7 +38,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: flex-end;
     overflow: hidden;
   }
 
@@ -95,7 +95,7 @@
     position: relative;
     z-index: 10;
     text-align: center;
-    padding: 90px 20px 0;
+    padding: 0 20px 60px;
     animation: fadeup 1.2s ease both;
     width: 100%;
   }
@@ -121,41 +121,15 @@
     font-size: clamp(56px, 10vw, 120px);
     line-height: 0.9;
     letter-spacing: 4px;
-    background: linear-gradient(
-      155deg,
-      #f0ebe2 0%,
-      #f5c49a 18%,
-      #f5742a 35%,
-      #ffd8b0 52%,
-      #c4d4e8 68%,
-      #ede8e0 82%,
-      #f5c49a 100%
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    filter:
-      drop-shadow(-2px -2px 0 rgba(0,0,0,0.95))
-      drop-shadow( 2px -2px 0 rgba(0,0,0,0.95))
-      drop-shadow(-2px  2px 0 rgba(0,0,0,0.95))
-      drop-shadow( 2px  2px 0 rgba(0,0,0,0.95))
-      drop-shadow(0 0 14px rgba(0,0,0,0.35));
+    color: var(--text);
+    text-shadow: 0 4px 40px rgba(0,0,0,0.8);
     animation: fadeup 1.2s 0.2s ease both;
   }
 
   .hero-title span {
     display: block;
-    background: linear-gradient(
-      155deg,
-      #f5742a 0%,
-      #ff9a5c 28%,
-      #ffe0b8 52%,
-      #f5742a 76%,
-      #e05a18 100%
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--orange);
+    -webkit-text-stroke: 1px var(--orange-light);
   }
 
   .hero-sub {
@@ -566,12 +540,12 @@
   }
 </style>
 </head>
-<body><div style="background:rgba(240,192,64,0.08);border-bottom:1px solid rgba(240,192,64,0.2);padding:9px 20px;text-align:center;position:relative;z-index:200;"><span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:3px;color:rgba(240,192,64,0.75);text-transform:uppercase;">&#x1F6A7;&nbsp;&nbsp;Site under active development &nbsp;&middot;&nbsp; Information shown may not reflect current data &nbsp;&nbsp;&#x1F6A7;</span></div>
+<body>
 
 <!-- ══ NAV ══ -->
 <nav style="position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:linear-gradient(to bottom,rgba(0,0,0,0.6),transparent);pointer-events:none;">
   <div style="font-family:Bebas Neue,sans-serif;font-size:18px;letter-spacing:3px;color:rgba(255,255,255,0.7);pointer-events:auto;">Boulder Disc Golf</div>
-  <a href="/tags" target="_blank" style="pointer-events:auto;display:inline-flex;align-items:center;gap:8px;background:#3DDC6E;color:#0a0f0d;text-decoration:none;font-family:Bebas Neue,sans-serif;font-size:16px;letter-spacing:2px;padding:10px 20px;border-radius:8px;box-shadow:0 0 20px rgba(61,220,110,0.3);border:1px solid rgba(255,255,255,0.2);">🏷️ Tag League App</a>
+  <a href="https://boulder-disc-golf.vercel.app" target="_blank" style="pointer-events:auto;display:inline-flex;align-items:center;gap:8px;background:#3DDC6E;color:#0a0f0d;text-decoration:none;font-family:Bebas Neue,sans-serif;font-size:16px;letter-spacing:2px;padding:10px 20px;border-radius:8px;box-shadow:0 0 20px rgba(61,220,110,0.3);border:1px solid rgba(255,255,255,0.2);">🏷️ Tag League App</a>
 </nav>
 
 <!-- ══ HERO ══ -->
@@ -587,8 +561,7 @@
       Boulder
       <span>Disc Golf</span>
     </h1>
-    <div class="hero-sub" style="color:rgba(0,0,0,0.85);font-weight:700;">Boulder, Colorado</div>
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:5px;color:rgba(0,0,0,0.75);text-transform:uppercase;margin-top:10px;animation:fadeup 1.2s 0.4s ease both;">ELEV &middot; 5,430 FT</div>
+    <div class="hero-sub">Boulder, Colorado</div>
 
   </div>
 
@@ -665,67 +638,33 @@
 <section style="background:var(--dark2); border-top:1px solid rgba(255,255,255,0.04); border-bottom:1px solid rgba(255,255,255,0.04);">
   <div class="section reveal">
     <div class="section-label">Where We Play</div>
-
-    <div style="margin-top:28px;margin-bottom:8px;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:3px;color:rgba(61,220,110,0.7);text-transform:uppercase;">Boulder</div>
+    <h2 class="section-title">Boulder <span>Courses</span></h2>
     <div class="courses-grid">
-      <a href="https://www.dgcoursereview.com/courses/valmont-disc-park.5902" target="_blank" style="text-decoration:none;">
-        <div class="course-card">
-          <div class="course-name">Valmont Disc Park ⭐ 4.2 ↗</div>
-          <div class="course-meta">18 holes · Free · Boulder · BDGC home course</div>
-        </div>
-      </a>
-      <a href="https://www.dgcoursereview.com/course.php?id=160" target="_blank" style="text-decoration:none;">
-        <div class="course-card">
-          <div class="course-name">Harlow Platts DGC ⭐ 4.1 ↗</div>
-          <div class="course-meta">9 holes · Free · Boulder · Weekly Tuesday league</div>
-        </div>
-      </a>
-      <a href="https://www.dgcoursereview.com/courses/flatirons-disc-golf-course.22285" target="_blank" style="text-decoration:none;">
-        <div class="course-card">
-          <div class="course-name">Flatirons DGC ⭐ 4.7 ↗</div>
-          <div class="course-meta">18 holes · Free · Boulder · Iconic Front Range views</div>
-        </div>
-      </a>
-      <a href="https://www.dgcoursereview.com/courses/wondervu-dgc.9221" target="_blank" style="text-decoration:none;">
-        <div class="course-card">
-          <div class="course-name">Wondervu DGC ↗</div>
-          <div class="course-meta">Mountain course · $10 · Only mountain DGC in Boulder County · Technical · Year-round</div>
-        </div>
-      </a>
-      <a href="https://www.dgcoursereview.com/courses/east-interlocken-park.4660" target="_blank" style="text-decoration:none;">
-        <div class="course-card">
-          <div class="course-name">East Interlocken Park ↗</div>
-          <div class="course-meta">9 holes · Free · Broomfield · Between Denver &amp; Boulder</div>
-        </div>
-      </a>
-    </div>
-
-    <div style="margin-top:36px;margin-bottom:8px;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:3px;color:rgba(240,192,64,0.7);text-transform:uppercase;">Longmont <span style="font-size:11px;letter-spacing:1px;color:rgba(255,255,255,0.3);text-transform:none;">· Boulder County · own tag league</span></div>
-    <div class="courses-grid">
-      <a href="https://www.dgcoursereview.com/courses/clark-centennial-park.3662" target="_blank" style="text-decoration:none;">
-        <div class="course-card">
-          <div class="course-name">Clark Centennial Park ↗</div>
-          <div class="course-meta">18 holes · Free · Longmont · Longs Peak DGC</div>
-        </div>
-      </a>
-      <a href="https://www.dgcoursereview.com/course.php?id=360" target="_blank" style="text-decoration:none;">
-        <div class="course-card">
-          <div class="course-name">Loomiller Park ↗</div>
-          <div class="course-meta">9 holes · Free · Longmont · Longs Peak DGC</div>
-        </div>
-      </a>
-      <a href="https://www.dgcoursereview.com/courses/dry-creek-dgc.8051" target="_blank" style="text-decoration:none;">
-        <div class="course-card">
-          <div class="course-name">Dry Creek DGC ↗</div>
-          <div class="course-meta">18 holes · Free · Longmont · Along Left Hand Creek</div>
-        </div>
-      </a>
-      <a href="https://www.dgcoursereview.com/course.php?id=13160" target="_blank" style="text-decoration:none;">
-        <div class="course-card">
-          <div class="course-name">Wildcat Ridge ↗</div>
-          <div class="course-meta">Longmont · Westview Middle School · Closed school hours</div>
-        </div>
-      </a>
+      <a href="https://www.dgcoursereview.com/courses/valmont-disc-park.5902" target="_blank" style="text-decoration:none">
+      <div class="course-card" style="cursor:pointer">
+        <div class="course-name">Valmont Disc Park ⭐ 4.2 ↗</div>
+        <div class="course-meta">18 holes · Par 54 · 4,075 ft · Boulder, CO · Free · Est. 2012 · Designed by John Bird · Dogs OK · Concrete tees</div>
+      </div></a>
+      <a href="https://www.dgcoursereview.com/course.php?id=160" target="_blank" style="text-decoration:none">
+      <div class="course-card" style="cursor:pointer">
+        <div class="course-name">Harlow Platts DGC ⭐ 4.1 ↗</div>
+        <div class="course-meta">9 holes (play twice for 18) · Par 54 · 4,710 ft · Boulder, CO · Free · Est. 1991 · Eagle McMahon grew up here · Water &amp; restrooms on site</div>
+      </div></a>
+      <a href="https://www.dgcoursereview.com/courses/flatirons-disc-golf-course.22285" target="_blank" style="text-decoration:none">
+      <div class="course-card" style="cursor:pointer">
+        <div class="course-name">Flatirons Golf Course ⭐ 4.7 ↗</div>
+        <div class="course-meta">36 holes · Boulder, CO · $22/round · Designed by Eagle McMahon · Limited disc golf days only — tickets sell out fast</div>
+      </div></a>
+      <a href="https://www.dgcoursereview.com/courses/wondervu-dgc.14785" target="_blank" style="text-decoration:none">
+      <div class="course-card" style="cursor:pointer">
+        <div class="course-name">Wondervu DGC ↗</div>
+        <div class="course-meta">Boulder County foothills · Pay to play · Tee times required · Est. 2015 · Challenging terrain · Significant hiking</div>
+      </div></a>
+      <a href="https://www.dgcoursereview.com/courses/east-interlocken-disc-golf-course.4741" target="_blank" style="text-decoration:none">
+      <div class="course-card" style="cursor:pointer">
+        <div class="course-name">East Interlocken DGC ↗</div>
+        <div class="course-meta">9 baskets · 27 tee pads · Broomfield, CO · Free · Tight and technical · Water hazards · Year-round</div>
+      </div></a>
     </div>
   </div>
 </section>
@@ -734,7 +673,7 @@
 <div class="cta-section reveal">
   <h2 class="cta-title">Ready to Play?</h2>
   <p class="cta-sub">Check the tag ledger, register for this week's match, and see who's hot.</p>
-  <a href="/tags" target="_blank" class="tag-btn" style="display:inline-flex">
+  <a href="https://boulder-disc-golf.vercel.app" target="_blank" class="tag-btn" style="display:inline-flex">
     <span class="tag-btn-icon">🏷️</span>
     Open Tag League App
   </a>
@@ -747,7 +686,7 @@
     <span>Boulder, Colorado · Since 1989</span>
   </div>
   <div class="footer-links">
-    <a href="/tags" target="_blank">Tag App</a>
+    <a href="https://boulder-disc-golf.vercel.app" target="_blank">Tag App</a>
     <a href="https://www.pdga.com" target="_blank">PDGA</a>
     <a href="mailto:info@boulderdiscgolf.com">Contact</a>
   </div>
@@ -757,4 +696,12 @@
 
 <script>
 // Scroll reveal
-const observer = new
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
