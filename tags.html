@@ -859,10 +859,10 @@
   <!-- ══ SPLASH ══ -->
   <div id="page-splash" class="page active">
     <div class="install-banner" id="installBanner">
-      <span style="font-size:24px">🥏</span>
-      <p>Add to your home screen for the full app experience!</p>
+      <span style="font-size:24px">📲</span>
+      <p>Add to your home screen for quick access!</p>
       <button class="btn btn-primary btn-sm" id="installBtn">Add</button>
-      <button class="btn btn-secondary btn-sm" onclick="document.getElementById('installBanner').classList.remove('show')">✕</button>
+      <button class="btn btn-secondary btn-sm" onclick="document.getElementById('installBanner').classList.remove('show')">Dismiss</button>
     </div>
 
     <div class="splash-hero">
@@ -2785,7 +2785,10 @@ let deferredPrompt;
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   deferredPrompt = e;
-  document.getElementById('installBanner').classList.add('show');
+  const isMobile = window.innerWidth < 768 || ('ontouchstart' in window) || window.matchMedia('(hover: none)').matches;
+  if (isMobile) {
+    document.getElementById('installBanner').classList.add('show');
+  }
 });
 
 document.getElementById('installBtn').addEventListener('click', async () => {
