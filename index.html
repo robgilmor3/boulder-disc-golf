@@ -95,7 +95,7 @@
     position: relative;
     z-index: 10;
     text-align: center;
-    padding: 6vh 20px 0;
+    padding: 7vh 20px 0;
     animation: fadeup 1.2s ease both;
     width: 100%;
   }
@@ -133,13 +133,25 @@
 
   .hero-sub {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: clamp(16px, 3vw, 22px);
-    font-weight: 300;
-    letter-spacing: 3px;
-    color: var(--text-dim);
-    margin-top: 12px;
+    font-size: clamp(13px, 2vw, 17px);
+    font-weight: 600;
+    letter-spacing: 4px;
+    color: rgba(10,10,10,0.85);
+    text-shadow: 0 1px 3px rgba(255,255,255,0.3);
+    margin-top: 10px;
     text-transform: uppercase;
     animation: fadeup 1.2s 0.3s ease both;
+  }
+  .hero-elev {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(11px, 1.5vw, 14px);
+    font-weight: 400;
+    letter-spacing: 4px;
+    color: rgba(10,10,10,0.7);
+    text-shadow: 0 1px 3px rgba(255,255,255,0.3);
+    margin-top: 4px;
+    text-transform: uppercase;
+    animation: fadeup 1.2s 0.4s ease both;
   }
 
   /* ── TAG APP BUTTON ── */
@@ -561,6 +573,7 @@
       <span>Disc Golf</span>
     </h1>
     <div class="hero-sub">Boulder, Colorado</div>
+    <div class="hero-elev">Elev · 5,430 ft</div>
 
   </div>
 
