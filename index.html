@@ -395,6 +395,56 @@
 
   .feature-card:hover::before { opacity: 1; }
 
+  /* Multiple Courses expand */
+  .course-tiles {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, opacity 0.3s ease, margin-top 0.3s ease;
+    opacity: 0;
+    margin-top: 0;
+  }
+  .feature-card:hover .course-tiles,
+  .feature-card.expanded .course-tiles {
+    max-height: 200px;
+    opacity: 1;
+    margin-top: 16px;
+  }
+  .course-tile-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .course-tile {
+    display: block;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    color: var(--text);
+    text-decoration: none;
+    transition: background 0.2s, border-color 0.2s;
+    cursor: pointer;
+  }
+  .course-tile:hover {
+    background: rgba(61,220,110,0.08);
+    border-color: rgba(61,220,110,0.3);
+    color: var(--green);
+  }
+  .course-tile-hint {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-top: 12px;
+    opacity: 0;
+    transition: opacity 0.3s 0.1s;
+  }
+  .feature-card:hover .course-tile-hint,
+  .feature-card.expanded .course-tile-hint { opacity: 1; }
+
   .feature-icon { font-size: 36px; margin-bottom: 14px; }
 
   .feature-title {
@@ -628,10 +678,19 @@
       <div class="feature-title">Bag Tag League</div>
       <div class="feature-body">350 tags in circulation. Weekly matches at courses across Boulder. Check the app to see who's holding tag #1 and register for the next match.</div>
     </div>
-    <div class="feature-card">
+    <div class="feature-card" id="courses-card" onclick="toggleCoursesCard(event)">
       <div class="feature-icon">📍</div>
       <div class="feature-title">Multiple Courses</div>
       <div class="feature-body">We rotate between Valmont Disc Park, Harlow Platts, East Interlocken, and Wondervu DGC. Different vibes, same community.</div>
+      <div class="course-tile-hint">Tap to explore courses →</div>
+      <div class="course-tiles">
+        <div class="course-tile-grid">
+          <a class="course-tile" href="https://www.dgcoursereview.com/courses/valmont-disc-park.5902" target="_blank" onclick="event.stopPropagation()">📍 Valmont Disc Park</a>
+          <a class="course-tile" href="https://www.dgcoursereview.com/course.php?id=160" target="_blank" onclick="event.stopPropagation()">📍 Harlow Platts DGC</a>
+          <a class="course-tile" href="https://www.dgcoursereview.com/courses/east-interlocken-disc-golf-course.4741" target="_blank" onclick="event.stopPropagation()">📍 East Interlocken DGC</a>
+          <a class="course-tile" href="https://www.dgcoursereview.com/courses/wondervu-dgc.14785" target="_blank" onclick="event.stopPropagation()">📍 Wondervu DGC</a>
+        </div>
+      </div>
     </div>
     <div class="feature-card">
       <div class="feature-icon">🏆</div>
@@ -723,5 +782,13 @@ const observer = new IntersectionObserver(entries => {
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 </script>
 
+<script>
+function toggleCoursesCard(e) {
+  if (window.matchMedia('(hover: none)').matches) {
+    const card = document.getElementById('courses-card');
+    card.classList.toggle('expanded');
+  }
+}
+</script>
 </body>
 </html>
