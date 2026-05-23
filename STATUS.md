@@ -36,6 +36,10 @@
 
 ## RECENT CHANGES (newest first)
 
+### May 23, 2026 — Session 3 continued
+- Task 1: Joke homepage live — hero_joke.jpg swapped into index.html
+  Original saved as index_backup.html to restore anytime
+
 ### May 23, 2026 — Session 3 (Cowork) — Tasks 5–11
 - Task 5: Fixed drag-to-reorder notes for Android — setPointerCapture on handle, handle-level
   pointermove/pointerup listeners with {passive:false}, touch-action:none set in JS
@@ -82,7 +86,6 @@
 ---
 
 ## NEXT UP (in priority order)
-1. Task 1 (pending): Swap hero_joke.jpg into index.html for joke homepage
-   — waiting on hero_joke.jpg file from Rob
+1. Upgrade weather icons to Meteocons (deferred)
 2. Upgrade weather icons to Meteocons (deferred from original backlog)
 3. Test all mobile fixes on real Samsung device
