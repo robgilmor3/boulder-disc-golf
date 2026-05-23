@@ -2091,6 +2091,38 @@ function saveMatchState() {}
 //  ADMIN
 // ═══════════════════════════════════════════════════════
 
+function renderAdminEvents(showAll) {
+  const evEl = document.getElementById('adminEventList');
+  const today = new Date().toISOString().split('T')[0];
+  const sorted = [...state.events].sort((a,b) => a.date.localeCompare(b.date));
+  const upcoming = sorted.filter(ev => ev.date >= today);
+  const past = sorted.filter(ev => ev.date < today);
+  const toShow = showAll ? sorted : upcoming.slice(0, 3);
+
+  function evRow(ev) {
+    return `
+    <div class="list-item">
+      <div class="list-item-info">
+        <div class="list-item-name">${ev.title || 'Tag Match'} — ${ev.course}</div>
+        <div class="list-item-meta">${fmtDate(ev.date)} · ${formatTime(ev.time)} ${ev.cancelled ? '· CANCELLED' : ''}</div>
+      </div>
+      <div class="flex-gap">
+        <button class="btn btn-secondary btn-sm" onclick="toggleCancel(${ev.id}, ${!ev.cancelled})">${ev.cancelled ? 'Restore' : 'Cancel'}</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteEvent(${ev.id})">Delete</button>
+      </div>
+    </div>`;
+  }
+
+  const rows = toShow.map(evRow).join('') || '<div class="empty">No events.</div>';
+  const hiddenCount = upcoming.length - 3;
+  const toggleBtn = !showAll && hiddenCount > 0
+    ? `<button class="btn btn-secondary btn-sm" style="margin-top:8px;width:100%" onclick="renderAdminEvents(true)">Show all (${hiddenCount} more upcoming + ${past.length} past)</button>`
+    : showAll
+      ? `<button class="btn btn-secondary btn-sm" style="margin-top:8px;width:100%" onclick="renderAdminEvents(false)">Show less</button>`
+      : '';
+  evEl.innerHTML = rows + toggleBtn;
+}
+
 async function renderAdmin() {
   await Promise.all([loadPlayers(), loadEvents(), loadNotes(), loadAcePool()]);
 
@@ -2100,20 +2132,8 @@ async function renderAdmin() {
   const { count } = await db.from('match_history').select('*', { count: 'exact', head: true });
   document.getElementById('statMatches').textContent = count || 0;
 
-  // Events
-  const evEl = document.getElementById('adminEventList');
-  evEl.innerHTML = state.events.map(ev => `
-    <div class="list-item">
-      <div class="list-item-info">
-        <div class="list-item-name">${ev.title || 'Tag Match'} — ${ev.course}</div>
-        <div class="list-item-meta">${ev.date} · ${formatTime(ev.time)} ${ev.cancelled ? '· CANCELLED' : ''}</div>
-      </div>
-      <div class="flex-gap">
-        <button class="btn btn-secondary btn-sm" onclick="toggleCancel(${ev.id}, ${!ev.cancelled})">${ev.cancelled ? 'Restore' : 'Cancel'}</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteEvent(${ev.id})">Delete</button>
-      </div>
-    </div>
-  `).join('') || '<div class="empty">No events.</div>';
+  // Events — show next 3 upcoming by default
+  renderAdminEvents(false);
 
   // Tag Assignment
   renderTagAssign('');
@@ -2503,6 +2523,13 @@ function fmtHour(h) {
   if (h === 12) return '12 PM';
   return (h - 12) + ' PM';
 }
+function fmtDate(dateStr) {
+  // Convert YYYY-MM-DD → MM/DD/YYYY for display
+  if (!dateStr) return '';
+  const [y, m, d] = dateStr.split('-');
+  return `${m}/${d}/${y}`;
+}
+
 function fmtEventDate(dateStr, timeStr) {
   const d = new Date(dateStr + 'T12:00:00');
   const day  = d.toLocaleDateString('en-US', { weekday:'short' }).toUpperCase();
