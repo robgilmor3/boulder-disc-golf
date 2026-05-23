@@ -36,6 +36,20 @@
 
 ## RECENT CHANGES (newest first)
 
+### May 23, 2026 — Session 3 (Cowork) — Tasks 5–11
+- Task 5: Fixed drag-to-reorder notes for Android — setPointerCapture on handle, handle-level
+  pointermove/pointerup listeners with {passive:false}, touch-action:none set in JS
+- Task 6: Fixed inline note editing for touch devices — edit/delete buttons now always
+  visible on touch screens (@media hover:none), save/cancel use onpointerdown
+- Task 7: Added CSS breakpoints for 320/360/375/390/412/430/768/1024px
+- Task 8: Fixed iPhone landscape — @media (max-height:500px) and (orientation:landscape)
+  stacks weather widget below event info
+- Task 9: Removed score submission from home screen — replaced with green
+  "Head to the Match tab" prompt after registering
+- Task 10: Removed Under Construction banner (constructionBanner + constructionNote divs)
+- Task 11: Verified all recurring Wed 4PM + Sat noon events exist in Supabase
+  through Oct 31 2026 (47 total events) — no new inserts needed
+
 ### May 23, 2026 — Session 2 (Cowork)
 - Task 3: Tag number is now optional when adding a new player (blank = null)
   - Label updated to "Tag # (optional)"
@@ -68,11 +82,7 @@
 ---
 
 ## NEXT UP (in priority order)
-1. Fix player search dropdown on mobile (Task 4)
-2. Fix drag-to-reorder notes on Android (Task 5)
-3. Fix inline note editing on Android (Task 6)
-4. CSS breakpoints for all screen widths (Task 7)
-5. iPhone landscape stacking fix (Task 8)
-6. Move score submission off home screen (Task 9)
-7. Remove Under Construction banner (Task 10)
-8. Generate recurring Wed/Sat events through Oct 2026 (Task 11)
+1. Task 1 (pending): Swap hero_joke.jpg into index.html for joke homepage
+   — waiting on hero_joke.jpg file from Rob
+2. Upgrade weather icons to Meteocons (deferred from original backlog)
+3. Test all mobile fixes on real Samsung device
