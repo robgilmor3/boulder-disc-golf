@@ -1212,6 +1212,38 @@
       <div id="adminRoster"></div>
     </div>
 
+    <div class="admin-section" id="tempAdminSection" style="display:none">
+      <h3>🔑 Admin Access Manager</h3>
+      <div id="adminAccessList" style="margin-bottom:14px;"></div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:12px;">Add Admin Access</div>
+        <div class="form-row">
+          <label>Username</label>
+          <input type="text" id="newAdminUser" placeholder="e.g. casey" autocomplete="off">
+        </div>
+        <div class="form-row">
+          <label>Password</label>
+          <input type="password" id="newAdminPass" placeholder="Set a password">
+        </div>
+        <div class="form-row">
+          <label>Display Name</label>
+          <input type="text" id="newAdminName" placeholder="e.g. Casey Jones">
+        </div>
+        <div class="form-row">
+          <label>Role</label>
+          <select id="newAdminRole">
+            <option value="admin">Admin</option>
+            <option value="scorer">Scorer</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Expires <span style="font-size:11px;font-weight:300;color:var(--text-muted)">(leave blank = permanent)</span></label>
+          <input type="date" id="newAdminExpiry" placeholder="Optional expiry date">
+        </div>
+        <button class="btn btn-primary" style="margin-top:6px" onclick="addDynamicAdmin()">Add Admin →</button>
+      </div>
+    </div>
+
   </div>
 
 </main>
@@ -2091,6 +2123,76 @@ function saveMatchState() {}
 //  ADMIN
 // ═══════════════════════════════════════════════════════
 
+// ═══════════════════════════════════════════════════════
+//  DYNAMIC ADMIN MANAGEMENT
+// ═══════════════════════════════════════════════════════
+const DYNAMIC_ADMINS_KEY = 'bdg_dynamic_admins';
+
+function getDynamicAdmins() {
+  try { return JSON.parse(localStorage.getItem(DYNAMIC_ADMINS_KEY)) || []; }
+  catch(e) { return []; }
+}
+
+function saveDynamicAdmins(admins) {
+  localStorage.setItem(DYNAMIC_ADMINS_KEY, JSON.stringify(admins));
+}
+
+function isDynamicAdminExpired(admin) {
+  if (!admin.expires) return false;
+  return new Date(admin.expires) < new Date();
+}
+
+function renderAdminAccessList() {
+  const el = document.getElementById('adminAccessList');
+  const admins = getDynamicAdmins();
+  const today = new Date().toISOString().split('T')[0];
+  if (!admins.length) {
+    el.innerHTML = '<div style="color:var(--text-dim);font-size:13px;padding:8px 0;">No additional admins set up.</div>';
+    return;
+  }
+  el.innerHTML = admins.map((a, i) => {
+    const expired = isDynamicAdminExpired(a);
+    const expiryLabel = a.expires
+      ? (expired ? `<span style="color:var(--red,#f66)">Expired ${fmtDate(a.expires)}</span>` : `Expires ${fmtDate(a.expires)}`)
+      : 'Permanent';
+    return `<div class="list-item" style="${expired ? 'opacity:0.5' : ''}">
+      <div class="list-item-info">
+        <div class="list-item-name">${a.name} <span class="role-badge role-${a.role}">${a.role.toUpperCase()}</span></div>
+        <div class="list-item-meta">@${a.username} · ${expiryLabel}</div>
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="removeDynamicAdmin(${i})">Remove</button>
+    </div>`;
+  }).join('');
+}
+
+function addDynamicAdmin() {
+  const username = document.getElementById('newAdminUser').value.trim().toLowerCase();
+  const pass = document.getElementById('newAdminPass').value.trim();
+  const name = document.getElementById('newAdminName').value.trim();
+  const role = document.getElementById('newAdminRole').value;
+  const expires = document.getElementById('newAdminExpiry').value || null;
+  if (!username || !pass || !name) return showToast('Fill in username, password, and name.', true);
+  if (DEMO_CREDS[username]) return showToast('That username is reserved.', true);
+  const admins = getDynamicAdmins();
+  if (admins.find(a => a.username === username)) return showToast('Username already exists.', true);
+  admins.push({ username, pass, name, role, expires });
+  saveDynamicAdmins(admins);
+  document.getElementById('newAdminUser').value = '';
+  document.getElementById('newAdminPass').value = '';
+  document.getElementById('newAdminName').value = '';
+  document.getElementById('newAdminExpiry').value = '';
+  renderAdminAccessList();
+  showToast(`${name} added as ${role}!`);
+}
+
+function removeDynamicAdmin(index) {
+  const admins = getDynamicAdmins();
+  const removed = admins.splice(index, 1)[0];
+  saveDynamicAdmins(admins);
+  renderAdminAccessList();
+  showToast(`${removed.name} removed.`);
+}
+
 function renderAdminEvents(showAll) {
   const evEl = document.getElementById('adminEventList');
   const today = new Date().toISOString().split('T')[0];
@@ -2150,6 +2252,8 @@ async function renderAdmin() {
   // God-only roster
   if (state.currentUser?.role === 'god') {
     document.getElementById('godSection').style.display = 'block';
+    document.getElementById('tempAdminSection').style.display = 'block';
+    renderAdminAccessList();
     const roster = document.getElementById('adminRoster');
     roster.innerHTML = state.players.map(p => `
       <div class="list-item">
@@ -2806,8 +2910,25 @@ async function changeRole(id, role) {
 function doLogin() {
   const user = document.getElementById('loginUser').value.trim().toLowerCase();
   const pass = document.getElementById('loginPass').value;
-  const cred = DEMO_CREDS[user];
-  if (cred && cred.pass === pass) {
+
+  // Check static creds first
+  let cred = DEMO_CREDS[user] && DEMO_CREDS[user].pass === pass ? DEMO_CREDS[user] : null;
+
+  // Check dynamic admins if no static match
+  if (!cred) {
+    const dynAdmins = getDynamicAdmins();
+    const dyn = dynAdmins.find(a => a.username === user && a.pass === pass);
+    if (dyn) {
+      if (isDynamicAdminExpired(dyn)) {
+        document.getElementById('loginErr').textContent = 'This access has expired.';
+        document.getElementById('loginErr').style.display = 'block';
+        return;
+      }
+      cred = { name: dyn.name, role: dyn.role };
+    }
+  }
+
+  if (cred) {
     state.currentUser = { name: cred.name, role: cred.role };
     localStorage.setItem('bdg_user', JSON.stringify({ name: cred.name, role: cred.role }));
     applyLogin(cred.name, cred.role);
@@ -2816,6 +2937,7 @@ function doLogin() {
     showToast(`Welcome, ${cred.name.split(' ')[0]}!`);
     renderSplash(); // re-render so drag handles + edit buttons appear
   } else {
+    document.getElementById('loginErr').textContent = 'Invalid username or password.';
     document.getElementById('loginErr').style.display = 'block';
   }
 }
@@ -2902,7 +3024,10 @@ document.querySelectorAll('.modal-overlay').forEach(el => {
     if (saved) {
       const { name, role } = JSON.parse(saved);
       // Verify the saved user still exists in DEMO_CREDS
-      const stillValid = Object.values(DEMO_CREDS).some(c => c.name === name && c.role === role);
+      const inStatic = Object.values(DEMO_CREDS).some(c => c.name === name && c.role === role);
+      const dynAdmins = getDynamicAdmins();
+      const dynMatch = dynAdmins.find(a => a.name === name && a.role === role);
+      const stillValid = inStatic || (dynMatch && !isDynamicAdminExpired(dynMatch));
       if (stillValid) {
         state.currentUser = { name, role };
         applyLogin(name, role);
