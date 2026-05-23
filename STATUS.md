@@ -24,10 +24,10 @@
 
 ### Known issues / pending:
 - Weather widget icons need upgrade to Meteocons
-- Event list should only show next 1-2 upcoming events (not all)
-- Events should auto-hide 4 hours after match ends
+- Event list should only show next 1-2 upcoming events (not all) ✅ FIXED
+- Events should auto-hide 4 hours after match ends ✅ FIXED
 - Recurring Wednesday 4PM and Saturday noon events need to be generated
-- Scott Carpenter Park still appears in admin add event course dropdown
+- Scott Carpenter Park still appears in admin add event course dropdown ✅ FIXED
 - Under Construction banner still showing — needs to be removed
 - Mobile/tablet responsive issues on iPhone Safari still need testing
 - CLAUDE.md and STATUS.md need to be committed to GitHub repo
@@ -37,6 +37,11 @@
 ## RECENT CHANGES (newest first)
 
 ### May 2026
+- Tasks 1-3: Confirmed Valmont DGC name correct everywhere
+- Removed Scott Carpenter Park DGC from all course dropdowns
+- Renamed Coal Creek Trail DGC → Coal Creek DGC in dropdown
+- Event list now shows only next 1-2 upcoming events (.slice(0,2))
+- Events now auto-hide 4 hours after match end time (was 3hrs)
 - Fixed Tag League App button — pointer-events:none was blocking clicks on nav
 - Fixed landing page hero — text repositioned to upper sky area, mountains visible
 - Added BOULDER, COLORADO in dark text readable against mountains
@@ -58,12 +63,7 @@
 ---
 
 ## NEXT UP (in priority order)
-1. Commit CLAUDE.md and STATUS.md to GitHub
-2. Remove Under Construction banner from tags.html
-3. Fix event list to show only next 1-2 upcoming events
-4. Auto-hide events 4 hours after match ends
-5. Generate recurring Wednesday 4PM + Saturday noon events through Oct 2026
-6. Fix Scott Carpenter Park in admin event course dropdown
-7. Upgrade weather icons to Meteocons
-8. Test and fix mobile/iPhone Safari issues
-9. Add Coal Creek DGC to course dropdown everywhere
+1. Remove Under Construction banner from tags.html
+2. Generate recurring Wednesday 4PM + Saturday noon events through Oct 2026
+3. Upgrade weather icons to Meteocons
+4. Test and fix mobile/iPhone Safari issues
