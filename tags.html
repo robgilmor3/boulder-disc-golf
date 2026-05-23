@@ -1439,16 +1439,8 @@ async function renderSplash() {
               </div>
               ${!ev.cancelled ? `<button class="btn btn-primary btn-sm" style="margin-top:10px;display:block;width:fit-content;padding:12px 20px;" onclick="openRegisterForEvent(${ev.id})">Register →</button>` : ''}
               ${isToday && !ev.cancelled && registered.length > 0 ? `
-                <div id="score-submit-${ev.id}" class="score-submit-section">
-                  <div class="score-submit-label">Submit Your Score</div>
-                  <div class="score-submit-row">
-                    <select id="score-player-${ev.id}">
-                      <option value="">— Your name —</option>
-                      ${registered.map(r => `<option value="${r.name}">${r.name} (#${r.tag})</option>`).join('')}
-                    </select>
-                    <input id="score-val-${ev.id}" type="number" min="18" max="120" placeholder="Strokes">
-                    <button class="btn btn-secondary btn-sm" onclick="submitPlayerScore(${ev.id})">Submit ✓</button>
-                  </div>
+                <div style="margin-top:10px;padding:10px 14px;background:rgba(61,220,110,0.07);border:1px solid rgba(61,220,110,0.2);border-radius:8px;font-size:13px;color:var(--green);font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;">
+                  ✅ You're registered! Head to the <strong>Match tab</strong> to submit your score.
                 </div>
               ` : ''}
             </div>
