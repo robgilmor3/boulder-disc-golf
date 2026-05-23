@@ -1040,9 +1040,8 @@
           <label>Course</label>
           <select id="evCourse">
             <option>Valmont DGC</option>
-            <option>Scott Carpenter Park DGC</option>
             <option>Harlow Platts Community Park</option>
-            <option>Coal Creek Trail DGC</option>
+            <option>Coal Creek DGC</option>
           </select>
         </div>
         <div class="flex-gap">
@@ -1331,9 +1330,9 @@ async function renderSplash() {
   const visibleEvents = state.events.filter(ev => {
     const [h, m] = (ev.time || '12:00').split(':').map(Number);
     const evEnd = new Date(ev.date + 'T' + String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':00');
-    evEnd.setHours(evEnd.getHours() + 3);
+    evEnd.setHours(evEnd.getHours() + 4);
     return evEnd > now;
-  });
+  }).slice(0, 2);
 
   if (!visibleEvents.length) {
     el.innerHTML = '<div class="empty">No upcoming events. Check back soon!</div>';
