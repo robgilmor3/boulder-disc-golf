@@ -2510,19 +2510,21 @@ async function saveNoteOrder(orderedIds) {
 }
 
 function applyNoteReorder(noteEl) {
-  // Pointer events — works on Android (Samsung), iOS, and desktop
-  // setPointerCapture redirects all move/up events to the handle element itself
+  // Document-level pointer events — reliable on Android, iOS, and desktop Chrome
+  // No setPointerCapture needed; document always receives move/up regardless of pointer position
   noteEl.querySelectorAll('.drag-handle').forEach(handle => {
-    handle.style.touchAction = 'none'; // belt-and-suspenders for Android Chrome
+    handle.style.touchAction = 'none';
+    handle.style.userSelect = 'none';
 
-    handle.addEventListener('pointerdown', e => {
+    handle.addEventListener('pointerdown', function(e) {
       e.preventDefault();
+      e.stopPropagation();
       const dragItem = handle.closest('[data-note-id]');
+      if (!dragItem) return;
+
       dragItem.style.opacity = '0.55';
       dragItem.style.transform = 'scale(1.01)';
       dragItem.style.boxShadow = '0 6px 24px rgba(0,0,0,0.5)';
-      dragItem.style.touchAction = 'none';
-      handle.setPointerCapture(e.pointerId);
 
       function onMove(ev) {
         ev.preventDefault();
@@ -2531,29 +2533,31 @@ function applyNoteReorder(noteEl) {
         for (const sib of siblings) {
           const r = sib.getBoundingClientRect();
           if (y >= r.top && y <= r.bottom) {
-            noteEl.insertBefore(dragItem, y < r.top + r.height / 2 ? sib : sib.nextSibling);
+            const insertBefore = y < r.top + r.height / 2 ? sib : sib.nextSibling;
+            if (dragItem.nextSibling !== insertBefore && dragItem !== insertBefore) {
+              noteEl.insertBefore(dragItem, insertBefore);
+            }
             break;
           }
         }
       }
 
-      async function onEnd(ev) {
+      async function onEnd() {
         dragItem.style.opacity = '';
         dragItem.style.transform = '';
         dragItem.style.boxShadow = '';
-        dragItem.style.touchAction = '';
-        handle.removeEventListener('pointermove', onMove);
-        handle.removeEventListener('pointerup', onEnd);
-        handle.removeEventListener('pointercancel', onEnd);
+        document.removeEventListener('pointermove', onMove);
+        document.removeEventListener('pointerup', onEnd);
+        document.removeEventListener('pointercancel', onEnd);
         const newOrder = [...noteEl.querySelectorAll('[data-note-id]')].map(el => el.dataset.noteId);
         await saveNoteOrder(newOrder);
         showToast('Order saved!');
       }
 
-      // Listen on handle — setPointerCapture ensures all events land here
-      handle.addEventListener('pointermove', onMove, { passive: false });
-      handle.addEventListener('pointerup', onEnd);
-      handle.addEventListener('pointercancel', onEnd);
+      // Document-level listeners catch pointer events anywhere on screen
+      document.addEventListener('pointermove', onMove, { passive: false });
+      document.addEventListener('pointerup', onEnd);
+      document.addEventListener('pointercancel', onEnd);
     }, { passive: false });
   });
 }
@@ -3018,27 +3022,38 @@ document.querySelectorAll('.modal-overlay').forEach(el => {
 //  INIT
 // ═══════════════════════════════════════════════════════
 (async () => {
-  // Restore saved login before rendering anything
+  // Restore saved login — simple, defensive, no external dependencies
   try {
     const saved = localStorage.getItem('bdg_user');
     if (saved) {
-      const { name, role } = JSON.parse(saved);
-      // Verify the saved user still exists in DEMO_CREDS
-      const inStatic = Object.values(DEMO_CREDS).some(c => c.name === name && c.role === role);
-      const dynAdmins = getDynamicAdmins();
-      const dynMatch = dynAdmins.find(a => a.name === name && a.role === role);
-      const stillValid = inStatic || (dynMatch && !isDynamicAdminExpired(dynMatch));
-      if (stillValid) {
-        state.currentUser = { name, role };
-        applyLogin(name, role);
-      } else {
-        localStorage.removeItem('bdg_user'); // stale — clear it
+      const parsed = JSON.parse(saved);
+      const name = parsed.name;
+      const role = parsed.role;
+      if (name && role) {
+        // Check static creds
+        const inStatic = Object.values(DEMO_CREDS).some(c => c.name === name && c.role === role);
+        // Check dynamic admins (wrapped separately so failure here doesn't break static restore)
+        let inDynamic = false;
+        try {
+          const dynAdmins = JSON.parse(localStorage.getItem('bdg_dynamic_admins') || '[]');
+          const dynMatch = dynAdmins.find(a => a.name === name && a.role === role);
+          inDynamic = !!(dynMatch && (!dynMatch.expires || new Date(dynMatch.expires) >= new Date()));
+        } catch(e2) {}
+
+        if (inStatic || inDynamic) {
+          state.currentUser = { name, role };
+          applyLogin(name, role);
+        } else {
+          localStorage.removeItem('bdg_user');
+        }
       }
     }
-  } catch(e) { localStorage.removeItem('bdg_user'); }
+  } catch(e) {
+    try { localStorage.removeItem('bdg_user'); } catch(e2) {}
+  }
 
   await loadPlayers();
-  renderSplash();
+  await renderSplash();
 })();
 </script>
 </body>
