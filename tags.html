@@ -1652,7 +1652,7 @@ function searchPlayer(val) {
     status.style.display = 'none';
     dd.style.display = 'block';
     dd.innerHTML = localMatches.map(p => `
-      <div onclick="selectPlayer(${JSON.stringify(p.name)}, ${p.tag}, ${JSON.stringify(p.pdga||'')})" style="padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border);font-size:14px;" onmouseenter="this.style.background='var(--surface)'" onmouseleave="this.style.background=''">
+      <div onpointerdown="event.preventDefault();selectPlayer(${JSON.stringify(p.name)}, ${p.tag}, ${JSON.stringify(p.pdga||'')})" style="padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border);font-size:14px;" onmouseenter="this.style.background='var(--surface)'" onmouseleave="this.style.background=''">
         <strong>${p.name}</strong>
         <span style="font-size:11px;color:var(--text-muted);font-family:'DM Mono',monospace;margin-left:8px">Tag #${p.tag}${p.pdga ? ' · PDGA #'+p.pdga : ''}</span>
       </div>
@@ -1711,7 +1711,7 @@ async function lookupPDGAName(e, name) {
     if (data.found && data.players && data.players.length) {
       dd.style.display = 'block';
       dd.innerHTML = data.players.map(p => `
-        <div onclick="selectPDGAResult(event, ${JSON.stringify(p.name)}, ${JSON.stringify(p.pdga)})" style="padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border);font-size:14px;" onmouseenter="this.style.background='var(--surface)'" onmouseleave="this.style.background=''">
+        <div onpointerdown="selectPDGAResult(event, ${JSON.stringify(p.name)}, ${JSON.stringify(p.pdga)})" style="padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border);font-size:14px;" onmouseenter="this.style.background='var(--surface)'" onmouseleave="this.style.background=''">
           <strong>${p.name}</strong>
           <span style="font-size:11px;color:var(--text-muted);font-family:'DM Mono',monospace;margin-left:8px">PDGA #${p.pdga}${p.city ? ' · ' + p.city + (p.state ? ', '+p.state : '') : ''}</span>
         </div>
@@ -1727,6 +1727,7 @@ async function lookupPDGAName(e, name) {
 
 function selectPDGAResult(e, name, pdgaNum) {
   if (e && e.preventDefault) e.preventDefault();
+  if (e && e.stopPropagation) e.stopPropagation();
   document.getElementById('regSearch').value = name;
   document.getElementById('newPlayerName').value = name;
   document.getElementById('newPlayerPDGA').value = pdgaNum || '';
@@ -1754,7 +1755,7 @@ function searchPlayerModal(val) {
   if (!matches.length) { dd.style.display = 'none'; return; }
   dd.style.display = 'block';
   dd.innerHTML = matches.map(p => `
-    <div onclick="selectPlayerModal('${p.name}', ${p.tag})" style="padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border);font-size:14px;" onmouseenter="this.style.background='var(--surface)'" onmouseleave="this.style.background=''">
+    <div onpointerdown="event.preventDefault();selectPlayerModal('${p.name}', ${p.tag})" style="padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border);font-size:14px;" onmouseenter="this.style.background='var(--surface)'" onmouseleave="this.style.background=''">
       <strong>${p.name}</strong>
       <span style="font-size:11px;color:var(--text-muted);margin-left:8px">Tag #${p.tag}</span>
     </div>
