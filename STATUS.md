@@ -1,71 +1,69 @@
-# Boulder Disc Golf — Project Status
+# STATUS.md — Boulder Disc Golf Project Status
+# Update this file after EVERY change with date and what changed
 
 ---
 
-## Current Live URLs
+## CURRENT STATE (as of May 2026)
 
-| Page | URL |
-|------|-----|
-| Landing page | https://boulder-disc-golf.vercel.app |
-| Tag League App | https://boulder-disc-golf.vercel.app/tags |
+### Both sites are LIVE:
+- boulderdiscgolf.com — landing page ✅
+- boulder-disc-golf.vercel.app — tag app ✅
 
----
+### What's working:
+- Tag ledger loads players from Supabase ✅
+- Weather widget on event cards (NWS + Open-Meteo fallback) ✅
+- Community notes with drag to reorder and inline edit ✅
+- Match flow: register → scores → tag redistribution ✅
+- Player self-score submission ✅
+- Admin panel with tag assignment bulk editor ✅
+- Season scheduler for recurring events ✅
+- Logo links back to boulderdiscgolf.com ✅
+- Tag League App button in nav works ✅
+- PWA install prompt mobile only ✅
+- 36 players loaded from Saturday 5/16 match ✅
 
-## Recent Changes
-
-### 2026-05-21
-- **CLAUDE.md** — Created permanent instruction file: project context, tech stack, live URLs, coding preferences, what not to touch, GitHub workflow, mandatory STATUS.md update rule
-- **STATUS.md** — Recreated with full current state
-
-### 2026-05-21
-- **STATUS.md** — Created initial project changelog
-
-### 2026-05-21
-- **tags.html** — PWA install banner: mobile-only (width < 768px or touch/hover:none device), text updated to "📲 Add to your home screen for quick access!", dismiss button labeled "Dismiss"
-
-### 2026-05-21
-- **tags.html + Supabase** — Deleted stale past event (May 20, "Valmont Bike Park DGC"). Inserted 47 recurring events: Wed 4PM + Sat 12PM @ Valmont DGC, May 23 – Oct 31 2026 (Supabase IDs 2–48)
-- **tags.html** — `renderSplash` now auto-hides events where date+time+3h is past — no manual deletion needed
-
-### 2026-05-21
-- **tags.html** — Renamed all "Valmont Bike Park DGC" → "Valmont DGC" (dropdowns, course selectors, COURSE_COORDS key)
-
-### 2026-05-21
-- **index.html** — Multiple Courses card: hover/tap expand with 4 clickable course tiles (Valmont Disc Park, Harlow Platts, East Interlocken, Wondervu) linking to dgcoursereview.com. CSS max-height transition. Mobile tap toggles via toggleCoursesCard()
-- **index.html** — All 5 course cards: corrected ratings (Valmont ⭐4.2, Harlow Platts ⭐4.1, Flatirons ⭐4.7, East Interlocken ⭐4.1, Wondervu ⭐4.1). Removed ↗ arrows. All course/LPDGC links open in same tab
-- **index.html** — Wondervu meta: "22 holes · Boulder County foothills · $10/day · No reservations required · Only mountain DGC in Boulder County · Very hilly and heavily wooded"
-- **index.html** — Fixed DGCR URLs: East Interlocken → east-interlocken-park.4660, Harlow Platts → harlow-platts-park.160, Wondervu → wondervu-dgc.9221
-
-### Prior session
-- **index.html** — Added LPDGC (Longs Peak Disc Golf Club) feature card → https://lpdgc.org, subtitle "(Boulder County)"
-- **index.html** — All 3 Tag League App links → https://boulder-disc-golf.vercel.app/tags with target="_blank"
-- **index.html** — Multiple Courses body text updated; removed Scott Carpenter Park and Coal Creek Trail
-- **tags.html** — Tag# field read-only for non-admin users
-- **tags.html** — Weather: NWS api.weather.gov primary + Open-Meteo fallback; colored Unicode icons (☀☁⚡❄); cache key wx4_; refresh thresholds 10min/30min/2h; columns = 1h before through 3h after event time
-- **tags.html** — Score submission: players self-submit strokes on home screen; TD live dashboard with ✅/⏳ per player; Commit button gated until all scores in
-- **tags.html** — Match Manager auto-loads today's event and registered players from Supabase
-- **tags.html** — Stats tab: fixed empty state (was spinning forever); targets statsContent div correctly
+### Known issues / pending:
+- Weather widget icons need upgrade to Meteocons
+- Event list should only show next 1-2 upcoming events (not all)
+- Events should auto-hide 4 hours after match ends
+- Recurring Wednesday 4PM and Saturday noon events need to be generated
+- Scott Carpenter Park still appears in admin add event course dropdown
+- Under Construction banner still showing — needs to be removed
+- Mobile/tablet responsive issues on iPhone Safari still need testing
+- CLAUDE.md and STATUS.md need to be committed to GitHub repo
 
 ---
 
-## Known Issues
+## RECENT CHANGES (newest first)
 
-- None currently known.
+### May 2026
+- Fixed Tag League App button — pointer-events:none was blocking clicks on nav
+- Fixed landing page hero — text repositioned to upper sky area, mountains visible
+- Added BOULDER, COLORADO in dark text readable against mountains
+- Added Elev · 5,430 ft line
+- Fixed hero title — removed thick outlined orange stroke font, back to clean elegant text
+- Added ⚡ Built by Rob Gilmore — Tech God ⚡ to footer
+- Added Longs Peak Disc Golf Club feature card linking to lpdgc.org
+- Added (Boulder County) subtitle to LPDGC card
+- Course cards updated with correct DGCR links and ratings
+- Removed Scott Carpenter Park from courses section
+- Added East Interlocken, Wondervu, Harlow Platts with correct URLs
+- Weather widget repositioned — side by side with event info not below it
+- Player self-score submission added to home screen
+- TD score dashboard with ✅/⏳ indicators added
+- Match Manager auto-loads today's registered players
+- Cowork fixed infinite Supabase loading spinner
+- 36 players imported from Saturday 5/16 match results
 
 ---
 
-## Next Up
-
-- *(Add items here as they come up)*
-
----
-
-## Architecture Notes
-
-- **Stack:** Static HTML/CSS/JS, no framework. Deployed on Vercel (auto-deploys from main branch)
-- **Backend:** Supabase project `mewwizubdwfgvrhiylur`. Anon/publishable key in browser — safe
-- **Key files:** `index.html` (landing page) · `tags.html` (Tag League App) · `CLAUDE.md` (instructions) · `STATUS.md` (this file)
-- **Weather:** NWS api.weather.gov → /points/{lat},{lon} → hourly forecast. Fallback: Open-Meteo. Cache prefix: `wx4_`
-- **COURSE_COORDS:** `'Valmont DGC': {lat:40.0150, lon:-105.2316}`
-- **Supabase events schema:** `id, date, time, title, course, cancelled, registered (JSON), ace_per_player, ace_pool_total, ace_pool_cap, host`
-- **Recurring schedule:** Wed 4PM + Sat 12PM @ Valmont DGC, May 23 – Oct 31 2026 (47 events, IDs 2–48)
+## NEXT UP (in priority order)
+1. Commit CLAUDE.md and STATUS.md to GitHub
+2. Remove Under Construction banner from tags.html
+3. Fix event list to show only next 1-2 upcoming events
+4. Auto-hide events 4 hours after match ends
+5. Generate recurring Wednesday 4PM + Saturday noon events through Oct 2026
+6. Fix Scott Carpenter Park in admin event course dropdown
+7. Upgrade weather icons to Meteocons
+8. Test and fix mobile/iPhone Safari issues
+9. Add Coal Creek DGC to course dropdown everywhere
