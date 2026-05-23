@@ -2809,13 +2809,8 @@ function doLogin() {
   const cred = DEMO_CREDS[user];
   if (cred && cred.pass === pass) {
     state.currentUser = { name: cred.name, role: cred.role };
-    document.getElementById('userLabel').textContent = cred.name.split(' ')[0];
-    document.getElementById('loginBtn').style.display = 'none';
-    document.getElementById('logoutBtn').style.display = 'inline-flex';
-  document.getElementById('addNoteForm').style.display = 'flex';
-    if (['god','admin','scorer'].includes(cred.role)) {
-      document.getElementById('adminBtn').style.display = 'inline-block';
-    }
+    localStorage.setItem('bdg_user', JSON.stringify({ name: cred.name, role: cred.role }));
+    applyLogin(cred.name, cred.role);
     document.getElementById('loginErr').style.display = 'none';
     closeModal('loginModal');
     showToast(`Welcome, ${cred.name.split(' ')[0]}!`);
@@ -2825,8 +2820,19 @@ function doLogin() {
   }
 }
 
+function applyLogin(name, role) {
+  document.getElementById('userLabel').textContent = name.split(' ')[0];
+  document.getElementById('loginBtn').style.display = 'none';
+  document.getElementById('logoutBtn').style.display = 'inline-flex';
+  document.getElementById('addNoteForm').style.display = 'flex';
+  if (['god','admin','scorer'].includes(role)) {
+    document.getElementById('adminBtn').style.display = 'inline-block';
+  }
+}
+
 function doLogout() {
   state.currentUser = null;
+  localStorage.removeItem('bdg_user');
   document.getElementById('userLabel').textContent = 'Guest';
   document.getElementById('loginBtn').style.display = 'inline-flex';
   document.getElementById('logoutBtn').style.display = 'none';
@@ -2890,6 +2896,22 @@ document.querySelectorAll('.modal-overlay').forEach(el => {
 //  INIT
 // ═══════════════════════════════════════════════════════
 (async () => {
+  // Restore saved login before rendering anything
+  try {
+    const saved = localStorage.getItem('bdg_user');
+    if (saved) {
+      const { name, role } = JSON.parse(saved);
+      // Verify the saved user still exists in DEMO_CREDS
+      const stillValid = Object.values(DEMO_CREDS).some(c => c.name === name && c.role === role);
+      if (stillValid) {
+        state.currentUser = { name, role };
+        applyLogin(name, role);
+      } else {
+        localStorage.removeItem('bdg_user'); // stale — clear it
+      }
+    }
+  } catch(e) { localStorage.removeItem('bdg_user'); }
+
   await loadPlayers();
   renderSplash();
 })();
