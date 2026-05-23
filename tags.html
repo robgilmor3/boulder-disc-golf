@@ -1116,7 +1116,7 @@
             <input type="text" id="npPDGA" placeholder="e.g. 26024">
           </div>
           <div class="form-row" style="flex:1">
-            <label>Tag #</label>
+            <label>Tag # (optional)</label>
             <input type="number" id="npTag" placeholder="1–350" min="1" max="350">
           </div>
         </div>
@@ -2696,11 +2696,11 @@ async function deleteNote(id) {
 async function addPlayer() {
   const name = document.getElementById('npName').value.trim();
   const pdga = document.getElementById('npPDGA').value.trim();
-  const tag = parseInt(document.getElementById('npTag').value);
+  const tagVal = document.getElementById('npTag').value.trim();
+  const tag = tagVal ? parseInt(tagVal) : null;
   const role = document.getElementById('npRole').value;
   if (!name) return showToast('Enter a name.', true);
-  if (!tag || tag < 1 || tag > 350) return showToast('Enter a valid tag #.', true);
-  if (state.players.find(p => p.tag === tag)) return showToast(`Tag #${tag} already assigned.`, true);
+  if (tag && state.players.find(p => p.tag === tag)) return showToast(`Tag #${tag} already assigned.`, true);
   const { error } = await db.from('players').insert({ name, pdga, tag, role, last_change: 'same' });
   if (error) return showToast('Error adding player.', true);
   document.getElementById('npName').value = '';
