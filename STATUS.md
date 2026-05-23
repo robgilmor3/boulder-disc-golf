@@ -36,6 +36,11 @@
 
 ## RECENT CHANGES (newest first)
 
+### May 23, 2026 — Session 2 (Cowork)
+- Task 3: Tag number is now optional when adding a new player (blank = null)
+  - Label updated to "Tag # (optional)"
+  - Removed mandatory validation; duplicate check only runs if tag is provided
+
 ### May 2026
 - Tasks 1-3: Confirmed Valmont DGC name correct everywhere
 - Removed Scott Carpenter Park DGC from all course dropdowns
@@ -63,7 +68,11 @@
 ---
 
 ## NEXT UP (in priority order)
-1. Remove Under Construction banner from tags.html
-2. Generate recurring Wednesday 4PM + Saturday noon events through Oct 2026
-3. Upgrade weather icons to Meteocons
-4. Test and fix mobile/iPhone Safari issues
+1. Fix player search dropdown on mobile (Task 4)
+2. Fix drag-to-reorder notes on Android (Task 5)
+3. Fix inline note editing on Android (Task 6)
+4. CSS breakpoints for all screen widths (Task 7)
+5. iPhone landscape stacking fix (Task 8)
+6. Move score submission off home screen (Task 9)
+7. Remove Under Construction banner (Task 10)
+8. Generate recurring Wed/Sat events through Oct 2026 (Task 11)
