@@ -326,6 +326,10 @@
   .note-item:hover .note-edit-btn,
   .note-item:hover .note-del-btn { opacity: 0.55; }
   .note-edit-btn:hover, .note-del-btn:hover { opacity: 1 !important; }
+  /* Touch devices: always show edit/delete — no hover available */
+  @media (hover: none) {
+    .note-edit-btn, .note-del-btn { opacity: 0.6; }
+  }
   .note-item { align-items: center; }
   /* ── Event card inner: flex row, weather on the right ── */
   .event-card-inner {
@@ -2336,47 +2340,51 @@ async function saveNoteOrder(orderedIds) {
 }
 
 function applyNoteReorder(noteEl) {
-  // Use pointer events — one unified path for mouse + touch, no listener leaks
-  let dragItem = null;
-
-  function onMove(e) {
-    if (!dragItem) return;
-    const y = e.clientY ?? e.touches?.[0]?.clientY;
-    if (y == null) return;
-    const siblings = [...noteEl.querySelectorAll('[data-note-id]')].filter(s => s !== dragItem);
-    for (const sib of siblings) {
-      const r = sib.getBoundingClientRect();
-      if (y >= r.top && y <= r.bottom) {
-        noteEl.insertBefore(dragItem, y < r.top + r.height / 2 ? sib : sib.nextSibling);
-        break;
-      }
-    }
-  }
-
-  async function onEnd() {
-    if (!dragItem) return;
-    dragItem.style.opacity = '';
-    dragItem.style.transform = '';
-    dragItem.style.boxShadow = '';
-    dragItem = null;
-    document.removeEventListener('pointermove', onMove);
-    document.removeEventListener('pointerup', onEnd);
-    const newOrder = [...noteEl.querySelectorAll('[data-note-id]')].map(el => el.dataset.noteId);
-    await saveNoteOrder(newOrder);
-    showToast('Order saved!');
-  }
-
+  // Pointer events — works on Android (Samsung), iOS, and desktop
+  // setPointerCapture redirects all move/up events to the handle element itself
   noteEl.querySelectorAll('.drag-handle').forEach(handle => {
+    handle.style.touchAction = 'none'; // belt-and-suspenders for Android Chrome
+
     handle.addEventListener('pointerdown', e => {
-      dragItem = handle.closest('[data-note-id]');
+      e.preventDefault();
+      const dragItem = handle.closest('[data-note-id]');
       dragItem.style.opacity = '0.55';
       dragItem.style.transform = 'scale(1.01)';
       dragItem.style.boxShadow = '0 6px 24px rgba(0,0,0,0.5)';
+      dragItem.style.touchAction = 'none';
       handle.setPointerCapture(e.pointerId);
-      document.addEventListener('pointermove', onMove);
-      document.addEventListener('pointerup', onEnd);
-      e.preventDefault();
-    });
+
+      function onMove(ev) {
+        ev.preventDefault();
+        const y = ev.clientY;
+        const siblings = [...noteEl.querySelectorAll('[data-note-id]')].filter(s => s !== dragItem);
+        for (const sib of siblings) {
+          const r = sib.getBoundingClientRect();
+          if (y >= r.top && y <= r.bottom) {
+            noteEl.insertBefore(dragItem, y < r.top + r.height / 2 ? sib : sib.nextSibling);
+            break;
+          }
+        }
+      }
+
+      async function onEnd(ev) {
+        dragItem.style.opacity = '';
+        dragItem.style.transform = '';
+        dragItem.style.boxShadow = '';
+        dragItem.style.touchAction = '';
+        handle.removeEventListener('pointermove', onMove);
+        handle.removeEventListener('pointerup', onEnd);
+        handle.removeEventListener('pointercancel', onEnd);
+        const newOrder = [...noteEl.querySelectorAll('[data-note-id]')].map(el => el.dataset.noteId);
+        await saveNoteOrder(newOrder);
+        showToast('Order saved!');
+      }
+
+      // Listen on handle — setPointerCapture ensures all events land here
+      handle.addEventListener('pointermove', onMove, { passive: false });
+      handle.addEventListener('pointerup', onEnd);
+      handle.addEventListener('pointercancel', onEnd);
+    }, { passive: false });
   });
 }
 
@@ -2395,8 +2403,8 @@ function startEditNote(id) {
       style="flex:1;padding:4px 10px;border-radius:6px;border:1px solid var(--border);
              background:var(--surface2);color:var(--text);font-family:inherit;font-size:13px;"
       onkeydown="if(event.key==='Enter')saveNoteEdit(${id});if(event.key==='Escape')renderSplash();">
-    <button class="btn btn-primary btn-sm" onclick="saveNoteEdit(${id})" style="padding:4px 10px;margin-left:4px">✓</button>
-    <button class="btn btn-secondary btn-sm" onclick="renderSplash()" style="padding:4px 10px">✕</button>
+    <button class="btn btn-primary btn-sm" onpointerdown="event.preventDefault();saveNoteEdit(${id})" style="padding:4px 10px;margin-left:4px;touch-action:manipulation">✓</button>
+    <button class="btn btn-secondary btn-sm" onpointerdown="event.preventDefault();renderSplash()" style="padding:4px 10px;touch-action:manipulation">✕</button>
   `;
   // Hide existing edit/delete buttons while in edit mode
   item.querySelectorAll('.note-edit-btn,.note-del-btn').forEach(b => b.style.display='none');
