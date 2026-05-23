@@ -367,6 +367,15 @@
     .event-card-inner { flex-direction: column; }
     .event-weather-bar { width: 100%; }
   }
+  /* iPhone landscape — height < 500px: stack weather below event info */
+  @media (max-height: 500px) and (orientation: landscape) {
+    .event-card-inner { flex-direction: column; }
+    .event-weather-bar { width: 100%; }
+    .card { padding: 10px 12px; }
+    nav { gap: 0; }
+    nav button { padding: 8px 6px; font-size: 10px; }
+    .page { padding-top: 4px; }
+  }
   /* Top bar: course name */
   .ewb-course {
     padding: 6px 14px;
