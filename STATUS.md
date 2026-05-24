@@ -32,12 +32,16 @@
 
 ### Known issues / pending:
 - Weather widget icons: could upgrade to Meteocons (not urgent)
-- Dana Knight not yet added to board members in current index.html
-- "Multiple Courses" feature card still lists old Scott Carpenter Park text
 
 ---
 
 ## RECENT CHANGES (newest first)
+
+### May 24, 2026 (fix)
+- commit 42a9c57: Fix three regressions in index.html
+  - Board members updated to include Dana Knight
+  - Multiple Courses feature card text fixed: replaced "Valmont Bike Park" + "Scott Carpenter Park" with correct current courses (Valmont DGC, Harlow Platts, East Interlocken, Wondervu, Coal Creek)
+  - Fixed missing </div> closing tag on Ace Pools feature card (broken HTML from prior edit)
 
 ### May 24, 2026
 - commit 0f57675: Landing page overhaul
