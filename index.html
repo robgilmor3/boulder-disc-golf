@@ -33,9 +33,8 @@
   /* ── HERO ── */
   .hero {
     position: relative;
-    height: 75vw;
-    min-height: 500px;
-    max-height: 90vh;
+    height: 100vh;
+    min-height: 600px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -46,14 +45,16 @@
   .hero-bg {
     position: absolute;
     inset: 0;
-    background-image: url('hero_joke.jpg');
+    background-image: url('hero_enhanced.jpg');
     background-size: cover;
-    background-position: 20% center;
+    background-position: center 30%;
+    transform: scale(1.05);
+    animation: slowzoom 20s ease-in-out infinite alternate;
   }
 
   @keyframes slowzoom {
-    from { transform: scale(1.0) translateY(0); }
-    to   { transform: scale(1.05) translateY(-6px); }
+    from { transform: scale(1.05) translateY(0); }
+    to   { transform: scale(1.12) translateY(-20px); }
   }
 
   /* Layered overlays for depth */
@@ -135,8 +136,8 @@
     font-size: clamp(13px, 2vw, 17px);
     font-weight: 600;
     letter-spacing: 4px;
-    color: rgba(255,255,255,0.95);
-    text-shadow: 0 2px 8px rgba(0,0,0,0.9);
+    color: rgba(10,10,10,0.85);
+    text-shadow: 0 1px 3px rgba(255,255,255,0.3);
     margin-top: 10px;
     text-transform: uppercase;
     animation: fadeup 1.2s 0.3s ease both;
@@ -146,8 +147,8 @@
     font-size: clamp(11px, 1.5vw, 14px);
     font-weight: 400;
     letter-spacing: 4px;
-    color: rgba(255,255,255,0.95);
-    text-shadow: 0 2px 8px rgba(0,0,0,0.9);
+    color: rgba(10,10,10,0.7);
+    text-shadow: 0 1px 3px rgba(255,255,255,0.3);
     margin-top: 4px;
     text-transform: uppercase;
     animation: fadeup 1.2s 0.4s ease both;
@@ -362,7 +363,6 @@
   .features {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    align-items: stretch;
     gap: 20px;
     margin-top: 48px;
   }
@@ -375,8 +375,6 @@
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
   }
 
   .feature-card::before {
@@ -397,56 +395,6 @@
 
   .feature-card:hover::before { opacity: 1; }
 
-  /* Multiple Courses expand */
-  .course-tiles {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.4s ease, opacity 0.3s ease, margin-top 0.3s ease;
-    opacity: 0;
-    margin-top: 0;
-  }
-  .feature-card:hover .course-tiles,
-  .feature-card.expanded .course-tiles {
-    max-height: 200px;
-    opacity: 1;
-    margin-top: 16px;
-  }
-  .course-tile-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-  .course-tile {
-    display: block;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 6px;
-    padding: 8px 10px;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 13px;
-    letter-spacing: 0.5px;
-    color: var(--text);
-    text-decoration: none;
-    transition: background 0.2s, border-color 0.2s;
-    cursor: pointer;
-  }
-  .course-tile:hover {
-    background: rgba(61,220,110,0.08);
-    border-color: rgba(61,220,110,0.3);
-    color: var(--green);
-  }
-  .course-tile-hint {
-    font-size: 10px;
-    letter-spacing: 2px;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    margin-top: 12px;
-    opacity: 0;
-    transition: opacity 0.3s 0.1s;
-  }
-  .feature-card:hover .course-tile-hint,
-  .feature-card.expanded .course-tile-hint { opacity: 1; }
-
   .feature-icon { font-size: 36px; margin-bottom: 14px; }
 
   .feature-title {
@@ -463,7 +411,6 @@
     color: var(--text-dim);
     line-height: 1.7;
     font-weight: 300;
-    flex: 1;
   }
 
   /* ── CTA SECTION ── */
@@ -671,7 +618,7 @@
       Boulder isn't just home to great disc golf — it's where the PDGA was born in 1976, when Steady Ed sold the first memberships at the Boulder Flying Disc Festival. Organized disc sports here go back to 1975, when Geoff Hungerford founded the Chinook Frisbee Group. Valmont Disc Park — our home course — was designed by Hall of Famer John Bird and opened in 2012.
     </p>
     <p class="section-body" style="margin-top:16px;font-size:14px">
-      <strong style="color:var(--text)">Current Board Members:</strong> Shane Sparkman, Cassion Waller, Dylan Shorter, Taylor Adams, Andy Jacobson &amp; Dana Knight.
+      <strong style="color:var(--text)">Current Board Members:</strong> Shane Sparkman, Cassion Waller, Dylan Shorter, Taylor Adams &amp; Andy Jacobson.
     </p>
   </div>
 
@@ -681,19 +628,10 @@
       <div class="feature-title">Bag Tag League</div>
       <div class="feature-body">350 tags in circulation. Weekly matches at courses across Boulder. Check the app to see who's holding tag #1 and register for the next match.</div>
     </div>
-    <div class="feature-card" id="courses-card" onclick="toggleCoursesCard(event)">
+    <div class="feature-card">
       <div class="feature-icon">📍</div>
       <div class="feature-title">Multiple Courses</div>
-      <div class="feature-body">We rotate between Valmont Disc Park, Harlow Platts, East Interlocken, and Wondervu DGC. Different vibes, same community.</div>
-      <div class="course-tile-hint">Tap to explore courses →</div>
-      <div class="course-tiles">
-        <div class="course-tile-grid">
-          <a class="course-tile" href="https://www.dgcoursereview.com/courses/valmont-disc-park.5902" onclick="event.stopPropagation()">📍 Valmont Disc Park</a>
-          <a class="course-tile" href="https://www.dgcoursereview.com/courses/harlow-platts-park.160" onclick="event.stopPropagation()">📍 Harlow Platts DGC</a>
-          <a class="course-tile" href="https://www.dgcoursereview.com/courses/east-interlocken-park.4660" onclick="event.stopPropagation()">📍 East Interlocken DGC</a>
-          <a class="course-tile" href="https://www.dgcoursereview.com/courses/wondervu-dgc.9221" onclick="event.stopPropagation()">📍 Wondervu DGC</a>
-        </div>
-      </div>
+      <div class="feature-body">We rotate between Valmont Bike Park, Scott Carpenter Park, Harlow Platts, and Coal Creek Trail. Different vibes, same community.</div>
     </div>
     <div class="feature-card">
       <div class="feature-icon">🏆</div>
@@ -705,21 +643,6 @@
       <div class="feature-title">Ace Pools & CTP</div>
       <div class="feature-body">Weekly ace pools, closest to the pin competitions, and optional entry fees. Easy Venmo payment through the app. TDs track everything in real time.</div>
     </div>
-    <a href="https://lpdgc.org" style="text-decoration:none;display:contents;cursor:pointer;">
-    <div class="feature-card" style="cursor:pointer;">
-      <div class="feature-icon">🏔️</div>
-      <div class="feature-title">Longs Peak Disc Golf Club</div>
-      <span style="font-size:12px;color:var(--text-dim);letter-spacing:1px;display:block;margin-top:2px;">(Boulder County)</span>
-      <div class="feature-body">Our Longmont neighbors — weekly tags, summer leagues, and PDGA-sanctioned tournaments across Longmont's best courses including Loomiller, Clark Centennial, and Wildcat Ridge. Visit <span style='color:var(--green)'>lpdgc.org</span> to get involved.</div>
-    </div>
-    </a>
-    <a href="https://www.pdga.com/history" style="text-decoration:none;display:contents;cursor:pointer;">
-    <div class="feature-card" style="cursor:pointer;">
-      <div class="feature-icon">📜</div>
-      <div class="feature-title">Colorado Disc Golf History</div>
-      <div class="feature-body">Boulder is the birthplace of organized disc golf in Colorado. In 1975 Geoff Hungerford founded the Chinook Frisbee Group here — one of the first organized disc golf clubs in the country. The PDGA was born in Boulder in 1976 when Steady Ed Headrick sold the first memberships at the Boulder Flying Disc Festival. We are standing on hallowed ground.</div>
-    </div>
-    </a>
   </div>
 </section>
 
@@ -729,29 +652,29 @@
     <div class="section-label">Where We Play</div>
     <h2 class="section-title">Boulder <span>Courses</span></h2>
     <div class="courses-grid">
-      <a href="https://www.dgcoursereview.com/courses/valmont-disc-park.5902" style="text-decoration:none">
+      <a href="https://www.dgcoursereview.com/courses/valmont-disc-park.5902" target="_blank" style="text-decoration:none">
       <div class="course-card" style="cursor:pointer">
-        <div class="course-name">Valmont Disc Park ⭐ 4.2</div>
+        <div class="course-name">Valmont Disc Park ⭐ 4.2 ↗</div>
         <div class="course-meta">18 holes · Par 54 · 4,075 ft · Boulder, CO · Free · Est. 2012 · Designed by John Bird · Dogs OK · Concrete tees</div>
       </div></a>
-      <a href="https://www.dgcoursereview.com/courses/harlow-platts-park.160" style="text-decoration:none">
+      <a href="https://www.dgcoursereview.com/course.php?id=160" target="_blank" style="text-decoration:none">
       <div class="course-card" style="cursor:pointer">
-        <div class="course-name">Harlow Platts DGC ⭐ 4.1</div>
+        <div class="course-name">Harlow Platts DGC ⭐ 4.1 ↗</div>
         <div class="course-meta">9 holes (play twice for 18) · Par 54 · 4,710 ft · Boulder, CO · Free · Est. 1991 · Eagle McMahon grew up here · Water &amp; restrooms on site</div>
       </div></a>
-      <a href="https://www.dgcoursereview.com/courses/flatirons-disc-golf-course.22285" style="text-decoration:none">
+      <a href="https://www.dgcoursereview.com/courses/flatirons-disc-golf-course.22285" target="_blank" style="text-decoration:none">
       <div class="course-card" style="cursor:pointer">
-        <div class="course-name">Flatirons Golf Course ⭐ 4.7</div>
+        <div class="course-name">Flatirons Golf Course ⭐ 4.7 ↗</div>
         <div class="course-meta">36 holes · Boulder, CO · $22/round · Designed by Eagle McMahon · Limited disc golf days only — tickets sell out fast</div>
       </div></a>
-      <a href="https://www.dgcoursereview.com/courses/wondervu-dgc.9221" style="text-decoration:none">
+      <a href="https://www.dgcoursereview.com/courses/wondervu-dgc.14785" target="_blank" style="text-decoration:none">
       <div class="course-card" style="cursor:pointer">
-        <div class="course-name">Wondervu DGC ⭐ 4.1</div>
-        <div class="course-meta">22 holes · Boulder County foothills · $10/day · No reservations required · Only mountain DGC in Boulder County · Very hilly and heavily wooded</div>
+        <div class="course-name">Wondervu DGC ↗</div>
+        <div class="course-meta">Boulder County foothills · Pay to play · Tee times required · Est. 2015 · Challenging terrain · Significant hiking</div>
       </div></a>
-      <a href="https://www.dgcoursereview.com/courses/east-interlocken-park.4660" style="text-decoration:none">
+      <a href="https://www.dgcoursereview.com/courses/east-interlocken-disc-golf-course.4741" target="_blank" style="text-decoration:none">
       <div class="course-card" style="cursor:pointer">
-        <div class="course-name">East Interlocken DGC ⭐ 4.1</div>
+        <div class="course-name">East Interlocken DGC ↗</div>
         <div class="course-meta">9 baskets · 27 tee pads · Broomfield, CO · Free · Tight and technical · Water hazards · Year-round</div>
       </div></a>
     </div>
@@ -772,7 +695,7 @@
 <footer>
   <div class="footer-logo">
     Boulder Disc Golf
-    <span>Boulder, Colorado · Est. 2014</span>
+    <span>Boulder, Colorado · Since 1989</span>
   </div>
   <div class="footer-links">
     <a href="https://boulder-disc-golf.vercel.app" target="_blank">Tag App</a>
@@ -792,13 +715,5 @@ const observer = new IntersectionObserver(entries => {
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 </script>
 
-<script>
-function toggleCoursesCard(e) {
-  if (window.matchMedia('(hover: none)').matches) {
-    const card = document.getElementById('courses-card');
-    card.classList.toggle('expanded');
-  }
-}
-</script>
 </body>
 </html>
