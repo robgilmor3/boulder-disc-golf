@@ -1,6 +1,24 @@
 # CLAUDE.md — Boulder Disc Golf Project
 # READ THIS BEFORE DOING ANYTHING ELSE
 
+## SESSION STARTUP CHECKLIST — RUN THIS EVERY TIME
+Before doing ANYTHING the user asks, verify these items in index.html:
+1. Hero image is `hero_joke.jpg`
+2. `hero-sub` and `hero-elev` CSS use `rgba(255,255,255,0.95)` and `text-shadow: 0 2px 8px rgba(0,0,0,0.9)`
+3. Board members line includes `Dana Knight`
+4. Multiple Courses feature card does NOT mention "Scott Carpenter Park" or "Valmont Bike Park"
+5. Longs Peak Disc Golf Club feature card links to `lpdgc.org`
+6. Colorado Disc Golf History feature card links to `pdga.com/history`
+7. Footer says `Est. 2014`
+8. All feature card `</div>` closing tags are present (check HTML structure)
+
+If anything is wrong → fix it and commit BEFORE proceeding with the user's request.
+Tell Rob what state the project is in and what (if anything) was fixed.
+
+There is also a Cowork scheduled task called **bdg-session-start** that automates this check.
+
+---
+
 ## HOW TO START EVERY SESSION
 1. Read this entire file first
 2. Read STATUS.md to see what was last changed
