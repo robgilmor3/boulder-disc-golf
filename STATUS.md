@@ -43,6 +43,12 @@
 
 ## RECENT CHANGES (newest first)
 
+### May 25, 2026
+
+- Fix tags.html: added missing CSS classes (.score-status-item, .score-badge-done, .score-badge-pending, .score-done-val, .score-pending-input) — these were referenced in JS but absent from the stylesheet, breaking score submission
+- Restore index.html: replaced entirely with Rob's landing_RESTORED.html — exact copy, no changes
+
+
 ### May 24, 2026 (session setup)
 
 - Added BACKUP PROTOCOL section to CLAUDE.md: before any edit to index.html or tags.html, create a dated backup in /backups/ and commit it first
