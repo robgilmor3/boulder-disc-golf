@@ -1,4 +1,5 @@
 # STATUS.md — Boulder Disc Golf Project Status
+
 # Update this file after EVERY change with date and what changed
 
 ---
@@ -6,10 +7,13 @@
 ## CURRENT STATE (as of May 2026)
 
 ### Both sites are LIVE:
+
 - boulderdiscgolf.com — landing page ✅
 - boulder-disc-golf.vercel.app — tag app ✅
 
+
 ### What's working:
+
 - Tag ledger loads 105 players from Supabase ✅
 - Weather widget on event cards (NWS + Open-Meteo fallback) ✅
 - Community notes with drag to reorder and inline edit ✅
@@ -30,29 +34,44 @@
 - Landing page: Colorado Disc Golf History card → pdga.com/history ✅
 - Landing page: footer says "Est. 2014" ✅
 
+
 ### Known issues / pending:
+
 - Weather widget icons: could upgrade to Meteocons (not urgent)
 
 ---
 
 ## RECENT CHANGES (newest first)
 
+### May 24, 2026 (session setup)
+
+- Added BACKUP PROTOCOL section to CLAUDE.md: before any edit to index.html or tags.html, create a dated backup in /backups/ and commit it first
+- Added CRITICAL HTML SNIPPETS section to CLAUDE.md: exact HTML for Longs Peak feature card, Colorado Disc Golf History feature card, and both footer elements (Tech God credit + Est. 2014) — sourced from live index.html on this date
+- Updated SESSION STARTUP CHECKLIST in CLAUDE.md: now includes explicit ordered steps (read CLAUDE.md, read STATUS.md, read live files from GitHub, verify critical snippets, fix anything missing, report findings)
+- Updated bdg-session-start scheduled task to reflect new checklist
+
+
 ### May 24, 2026 (fix)
+
 - commit 42a9c57: Fix three regressions in index.html
-  - Board members updated to include Dana Knight
-  - Multiple Courses feature card text fixed: replaced "Valmont Bike Park" + "Scott Carpenter Park" with correct current courses (Valmont DGC, Harlow Platts, East Interlocken, Wondervu, Coal Creek)
-  - Fixed missing </div> closing tag on Ace Pools feature card (broken HTML from prior edit)
+  * Board members updated to include Dana Knight
+  * Multiple Courses feature card text fixed: replaced "Valmont Bike Park" + "Scott Carpenter Park" with correct current courses (Valmont DGC, Harlow Platts, East Interlocken, Wondervu, Coal Creek)
+  * Fixed missing closing tag on Ace Pools feature card (broken HTML from prior edit)
+
 
 ### May 24, 2026
+
 - commit 0f57675: Landing page overhaul
-  - hero image changed to hero_joke.jpg
-  - hero-sub and hero-elev text changed to white (rgba 255,255,255,0.95) with dark text-shadow for readability over joke image
-  - Added Longs Peak Disc Golf Club feature card linking to lpdgc.org
-  - Added Colorado Disc Golf History feature card linking to pdga.com/history
-  - Footer updated from "Since 1989" to "Est. 2014"
+  * hero image changed to hero_joke.jpg
+  * hero-sub and hero-elev text changed to white (rgba 255,255,255,0.95) with dark text-shadow for readability over joke image
+  * Added Longs Peak Disc Golf Club feature card linking to lpdgc.org
+  * Added Colorado Disc Golf History feature card linking to pdga.com/history
+  * Footer updated from "Since 1989" to "Est. 2014"
 - Tag app investigated: fully functional (105 players, 47 events, no JS errors)
 
+
 ### May 2026 (earlier)
+
 - commit 102bbc4: Replaced index.html entirely with Rob's provided landing (9).html version
 - Persistent login via localStorage: Rob and Shane stay logged in across sessions
 - Dynamic admin management section (God panel): add admins with optional expiry
@@ -73,6 +92,5 @@
 ---
 
 ## NEXT UP (in priority order)
-1. Fix "Multiple Courses" feature card text (still lists old courses)
-2. Add Dana Knight back to board members list
-3. Weather widget icon upgrade to Meteocons (low priority)
+
+1. Weather widget icon upgrade to Meteocons (low priority)
