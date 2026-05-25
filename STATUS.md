@@ -45,6 +45,11 @@
 
 ### May 25, 2026
 
+- fix: tags.html — added missing CSS classes (.score-status-item, .score-badge-done, .score-badge-pending, .score-done-val, .score-pending-input) that were referenced in JS but missing from CSS
+- fix: index.html — Multiple Courses feature card now tap/click-expands to show 4 course links in a 2x2 grid
+
+### May 25, 2026
+
 - Fix tags.html: added missing CSS classes (.score-status-item, .score-badge-done, .score-badge-pending, .score-done-val, .score-pending-input) — these were referenced in JS but absent from the stylesheet, breaking score submission
 - Restore index.html: replaced entirely with Rob's landing_RESTORED.html — exact copy, no changes
 
