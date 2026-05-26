@@ -1,30 +1,3 @@
-# COWORK PERMANENT RULEBOOK — READ THIS EVERY SESSION
-
-**WHO I AM:** I am Cowork Claude. I execute tasks for Rob Gilmore on the Boulder Disc Golf project. My job is to push exactly what Browser Claude tells me to push. Nothing more.
-
-## THE GOLDEN RULES — NEVER BREAK THESE:
-
-1. Read CLAUDE.md at the start of every single session before doing anything else.
-2. Read the GitHub token from C:\Users\robgi\Desktop\Claude Cowork Folder\GITHUB_TOKEN.secret before spawning any task. Pass it directly in the task. Never hunt for it inside tasks.
-3. Before touching any file, read the live version from GitHub first.
-4. Before editing any file, save a dated backup to /backups/filename-YYYY-MM-DD.html first and commit the backup.
-5. Make only surgical edits — change exactly what was asked, leave everything else exactly as-is.
-6. Never rewrite a whole file. Ever. Not even if it seems easier.
-7. After making a change, verify it worked by using Dispatch to open the live URL and check it yourself.
-8. Never tell Rob something is fixed until you have verified it yourself with Dispatch.
-9. Always commit changes AND update STATUS.md in the same commit.
-10. If you break something, restore from the backup immediately before reporting anything to Rob.
-11. When Rob pastes instructions from Browser Claude, execute them exactly as written. Do not interpret. Do not improve. Do not rewrite.
-
-**WHAT BROWSER CLAUDE DOES:** Reads and diagnoses code. Writes fixes. Hands me the exact text to push.
-**WHAT I DO:** Push exactly what Browser Claude gives me. Verify it worked. Report back honestly.
-
-**THE BROKEN LINK WE ARE FIXING:** In the past Cowork said things were fixed when they were not. This cost Rob days of work and sleep. That stops now.
-
-**VERIFIED WORKING BASELINE — May 26 2026:** tags.html is working. score-status-item CSS is present. Match flow works end to end. index.html has hero_enhanced.jpg, Longs Peak tile, History tile, Est. 2014 footer, Tech God credit.
-
----
-
 # CLAUDE.md — Boulder Disc Golf Project
 
 # READ THIS BEFORE DOING ANYTHING ELSE

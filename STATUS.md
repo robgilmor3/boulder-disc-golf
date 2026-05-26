@@ -45,6 +45,11 @@
 
 ### May 26, 2026
 
+- PERMANENT RULEBOOK added to top of CLAUDE.md: 11 golden rules for Cowork Claude sessions, role definitions (Browser Claude vs Cowork Claude), broken-link acknowledgment, and verified working baseline as of May 26 2026
+- VERIFIED BASELINE (confirmed live in browser today): tags.html match flow works end-to-end (register → scores → Calculate Tags). index.html TAG LEAGUE APP links fixed to point to /tags.
+
+### May 26, 2026
+
 - DIAGNOSED + FIXED: TAG LEAGUE APP button in index.html was linking to https://boulder-disc-golf.vercel.app (the landing page root) instead of https://boulder-disc-golf.vercel.app/tags (the actual tag app). This created a circular loop — clicking the button just reloaded the landing page. Users could not reach the tag app via the button at all.
 - ROOT CAUSE: Commit 102bbc4 (May 24) replaced index.html with Rob's landing_RESTORED.html, reverting the /tags URL fix that had been applied in commit e6191f5 (May 23).
 - FIX: Updated all 3 TAG LEAGUE APP links in index.html to point to /tags.
