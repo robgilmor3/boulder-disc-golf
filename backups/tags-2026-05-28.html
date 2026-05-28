@@ -891,7 +891,6 @@
   .stats-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .stats-val { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--green); }
   .stats-empty { text-align: center; padding: 48px 20px; color: var(--text-dim); font-size: 14px; }
-  .diablo-page { background: linear-gradient(180deg, #1a0000 0%, #0d0000 100%); min-height: 100vh; margin: -20px -14px; padding: 20px 14px 80px; } .diablo-hero { background: linear-gradient(135deg, #2d0000 0%, #1a0000 100%); border: 1px solid #8b0000; border-radius: 10px; padding: 24px; margin-bottom: 16px; position: relative; overflow: hidden; } .diablo-hero::after { content: '🔥'; position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 60px; opacity: 0.15; } .diablo-hero h1 { font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 4px; color: #cc2200; line-height: 1; text-shadow: 0 0 20px rgba(204,34,0,0.5); } .diablo-hero .sub { color: #8b0000; font-size: 11px; letter-spacing: 3px; font-family: 'DM Mono', monospace; margin-top: 4px; } .diablo-card { background: #1a0000; border: 1px solid #8b0000; border-radius: 8px; padding: 20px; margin-bottom: 14px; } .diablo-card-title { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 1.5px; color: #cc2200; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #8b0000; } .diablo-tag-row { display: flex; align-items: center; gap: 12px; padding: 11px 14px; background: #1a0000; border: 1px solid #8b0000; border-radius: 8px; transition: border-color 0.15s; margin-bottom: 6px; } .diablo-tag-row:hover { border-color: #cc2200; } .diablo-tag-num { font-family: 'Bebas Neue', sans-serif; font-size: 24px; min-width: 44px; letter-spacing: 1px; color: #cc2200; } .diablo-tag-num.d1 { color: #ffd700; text-shadow: 0 0 10px rgba(255,215,0,0.6); } .diablo-tag-num.d2 { color: #ff6600; text-shadow: 0 0 8px rgba(255,102,0,0.4); } .diablo-tag-num.d3 { color: #cc2200; text-shadow: 0 0 6px rgba(204,34,0,0.4); } .diablo-tag-name { flex: 1; font-weight: 500; font-size: 14px; color: #ffcccc; } .diablo-tag-pdga { font-size: 11px; color: #8b0000; font-family: 'DM Mono', monospace; } .diablo-section-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 2px; color: #cc2200; margin-bottom: 16px; text-shadow: 0 0 15px rgba(204,34,0,0.3); } .diablo-section-title span { color: #ff6600; } .diablo-search-box { background: #1a0000; border: 1px solid #8b0000; border-radius: 8px; padding: 9px 12px; color: #ffcccc; font-family: 'DM Sans', sans-serif; font-size: 14px; width: 100%; outline: none; transition: border-color 0.2s; margin-bottom: 12px; } .diablo-search-box:focus { border-color: #cc2200; } .diablo-btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: 8px; border: none; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; } .diablo-btn-primary { background: #cc2200; color: #fff; } .diablo-btn-primary:hover { background: #ff2200; } .diablo-btn-secondary { background: #2d0000; color: #ffcccc; border: 1px solid #8b0000; } .diablo-btn-secondary:hover { border-color: #cc2200; color: #ff6600; } .diablo-memorial { background: linear-gradient(135deg, #1a0000, #2d0000); border: 1px solid #666; border-radius: 8px; padding: 16px; margin-bottom: 10px; text-align: center; } .diablo-memorial .memorial-tag { font-family: 'Bebas Neue', sans-serif; font-size: 48px; color: #666; letter-spacing: 4px; line-height: 1; } .diablo-memorial .memorial-names { color: #999; font-size: 13px; letter-spacing: 2px; margin-top: 6px; font-family: 'DM Mono', monospace; } .diablo-memorial .memorial-sub { color: #555; font-size: 11px; margin-top: 4px; font-style: italic; } nav button.diablo-nav { color: #8b0000; } nav button.diablo-nav.active { color: #cc2200; background: rgba(204,34,0,0.1); } nav button.diablo-nav:hover { color: #cc2200; background: rgba(204,34,0,0.08); }
   .recur-section { background: rgba(61,220,110,0.04); border: 1px solid rgba(61,220,110,0.15); border-radius: 8px; padding: 14px; margin-top: 12px; }
 </style>
 </head>
@@ -907,7 +906,6 @@
     <button onclick="showPage(&apos;ledger&apos;)">Tags</button>
     <button onclick="showPage(&apos;match&apos;)">Match</button>
     <button onclick="showPage(&apos;stats&apos;)">Stats</button>
-    <button class="diablo-nav" onclick="showPage('diablo')" id="diabloBtn" style="display:none">🔥 Diablo</button>
     <button onclick="showPage(&apos;admin&apos;)" id="adminBtn" style="display:none">Admin</button>
   </nav>
   <div class="header-right">
@@ -973,100 +971,6 @@
       <div class="section-title" style="margin:0">Player <span>Profile</span></div>
     </div>
     <div id="statsContent"><div class="loading"><div class="spinner"></div>Loading...</div></div>
-  </div>
-
-  <!-- ══ DIABLO ══ -->
-  <div id="page-diablo" class="page">
-    <div class="diablo-page">
-      <div class="diablo-hero">
-        <h1>El Diablo</h1>
-        <div class="sub">SPARKMANTOWN DGC · 25 HOLES · PAR 50</div>
-      </div>
-      <div class="diablo-memorial">
-        <div class="memorial-tag">#666</div>
-        <div class="memorial-names">JESSE &amp; GBEAR</div>
-        <div class="memorial-sub">Forever in the game. Forever on the board.</div>
-      </div>
-      <div class="diablo-section-title">Tag <span>Ledger</span></div>
-      <input class="diablo-search-box" type="search" placeholder="Search Diablo players..." oninput="filterDiabloLedger(this.value)" id="diabloSearch">
-      <div id="diabloTagList"><div class="loading"><div class="spinner"></div>Loading...</div></div>
-      <div id="diabloMatchSection" style="display:none;margin-top:24px;">
-        <div class="diablo-section-title" style="margin-bottom:16px">Match <span>Manager</span></div>
-        <div class="step-indicator">
-          <div class="step-dot active" id="dstep1dot"></div>
-          <div class="step-dot" id="dstep2dot"></div>
-          <div class="step-dot" id="dstep3dot"></div>
-        </div>
-        <div id="diabloMatchStep1">
-          <div class="diablo-card">
-            <div class="diablo-card-title">🔥 Register Player</div>
-            <div class="form-row">
-              <label style="color:#8b0000">Name</label>
-              <input type="text" id="diabloRegSearch" placeholder="Search existing or type new name..." oninput="searchDiabloPlayer(this.value)" autocomplete="off" style="background:#1a0000;border-color:#8b0000;color:#ffcccc;">
-              <div id="diabloDropdown" style="display:none;background:#1a0000;border:1px solid #8b0000;border-radius:8px;margin-top:4px;max-height:180px;overflow-y:auto;"></div>
-            </div>
-            <div class="form-row">
-              <label style="color:#8b0000">Current Tag #</label>
-              <input type="number" id="diabloRegTag" placeholder="1-50" min="1" max="50" style="background:#1a0000;border-color:#8b0000;color:#ffcccc;">
-            </div>
-            <div style="display:flex;gap:8px;margin-top:8px;">
-              <button class="diablo-btn diablo-btn-primary" onclick="addDiabloRegistrant()">Add to Match</button>
-              <button class="diablo-btn diablo-btn-secondary" onclick="clearDiabloForm()">Clear</button>
-            </div>
-          </div>
-          <div class="diablo-card">
-            <div class="diablo-card-title">👹 Registrants <span id="diabloRegCount" style="font-size:13px;font-weight:400;color:#8b0000"></span></div>
-            <div id="diabloRegistrantList"><div class="empty" style="color:#8b0000">No players added yet.</div></div>
-            <div style="height:1px;background:#8b0000;margin:14px 0;"></div>
-            <button class="diablo-btn diablo-btn-primary" id="diabloProceedBtn" style="display:none;width:100%;justify-content:center;" onclick="diabloGoToScoring()">Enter Scores →</button>
-          </div>
-        </div>
-        <div id="diabloMatchStep2" style="display:none">
-          <div class="diablo-card">
-            <div class="diablo-card-title">📊 Scores — Par 50</div>
-            <p style="font-size:12px;color:#8b0000;margin-bottom:14px">Enter stroke count for each player (par = 50)</p>
-            <div id="diabloScoreList"></div>
-            <div style="height:1px;background:#8b0000;margin:14px 0;"></div>
-            <div style="display:flex;gap:8px;">
-              <button class="diablo-btn diablo-btn-secondary" onclick="diabloBackToStep1()">← Back</button>
-              <button class="diablo-btn diablo-btn-primary" id="diabloCalcBtn" onclick="diabloCalculateResults()" disabled>Calculate Tags →</button>
-            </div>
-          </div>
-        </div>
-        <div id="diabloMatchStep3" style="display:none">
-          <div class="diablo-card">
-            <div class="diablo-card-title">🏆 New Tag Assignments</div>
-            <p style="font-size:12px;color:#8b0000;margin-bottom:14px">Tiebreaker: better incoming tag wins.</p>
-            <div id="diabloResultsList"></div>
-            <div style="height:1px;background:#8b0000;margin:14px 0;"></div>
-            <div style="display:flex;gap:8px;">
-              <button class="diablo-btn diablo-btn-secondary" onclick="diabloBackToStep2()">← Back</button>
-              <button class="diablo-btn diablo-btn-primary" onclick="diabloCommitResults()">✓ Commit Tags</button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div id="diabloAdminSection" style="display:none;margin-top:24px;">
-        <div class="diablo-card">
-          <div class="diablo-card-title">👤 Add Player to El Diablo</div>
-          <div class="form-row">
-            <label style="color:#8b0000">Name</label>
-            <input type="text" id="diabloNewName" placeholder="First Last or Nickname" style="background:#1a0000;border-color:#8b0000;color:#ffcccc;">
-          </div>
-          <div style="display:flex;gap:8px;">
-            <div class="form-row" style="flex:1">
-              <label style="color:#8b0000">PDGA # (optional)</label>
-              <input type="text" id="diabloNewPDGA" placeholder="e.g. 26024" style="background:#1a0000;border-color:#8b0000;color:#ffcccc;">
-            </div>
-            <div class="form-row" style="flex:1">
-              <label style="color:#8b0000">Tag # (optional)</label>
-              <input type="number" id="diabloNewTag" placeholder="1-50" min="1" max="50" style="background:#1a0000;border-color:#8b0000;color:#ffcccc;">
-            </div>
-          </div>
-          <button class="diablo-btn diablo-btn-primary" onclick="addDiabloPlayer()">Add Player 🔥</button>
-        </div>
-      </div>
-    </div>
   </div>
 
   <!-- ══ MATCH ══ -->
@@ -1459,7 +1363,6 @@ function showPage(id) {
   if (id === 'admin')   renderAdmin();
   if (id === 'match')   initMatch();
   if (id === 'stats')   renderStats();
-  if (id === 'diablo') renderDiabloPage();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -3055,7 +2958,6 @@ function applyLogin(name, role) {
   document.getElementById('addNoteForm').style.display = 'flex';
   if (['god','admin','scorer'].includes(role)) {
     document.getElementById('adminBtn').style.display = 'inline-block';
-    document.getElementById('diabloBtn').style.display = 'inline-block';
   }
 }
 
@@ -3067,8 +2969,6 @@ function doLogout() {
   document.getElementById('logoutBtn').style.display = 'none';
   document.getElementById('addNoteForm').style.display = 'none';
   document.getElementById('adminBtn').style.display = 'none';
-
-  document.getElementById('diabloBtn').style.display = 'none';
   showPage('splash');
   showToast('Logged out.');
 }
@@ -3122,44 +3022,6 @@ document.getElementById('installBtn').addEventListener('click', async () => {
 document.querySelectorAll('.modal-overlay').forEach(el => {
   el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
 });
-
-// ═══════════════════════════════════════════════════════
-// DIABLO — El Diablo / Sparkmantown DGC
-// 25 holes · Par 50 · Tags 1-50 + #666 memorial
-// ═══════════════════════════════════════════════════════
-let diabloState = { players: [], registrants: [], pendingResults: null };
-
-async function loadDiabloPlayers() { const { data, error } = await db.from('diablo_players').select('*').order('tag', { ascending: true }); if (!error && data) diabloState.players = data; return diabloState.players; }
-
-async function renderDiabloPage() { const isAdmin = state.currentUser && ['god','admin'].includes(state.currentUser.role); if (isAdmin) { document.getElementById('diabloMatchSection').style.display = 'block'; document.getElementById('diabloAdminSection').style.display = 'block'; } await loadDiabloPlayers(); renderDiabloLedger(''); }
-
-function renderDiabloLedger(filter) { const el = document.getElementById('diabloTagList'); const fl = filter.toLowerCase(); const players = diabloState.players.filter(p => p.tag !== 666); const sorted = [...players].sort((a,b) => (a.tag ?? Infinity) - (b.tag ?? Infinity)); const visible = fl ? sorted.filter(p => p.name.toLowerCase().includes(fl)) : sorted; if (!visible.length) { el.innerHTML = '<div class="empty" style="color:#8b0000">No players found.</div>'; return; } el.innerHTML = visible.map(p => { const cls = p.tag === 1 ? 'd1' : p.tag === 2 ? 'd2' : p.tag === 3 ? 'd3' : ''; const change = p.last_change === 'up' ? '▲' : p.last_change === 'down' ? '▼' : '—'; const changeColor = p.last_change === 'up' ? '#ff6600' : p.last_change === 'down' ? '#cc2200' : '#666'; return '<div class="diablo-tag-row"><span class="diablo-tag-num ' + cls + '">' + (p.tag ?? '—') + '</span><div style="flex:1"><div class="diablo-tag-name">' + p.name + '</div>' + (p.pdga ? '<div class="diablo-tag-pdga">PDGA #' + p.pdga + '</div>' : '') + '</div><span style="font-family:DM Mono,monospace;font-size:11px;color:' + changeColor + '">' + change + '</span></div>'; }).join(''); }
-
-function filterDiabloLedger(val) { renderDiabloLedger(val); }
-
-function searchDiabloPlayer(val) { const dd = document.getElementById('diabloDropdown'); if (!val || val.length < 2) { dd.style.display = 'none'; return; } const fl = val.toLowerCase(); const diabloMatches = diabloState.players.filter(p => p.name.toLowerCase().includes(fl)).slice(0, 4); const boulderMatches = state.players.filter(p => p.name.toLowerCase().includes(fl) && !diabloState.players.find(d => d.name === p.name)).slice(0, 3); const all = [...diabloMatches, ...boulderMatches]; if (!all.length) { dd.style.display = 'none'; return; } dd.style.display = 'block'; dd.innerHTML = all.map(p => { const fromBoulder = !diabloState.players.find(d => d.name === p.name); return '<div onpointerdown="event.preventDefault();selectDiabloPlayer(\'' + p.name + '\',' + (p.tag||'null') + ')" style="padding:10px 12px;cursor:pointer;border-bottom:1px solid #8b0000;font-size:14px;color:#ffcccc;" onmouseenter="this.style.background=\'#2d0000\'" onmouseleave="this.style.background=\'\'"><strong>' + p.name + '</strong>' + (fromBoulder ? ' <span style="color:#8b0000;font-size:10px">(from Boulder)</span>' : '') + (p.tag ? '<span style="font-size:11px;color:#8b0000;margin-left:8px">Tag #' + p.tag + '</span>' : '') + '</div>'; }).join(''); }
-
-function selectDiabloPlayer(name, tag) { document.getElementById('diabloRegSearch').value = name; if (tag) document.getElementById('diabloRegTag').value = tag; document.getElementById('diabloDropdown').style.display = 'none'; }
-
-function addDiabloRegistrant() { const name = document.getElementById('diabloRegSearch').value.trim(); const tag = parseInt(document.getElementById('diabloRegTag').value); if (!name) return showToast('Enter a player name.', true); if (!tag || tag < 1 || tag > 50) return showToast('Enter a valid tag # (1-50).', true); if (diabloState.registrants.find(r => r.name === name)) return showToast(name + ' already in match.', true); if (diabloState.registrants.find(r => r.tag === tag)) return showToast('Tag #' + tag + ' already in match.', true); diabloState.registrants.push({ name, tag, score: null }); clearDiabloForm(); renderDiabloRegistrants(); showToast(name + ' added — Tag #' + tag); }
-
-function clearDiabloForm() { document.getElementById('diabloRegSearch').value = ''; document.getElementById('diabloRegTag').value = ''; document.getElementById('diabloDropdown').style.display = 'none'; }
-
-function renderDiabloRegistrants() { const el = document.getElementById('diabloRegistrantList'); const count = document.getElementById('diabloRegCount'); const btn = document.getElementById('diabloProceedBtn'); count.textContent = '(' + diabloState.registrants.length + ' players)'; btn.style.display = diabloState.registrants.length >= 2 ? 'flex' : 'none'; if (!diabloState.registrants.length) { el.innerHTML = '<div class="empty" style="color:#8b0000">No players added yet.</div>'; return; } el.innerHTML = [...diabloState.registrants].sort((a,b) => a.tag - b.tag).map(r => '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#2d0000;border-radius:8px;margin-bottom:6px;"><span style="font-family:Bebas Neue,sans-serif;font-size:22px;color:#cc2200;min-width:38px;">#' + r.tag + '</span><span style="flex:1;font-size:14px;color:#ffcccc;">' + r.name + '</span><button onclick="removeDiabloRegistrant(\'' + r.name + '\')" style="background:rgba(204,34,0,0.1);color:#cc2200;border:1px solid rgba(204,34,0,0.2);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;">✕</button></div>').join(''); }
-
-function removeDiabloRegistrant(name) { diabloState.registrants = diabloState.registrants.filter(r => r.name !== name); renderDiabloRegistrants(); }
-
-function diabloGoToScoring() { setDiabloStep(2); const el = document.getElementById('diabloScoreList'); const btn = document.getElementById('diabloCalcBtn'); const sorted = [...diabloState.registrants].sort((a,b) => a.tag - b.tag); btn.disabled = true; el.innerHTML = sorted.map(r => { const sid = 'dscore_' + r.name.replace(/\W/g,'_'); return '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#2d0000;border:1px solid #8b0000;border-radius:8px;margin-bottom:6px;"><span style="font-family:Bebas Neue,sans-serif;font-size:22px;color:#cc2200;min-width:38px;">#' + r.tag + '</span><span style="flex:1;color:#ffcccc;">' + r.name + '</span><input type="number" min="1" max="150" placeholder="strokes" id="' + sid + '" style="width:80px;text-align:center;background:#1a0000;border:1px solid #8b0000;color:#ffcccc;border-radius:6px;padding:8px;" onchange="saveDiabloScore(\'' + r.name + '\', this.value)"></div>'; }).join(''); }
-
-function saveDiabloScore(name, val) { const score = parseInt(val); if (!score || isNaN(score)) return; const r = diabloState.registrants.find(r => r.name === name); if (r) r.score = score; const allScored = diabloState.registrants.every(r => r.score && !isNaN(r.score)); document.getElementById('diabloCalcBtn').disabled = !allScored; }
-
-function diabloCalculateResults() { const scored = diabloState.registrants.map(r => { const inp = document.getElementById('dscore_' + r.name.replace(/\W/g,'_')); return { ...r, score: r.score || (inp ? parseInt(inp.value) : null) }; }); if (scored.some(r => !r.score || isNaN(r.score))) return showToast('All players need a score.', true); scored.sort((a,b) => a.score !== b.score ? a.score - b.score : a.tag - b.tag); const tags = [...scored].map(r => r.tag).sort((a,b) => a-b); const results = scored.map((r,i) => ({ ...r, newTag: tags[i], finish: i+1 })); diabloState.pendingResults = results; setDiabloStep(3); document.getElementById('diabloResultsList').innerHTML = results.map(r => { const better = r.newTag < r.tag, worse = r.newTag > r.tag; const diff = r.tag - r.newTag; const diffStr = diff > 0 ? '+' + diff : diff < 0 ? String(diff) : '±0'; const finColor = r.finish===1?'#ffd700':r.finish===2?'#ff6600':r.finish===3?'#cc2200':'#666'; const moveColor = better?'#ff6600':worse?'#cc2200':'#666'; return '<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:#1a0000;border:1px solid #8b0000;border-radius:8px;margin-bottom:8px;flex-wrap:wrap;"><span style="font-family:Bebas Neue,sans-serif;font-size:26px;min-width:30px;color:' + finColor + '">' + r.finish + '</span><span style="flex:1;font-weight:500;color:#ffcccc;">' + r.name + '</span><span style="font-family:DM Mono,monospace;font-size:12px;color:#8b0000;">' + r.score + '✦</span><span style="font-family:DM Mono,monospace;font-size:13px;color:#666;">#' + r.tag + '</span><span style="font-size:16px;color:' + moveColor + '">' + (better?'▲':worse?'▼':'—') + '</span><span style="font-family:Bebas Neue,sans-serif;font-size:22px;color:' + moveColor + '">#' + r.newTag + '</span><span style="font-size:10px;color:#666;font-family:DM Mono,monospace;">' + diffStr + '</span></div>'; }).join(''); }
-
-async function diabloCommitResults() { if (!diabloState.pendingResults) return; for (const r of diabloState.pendingResults) { const player = diabloState.players.find(p => p.name === r.name); if (player) { const change = r.newTag < player.tag ? 'up' : r.newTag > player.tag ? 'down' : 'same'; await db.from('diablo_players').update({ tag: r.newTag, last_change: change }).eq('id', player.id); player.tag = r.newTag; player.last_change = change; } else { const { data } = await db.from('diablo_players').insert({ name: r.name, tag: r.newTag, role: 'player', last_change: 'same' }).select().single(); if (data) diabloState.players.push(data); } } await db.from('diablo_match_history').insert({ date: new Date().toISOString().split('T')[0], player_count: diabloState.pendingResults.length, results: JSON.stringify(diabloState.pendingResults) }); diabloState.registrants = []; diabloState.pendingResults = null; setDiabloStep(1); renderDiabloRegistrants(); renderDiabloLedger(''); showToast('🔥 Diablo tags updated!'); }
-
-function setDiabloStep(n) { [1,2,3].forEach(i => { document.getElementById('diabloMatchStep'+i).style.display = i===n?'block':'none'; const dot = document.getElementById('dstep'+i+'dot'); if (dot) { dot.classList.toggle('active', i===n); dot.classList.toggle('done', i<n); } }); } function diabloBackToStep1() { setDiabloStep(1); } function diabloBackToStep2() { setDiabloStep(2); }
-
-async function addDiabloPlayer() { const name = document.getElementById('diabloNewName').value.trim(); const pdga = document.getElementById('diabloNewPDGA').value.trim(); const tagVal = document.getElementById('diabloNewTag').value.trim(); const tag = tagVal ? parseInt(tagVal) : null; if (!name) return showToast('Enter a name.', true); if (tag && diabloState.players.find(p => p.tag === tag)) return showToast('Tag #' + tag + ' already assigned.', true); const { error } = await db.from('diablo_players').insert({ name, pdga: pdga||null, tag, role: 'player', last_change: 'same' }); if (error) return showToast('Error adding player.', true); document.getElementById('diabloNewName').value = ''; document.getElementById('diabloNewPDGA').value = ''; document.getElementById('diabloNewTag').value = ''; showToast(name + ' added to El Diablo! 🔥'); await loadDiabloPlayers(); renderDiabloLedger(''); }
 
 // ═══════════════════════════════════════════════════════
 //  INIT

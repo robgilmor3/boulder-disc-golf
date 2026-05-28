@@ -4,6 +4,29 @@
 
 ---
 
+## May 28, 2026 — El Diablo / Sparkmantown DGC League Added
+
+### Supabase: 4 new tables created
+- `diablo_players` — tag holders (columns: id, name, tag, joined_at)
+- `diablo_events` — match events
+- `diablo_match_history` — match results log
+- `diablo_settings` — league config
+
+### Supabase: 25 players seeded including #666 Jesse & GBear (legend) memorial
+
+### tags.html: El Diablo tab added (7 surgical additions, no rewrites)
+- Dark red / fire theme (`.diablo-*` CSS classes)
+- 🔥 Diablo nav button (visible to logged-in users only)
+- Tag ledger with search, sorted by tag (excluding #666)
+- #666 Jesse & GBear permanent memorial card pinned to bottom
+- Full match flow: Register Player → Enter Scores (par 50) → Assign New Tags
+- Tiebreak rule: lower (better) tag wins
+- Admin panel: Add Player to Diablo roster
+- Cross-league player search (searches both Boulder + Diablo rosters)
+
+### Backup: backups/tags-2026-05-28.html (pre-Diablo, 131,842 bytes)
+### Commit: feat: El Diablo Sparkmantown tab added with full roster and #666 memorial
+
 ## CURRENT STATE (as of May 2026)
 
 ### Both sites are LIVE:
