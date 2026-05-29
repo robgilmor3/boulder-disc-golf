@@ -189,3 +189,20 @@ Tables to create: diablo_money_matches, diablo_money_scores, diablo_money_histor
 ## NEXT UP (in priority order)
 
 1. Weather widget icon upgrade to Meteocons (low priority)
+
+## May 29, 2026 — UnifrakturMaguntia blackletter font, LFP uncensored, flames removed
+
+### tags.html: 12 surgical changes
+- Added UnifrakturMaguntia Google Font (blackletter) alongside Bebas Neue
+- Deleted .diablo-toggle-flames CSS rules
+- Replaced .diablo-lfp-btn with UnifrakturMaguntia version (animated pulse, glow, uncensored text)
+- LFP button text uncensored: "LET'S F***ING PLAY" → "LET'S FUCKING PLAY"
+- Applied UnifrakturMaguntia as primary font to 7 Diablo display elements: .diablo-sticky-title, .diablo-hero h1, .diablo-section-title, .diablo-card-title, .diablo-hole-num, .diablo-payout-winner, .diablo-last-win-winner
+- Deleted flames toggle button HTML + diablo-flames-container HTML
+- Deleted 3 JS functions: initDiabloFlames, startDoomFire, toggleDiabloFlames
+- Removed initDiabloFlames() call from renderDiabloPage()
+- Deleted .diablo-flames-container CSS rules + #diabloFireCanvas CSS
+- Net: -3268 bytes (185,891 → 182,623 bytes)
+
+### Backup: backups/tags-2026-05-29d.html (pre-edit, 185,891 bytes)
+### Commit: feat: UnifrakturMaguntia blackletter font, LFP uncensored, flames removed
