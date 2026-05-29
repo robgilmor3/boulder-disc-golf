@@ -206,3 +206,19 @@ Tables to create: diablo_money_matches, diablo_money_scores, diablo_money_histor
 
 ### Backup: backups/tags-2026-05-29d.html (pre-edit, 185,891 bytes)
 ### Commit: feat: UnifrakturMaguntia blackletter font, LFP uncensored, flames removed
+
+## May 29, 2026 — LFP button in hero card, MedievalSharp titles, sticky header removed
+
+### tags.html: 8 surgical changes (11 sub-changes)
+- Change 1: Google Fonts — UnifrakturMaguntia swapped for MedievalSharp
+- Change 2: All 8 UnifrakturMaguntia font-family occurrences replaced with Bebas Neue
+- Change 3: .diablo-hero h1 → font-family: MedievalSharp (overrides Bebas Neue)
+- Change 4: .diablo-section-title → font-family: MedievalSharp
+- Change 5: .diablo-lfp-btn replaced — smaller (15px, 8px padding), tighter border, adds :hover rule
+- Change 6: Deleted diablo-sticky-header HTML div entirely
+- Change 7: diablo-hero div gets flex layout + LFP button moved inside hero card
+- Change 8: Deleted .diablo-sticky-header, .diablo-sticky-title, .diablo-header-flame CSS rules
+- Net: -839 bytes (182,623 → 181,784 bytes)
+
+### Backup: backups/tags-2026-05-29e.html (pre-edit, 182,623 bytes)
+### Commit: fix: LFP button in hero card, MedievalSharp titles, remove sticky header
