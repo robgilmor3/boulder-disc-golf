@@ -222,3 +222,15 @@ Tables to create: diablo_money_matches, diablo_money_scores, diablo_money_histor
 
 ### Backup: backups/tags-2026-05-29e.html (pre-edit, 182,623 bytes)
 ### Commit: fix: LFP button in hero card, MedievalSharp titles, remove sticky header
+
+## May 29, 2026 — LFP button nesting fixed, 666 to bottom, angled rain
+
+### tags.html: 4 surgical changes (6 sub-changes)
+- Change 1: diabloModeScreen moved OUTSIDE diabloAdminSection — was nested inside display:none admin div (bug: LFP button did nothing). Add Player button now properly closes admin card, new diabloMoneySection sits at page level. Includes new diabloPlayAnchor section title.
+- Change 2: #666 Jesse & GBear memorial moved from above Tag Ledger to below it (after diabloTagList), with margin-top:12px
+- Change 3: Added @keyframes rainDrift + .rain-drop CSS; replaced 2 static rain span |||s with 3 animated rain-drop spans in nwsEmoji function
+- Change 4: openDiabloPlay() now smoothly scrolls to diabloPlayAnchor after opening the mode screen
+- Net: +427 bytes (181,784 → 182,211 bytes)
+
+### Backup: backups/tags-2026-05-29f.html (pre-edit, 186,776 bytes)
+### Commit: fix: LFP button nesting fixed, 666 to bottom, angled rain

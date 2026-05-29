@@ -756,6 +756,7 @@
   }
 
   @keyframes spin { to { transform: rotate(360deg); } }
+@keyframes rainDrift { 0% { transform: translate(0, -4px) rotate(15deg); opacity: 0; } 50% { opacity: 1; } 100% { transform: translate(3px, 4px) rotate(15deg); opacity: 0; } } .rain-drop { display: inline-block; color: #6ab0d4; animation: rainDrift 0.8s ease-in infinite; font-size: 0.65em; letter-spacing: -1px; } .rain-drop:nth-child(2) { animation-delay: 0.25s; } .rain-drop:nth-child(3) { animation-delay: 0.5s; }
 
   /* ── EMPTY ── */
   .empty {
@@ -1007,15 +1008,14 @@
         <div class="diablo-card-title">📊 Player Stats</div>
         <div id="diabloStatsList"></div>
       </div>
-
-      <div class="diablo-memorial">
-        <div class="memorial-tag">#666</div>
-        <div class="memorial-names">JESSE &amp; GBEAR</div>
-        <div class="memorial-sub">Forever in the game. Forever on the board.</div>
-      </div>
       <div class="diablo-section-title">Tag <span>Ledger</span></div>
       <input class="diablo-search-box" type="search" placeholder="Search Diablo players..." oninput="filterDiabloLedger(this.value)" id="diabloSearch">
       <div id="diabloTagList"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+  <div class="diablo-memorial" style="margin-top:12px;">
+    <div class="memorial-tag">#666</div>
+    <div class="memorial-names">JESSE &amp; GBEAR</div>
+    <div class="memorial-sub">Forever in the game. Forever on the board.</div>
+  </div>
       <div id="diabloMatchSection" style="display:none;margin-top:24px;">
         <div class="diablo-section-title" style="margin-bottom:16px">Match <span>Manager</span></div>
         <div class="step-indicator">
@@ -1089,15 +1089,12 @@
               <input type="number" id="diabloNewTag" placeholder="1-50" min="1" max="50" style="background:#1a0000;border-color:#8b0000;color:#ffcccc;">
             </div>
           </div>
-          <button class="diablo-btn diablo-btn-primary" onclick="addDiabloPlayer()">Add Player 🔥</button>
+          <button class="diablo-btn diablo-btn-primary" onclick="addDiabloPlayer()">Add Player 🔥</button> </div> </div>
 
   <!-- MONEY MATCH -->
   <div id="diabloMoneySection" style="margin-top:24px;position:relative;z-index:1;">
-    <div class="diablo-section-title">Money <span>Match</span></div>
-
-    <!-- Mode select screen -->
+    <div class="diablo-section-title" id="diabloPlayAnchor">Money <span>Match</span></div>
     <div id="diabloModeScreen" style="display:none;">
-      <!-- Format select -->
       <div id="diabloFormatScreen">
         <div class="diablo-card" style="position:relative;z-index:1;">
           <div class="diablo-card-title">🔥 What Are We Playing?</div>
@@ -1108,7 +1105,6 @@
           </div>
         </div>
       </div>
-      <!-- Player setup -->
       <div id="diabloSetupScreen" style="display:none;">
         <div class="diablo-card" style="position:relative;z-index:1;">
           <div class="diablo-card-title" id="diabloSetupTitle">👹 Who's Playing?</div>
@@ -1134,7 +1130,6 @@
           <button class="diablo-btn diablo-btn-secondary" onclick="closeDiabloPlay()" style="width:100%;justify-content:center;margin-top:8px;">← Back</button>
         </div>
       </div>
-      <!-- Resume prompt -->
       <div id="diabloResumeScreen" style="display:none;">
         <div class="diablo-card" style="position:relative;z-index:1;border-color:#cc2200;">
           <div class="diablo-card-title" style="color:#ffd700;">⚡ Active Game Found</div>
@@ -1145,7 +1140,6 @@
           </div>
         </div>
       </div>
-      <!-- Live scorecard -->
       <div id="diabloScorecardScreen" style="display:none;">
         <div class="diablo-running-total" id="diabloRunningTotals" style="position:relative;z-index:1;"></div>
         <div class="diablo-hole-card" style="position:relative;z-index:1;">
@@ -1156,7 +1150,6 @@
         </div>
         <button class="diablo-btn diablo-btn-secondary" onclick="closeDiabloPlay()" style="margin-top:8px;width:100%;justify-content:center;">✕ Abandon Round</button>
       </div>
-      <!-- Payout screen -->
       <div id="diabloPayoutScreen" style="display:none;">
         <div class="diablo-payout-card" style="position:relative;z-index:1;">
           <div style="font-size:13px;color:#8b0000;font-family:DM Mono,monospace;letter-spacing:2px;margin-bottom:8px;">WINNER</div>
@@ -1169,10 +1162,7 @@
         <button class="diablo-btn diablo-btn-primary" onclick="closeDiabloPlay()" style="width:100%;justify-content:center;">Done 🔥</button>
       </div>
     </div>
-
-  <!-- Flames toggle -->
-
-  <!-- Flames -->
+  </div>
         </div>
       </div>
     </div>
@@ -2897,7 +2887,7 @@ function nwsEmoji(forecast) {
   if (f.includes('thunder')) {
     // "chance" or "slight chance" = rain hybrid, not full lightning
     if (f.includes('chance') || f.includes('slight'))
-      return '<span style="color:#8a8a8a">&#9729;</span><span style="color:#6ab0d4;font-size:0.65em;vertical-align:middle"> &#124;&#124;&#124;</span>';
+      return '<span style="color:#8a8a8a">&#9729;</span><span class="rain-drop">|</span><span class="rain-drop">|</span><span class="rain-drop">|</span>';
     return '<span style="color:#8a8a8a;font-size:0.9em">&#9729;</span><span style="color:#ffd700">&#9889;</span>';
   }
   if (f.includes('blizzard') || f.includes('ice storm') || f.includes('sleet') || f.includes('freezing'))
@@ -2907,7 +2897,7 @@ function nwsEmoji(forecast) {
   if (f.includes('fog') || f.includes('haze'))
     return '<span style="color:#aaaaaa">&#9832;</span>';
   if (f.includes('rain') || f.includes('shower') || f.includes('drizzle'))
-    return '<span style="color:#8a8a8a">&#9729;</span><span style="color:#6ab0d4;font-size:0.65em;vertical-align:middle"> &#124;&#124;&#124;</span>';
+    return '<span style="color:#8a8a8a">&#9729;</span><span class="rain-drop">|</span><span class="rain-drop">|</span><span class="rain-drop">|</span>';
   if (f.includes('mostly cloudy') || f.includes('overcast'))
     return '<span style="color:#888">&#9729;</span>';
   if (f.includes('partly'))
@@ -3275,7 +3265,7 @@ async function addDiabloPlayer() { const name = document.getElementById('diabloN
 // DIABLO MONEY MATCH + FLAMES
 // ═══════════════════════════════════════════════════════
 let diabloMoney = { format: null, players: [], scores: [], currentHole: 1, totalHoles: 25, buyin: 5, matchId: null };
-function openDiabloPlay() { document.getElementById('diabloModeScreen').style.display = 'block'; checkForActiveMatch(); }
+function openDiabloPlay() { const el = document.getElementById('diabloModeScreen'); el.style.display = 'block'; checkForActiveMatch(); setTimeout(() => { const anchor = document.getElementById('diabloPlayAnchor'); if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 50); }
 function closeDiabloPlay() { document.getElementById('diabloModeScreen').style.display = 'none'; ['diabloFormatScreen','diabloSetupScreen','diabloResumeScreen','diabloScorecardScreen','diabloPayoutScreen'].forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; }); document.getElementById('diabloFormatScreen').style.display = 'block'; diabloMoney = { format: null, players: [], scores: [], currentHole: 1, totalHoles: 25, buyin: 5, matchId: null }; }
 async function checkForActiveMatch() { try { const { data } = await db.from('diablo_money_matches').select('*').eq('status','active').order('created_at',{ascending:false}).limit(1); if (data && data.length) { const m = data[0]; document.getElementById('diabloFormatScreen').style.display = 'none'; document.getElementById('diabloResumeScreen').style.display = 'block'; const players = typeof m.players === 'string' ? JSON.parse(m.players) : m.players; document.getElementById('diabloResumeInfo').innerHTML = '<strong style="color:#ffd700">' + (m.format === 'tags' ? 'Tag Match' : m.format.includes('doubles') ? 'Doubles Money Match' : 'Singles Money Match') + '</strong><br>Players: ' + players.map(p => p.name).join(', ') + '<br>Hole ' + m.current_hole + ' of ' + m.total_holes; diabloMoney.matchId = m.id; diabloMoney.format = m.format; diabloMoney.buyin = m.buyin; diabloMoney.currentHole = m.current_hole; diabloMoney.totalHoles = m.total_holes; diabloMoney.players = players; } } catch(e) { console.warn('checkForActiveMatch:', e); } }
 async function resumeDiabloMatch() { try { const { data: scoreData } = await db.from('diablo_money_scores').select('*').eq('match_id', diabloMoney.matchId); diabloMoney.scores = diabloMoney.players.map(p => ({ ...p, holes: [], total: 0 })); if (scoreData) { scoreData.forEach(s => { const player = diabloMoney.scores.find(p => p.name === s.player_name); if (player) { player.holes[s.hole - 1] = s.score; player.total += s.score; } }); } document.getElementById('diabloResumeScreen').style.display = 'none'; document.getElementById('diabloScorecardScreen').style.display = 'block'; renderDiabloHole(); renderDiabloRunningTotals(); } catch(e) { showToast('Error resuming match.', true); } }
