@@ -4,6 +4,24 @@
 
 ---
 
+## May 29, 2026 — Diablo Full Rebuild (LFP header, devil bg, resume, stats, last win)
+
+### Supabase SQL (needs manual run — Supabase dashboard did not load in browser):
+Run this SQL manually in the Supabase SQL editor at https://supabase.com/dashboard/project/mewwizubdwfgvrhiylur/sql/new
+Tables to create: diablo_money_matches, diablo_money_scores, diablo_money_history, diablo_player_stats
+(See backups/tags-2026-05-29c.html commit message for full SQL)
+
+### tags.html: 6 surgical additions/replacements:
+- Addition 1 — New CSS: devil bg, sticky header, LFP button pulse, header flame animation, last win card, stats row styles
+- Addition 2 — diablo-page div gets devil SVG background + sticky header (EL DIABLO title + LFP button + flame icon)
+- Addition 3 — Last Big Win card + Player Stats card inserted before #666 memorial
+- Addition 4 — Full diabloModeScreen rebuild: format select (Tags/Singles/Doubles), quick player grid tap-to-select, guest add, team assign, resume mid-game screen, scorecard, payout
+- Addition 5 — Complete JS rewrite of money match functions: openDiabloPlay, closeDiabloPlay, checkForActiveMatch, resumeDiabloMatch, abandonAndNew, selectDiabloFormat, renderDiabloQuickGrid, toggleDiabloPlayer, addDiabloGuestPlayer, checkCaliNeeded, renderDiabloSelectedPlayers, setDiabloTeam, setCaliMultiplier, updateDiabloPot, searchDiabloMoneyPlayer, startDiabloRound (saves to DB), diabloNextHole (saves per hole), showDiabloPayout (saves history + updates player stats), loadDiabloLastWin, loadDiabloStats
+- Addition 6 — loadDiabloLastWin() + loadDiabloStats() called in renderDiabloPage after loadDiabloPlayers()
+
+### Backup: backups/tags-2026-05-29c.html (pre-edit, 172,337 bytes)
+### Commit: feat: Diablo full rebuild — LFP header, devil bg, resume mid-game, stats, last win
+
 ## May 29, 2026 — Doom Fire Canvas Algorithm (flames upgrade)
 
 ### tags.html: 1 surgical replacement (CSS + JS, no other changes)
