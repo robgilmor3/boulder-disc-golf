@@ -4,6 +4,26 @@
 
 ---
 
+## May 29, 2026 — Diablo Money Match + Animated Flames Added
+
+### tags.html: 4 surgical additions (no rewrites)
+
+- **Addition 1** — New CSS: flames container/animation, money match UI classes (play btn, mode select, hole card, score input, running totals, payout card, buyin row, team buttons)
+- **Addition 2** — Money Match HTML block inside diabloAdminSection: mode screen (LET'S PLAY), format select (Singles/Doubles), player setup with Cali option + buy-in, live scorecard (hole-by-hole), payout screen; plus flames toggle button and fixed flames container
+- **Addition 3** — Full JS: diabloMoney state, showDiabloModeSelect, selectDiabloFormat, searchDiabloMoneyPlayer, addDiabloMoneyPlayer, setPlayerTeam, renderDiabloMoneyPlayerList, updateDiabloPot, startDiabloRound, renderDiabloHole, renderDiabloRunningTotals, diabloNextHole, showDiabloPayout, resetDiabloMoney, initDiabloFlames, toggleDiabloFlames
+- **Addition 4** — initDiabloFlames() called inside renderDiabloPage() after loadDiabloPlayers()
+
+### Features
+- Singles: winner takes all from losers
+- Doubles: Team 1 vs Team 2; Cali option (single or double buy-in for the odd player)
+- 25-hole scorecard with running totals; leader highlighted in gold
+- Payout screen shows winner name + $ amount + final scores
+- Animated flames (18 randomized CSS-animated flames, fixed at bottom)
+- Flames toggle button persists preference via localStorage
+
+### Backup: backups/tags-2026-05-29.html (pre-edit, 148,512 bytes)
+### Commit: feat: Diablo money match Singles/Doubles/Cali + animated flames toggle
+
 ## May 28, 2026 — El Diablo / Sparkmantown DGC League Added
 
 ### Supabase: 4 new tables created
