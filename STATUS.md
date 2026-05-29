@@ -4,6 +4,16 @@
 
 ---
 
+## May 29, 2026 — Doom Fire Canvas Algorithm (flames upgrade)
+
+### tags.html: 1 surgical replacement (CSS + JS, no other changes)
+- Replaced CSS `.flame` div + `@keyframes flicker` with `#diabloFireCanvas { display: block; }`
+- Replaced `initDiabloFlames()` CSS-div approach with canvas-based Doom fire algorithm
+- Added `startDoomFire(canvas)`: 120×60 pixel fire simulation, 256-color heat palette, spreadFire spread algorithm, requestAnimationFrame loop, `_stopFire`/`_startFire` handles for toggle
+- Updated `toggleDiabloFlames()` to stop/start canvas animation on toggle (no wasted rAF when hidden)
+- Backup: backups/tags-2026-05-29b.html
+### Commit: fix: replace CSS div flames with Doom fire canvas algorithm
+
 ## May 29, 2026 — Diablo Money Match + Animated Flames Added
 
 ### tags.html: 4 surgical additions (no rewrites)
