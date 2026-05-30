@@ -394,3 +394,10 @@ Tables to create: diablo_money_matches, diablo_money_scores, diablo_money_histor
 - Change 3a — renderDiabloSelectedPlayers forEach: filters out isCali entries so Cali doesn't render twice
 - Change 3b — Cali card replaced: now shows hell name in red (same style as teams), CALI label below, 1x HALF / 2x FULL buttons in matching red style
 - Bonus: Re-Randomize button emoji fixed (was \U0001f3b2 literal string)
+
+---
+
+## May 30, 2026 — Fix setCaliMult to update teamAssignment (commit below)
+
+### tags.html: 1 surgical fix:
+- setCaliMult(): now updates both player.buyinMultiplier AND teamAssignments cali entry so 1x/2x buttons re-render correctly
