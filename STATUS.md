@@ -234,3 +234,20 @@ Tables to create: diablo_money_matches, diablo_money_scores, diablo_money_histor
 
 ### Backup: backups/tags-2026-05-29f.html (pre-edit, 186,776 bytes)
 ### Commit: fix: LFP button nesting fixed, 666 to bottom, angled rain
+
+## May 29, 2026 — Diablo always-visible format selector, money first, back buttons, remove match manager
+
+### tags.html: 9 surgical changes
+- Change 1: Deleted entire diabloMatchSection block (-3740 bytes) — old match manager removed
+- Change 2: diabloMoneySection — modeScreen now always visible (no display:none), diabloPlayAnchor is a 1px spacer div, section title removed
+- Change 3: diabloFormatScreen restructured — MONEY MATCH (Singles/Doubles) first, TAG MATCH second; removed old 🔥 card title
+- Change 4: Setup screen ← Back button now calls backToDiabloFormat() instead of closeDiabloPlay()
+- Change 5: openDiabloPlay() — removed show/hide of modeScreen, just calls checkForActiveMatch() + scroll
+- Change 6: closeDiabloPlay() — removed hide of modeScreen, resets sub-screens and state only
+- Change 7: Added backToDiabloFormat() function — hides sub-screens, shows format screen, resets format/players
+- Change 8: Abandon Round button now shows confirm('Abandon this round?') dialog before closing
+- Change 9: Payout screen Done→ Play Again 🔥 + added ← Back to Game Select button
+- Net: -3104 bytes (182,211 → 179,107 bytes)
+
+### Backup: backups/tags-2026-05-29g.html (pre-edit, 187,203 bytes)
+### Commit: feat: Diablo always-visible format selector, money first, back buttons, remove match manager
