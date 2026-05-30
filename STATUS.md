@@ -341,3 +341,16 @@ Tables to create: diablo_money_matches, diablo_money_scores, diablo_money_histor
 
 ### Backup: backups/tags-2026-05-29o.html
 ### Commit: feat: CSS hell background replicating fire demon smoke effect
+
+---
+
+## May 29, 2026 — Hell Team Names (200+), Dynamic Naming, Unlimited Pairs
+
+### tags.html: 7 surgical changes (commit 892e6e8):
+- Change 1 — Added DIABLO_TEAM_NAMES array (200+ hell/demon/mythology names) + teamNameMap: {} to diabloMoney state
+- Change 2 — randomizeTeams() now uses 'team1'/'team2'/etc keys and auto-picks unique random hell names into teamNameMap
+- Change 3 — renderDiabloSelectedPlayers teamsLocked branch: team buttons now display hell name from teamNameMap (not 'T1'/'T2')
+- Change 4 — setDiabloTeam() auto-assigns hell name to teamNameMap when a team is manually assigned for first time
+- Change 5 — closeDiabloPlay() and backToDiabloFormat() both reset teamNameMap: {}
+- Change 6 — showDiabloPayout() teamLabel uses teamNameMap[p.team] if available
+- Change 7 — renderDiabloRunningTotals() team label uses teamNameMap[p.team] if available
