@@ -364,3 +364,15 @@ Tables to create: diablo_money_matches, diablo_money_scores, diablo_money_histor
 - Change 2 — .diablo-hero::after flame emoji: right 16px → 12px, font-size 60px → 72px, opacity 0.15 → 0.55, added drop-shadow glow filter
 - Change 3a — toggleDiabloPlayer(): removed checkCaliNeeded() call — no more auto-cali popup while tapping players
 - Change 3b — addDiabloGuestPlayer(): removed checkCaliNeeded() call — same fix for guest add flow
+
+---
+
+## May 30, 2026 — Doubles flow: clean team cards, Cali 1x/2x, no team buttons (commit b36f540)
+
+### tags.html: 6 surgical changes:
+- Change 1 — lockDiabloPlayers(): sets caliPlayer, clears teamNameMap/teamAssignments, no toast
+- Change 2 — renderDiabloSelectedPlayers(): full rewrite — bucket phase shows player count + odd warning; locked phase shows Cali 1x/2x card + big RANDOMIZE button before teams; after randomize shows clean hell-name team cards + Cali card + Re-Randomize + START ROUND
+- Change 3 — randomizeTeams(): builds teamAssignments array [{name, players, key}], flicker animation on player names, then reveals team cards
+- Change 4 — setCaliMult(mult) added; clearTeams() now resets teamAssignments + teamNameMap
+- Change 5 — diabloMoney state gets teamAssignments:[] and caliPlayer:null
+- Change 6 — closeDiabloPlay() and backToDiabloFormat() both reset teamAssignments/caliPlayer
