@@ -275,3 +275,16 @@ Tables to create: diablo_money_matches, diablo_money_scores, diablo_money_histor
 
 ### Backup: backups/tags-2026-05-29i.html (pre-edit, 187,755 bytes)
 ### Commit: fix: remove diabloMatchSection reference that was crashing renderDiabloPage
+
+## May 29, 2026 — Brighter El Diablo title, subtitle smaller, LFP wider, resume screen 3 options
+
+### tags.html: 5 surgical changes
+- Change 1: .diablo-hero h1 CSS — color #cc2200 → #ff3300, double glow text-shadow (rgba(255,51,0,0.7) + rgba(204,34,0,0.4))
+- Change 2: Subtitle inline style — font-size:13px → font-size:11px
+- Change 3: Hero div — title div gets flex-shrink:0; LFP button wrapped in flex:1 centered div with padding-right:8px; button gets padding:8px 28px (wider)
+- Change 4: Resume screen — 2 side-by-side buttons → 3 full-width vertical buttons: ▶ Resume Game, + Start Different Match, ✕ Abandon & Delete
+- Change 5: Added startDifferentMatch() function — pauses match without deleting, returns to format screen
+- Net: +747 bytes (182,747 → 183,494 bytes)
+
+### Backup: backups/tags-2026-05-29j.html (pre-edit, 187,737 bytes)
+### Commit: feat: brighter El Diablo title, subtitle smaller, LFP wider, resume screen 3 options
