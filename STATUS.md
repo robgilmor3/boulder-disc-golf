@@ -251,3 +251,18 @@ Tables to create: diablo_money_matches, diablo_money_scores, diablo_money_histor
 
 ### Backup: backups/tags-2026-05-29g.html (pre-edit, 187,203 bytes)
 ### Commit: feat: Diablo always-visible format selector, money first, back buttons, remove match manager
+
+## May 29, 2026 — Doubles team lock+randomize flow, Sparkman Bros DGC, hero subtitle pop
+
+### tags.html: 7 surgical changes (8 sub-changes)
+- Change 1: Hero subtitle — "SPARKMANTOWN DGC" → "SPARKMAN BROS DGC", added orange glow style (color:#ff6600, text-shadow, letter-spacing:3px, font-weight:600)
+- Change 2: renderDiabloSelectedPlayers — full replacement with 3-phase doubles flow: (1) add players + show Lock btn, (2) after lock: team assignment with Randomize/Reset + T1/T2/CALI buttons, (3) singles/tags: unchanged flow
+- Change 3: Added 3 new functions: lockDiabloPlayers() (locks roster, auto-Cali on odd count), clearTeams() (resets team assignments), randomizeTeams() (24-frame flicker animation then shuffles teams)
+- Change 4: Added 🔒 LOCK IN PLAYERS → button (id=diabloLockBtn, hidden by default) to setup screen HTML
+- Change 5: diabloMoney state — added teamsLocked: false
+- Change 6: teamsLocked reset to false in both closeDiabloPlay() and backToDiabloFormat()
+- Change 7: teamsLocked reset in selectDiabloFormat()
+- Net: +3658 bytes (179,107 → 182,765 bytes)
+
+### Backup: backups/tags-2026-05-29h.html (pre-edit, 184,082 bytes)
+### Commit: feat: doubles team lock+randomize flow, Sparkman Bros DGC, hero subtitle pop
