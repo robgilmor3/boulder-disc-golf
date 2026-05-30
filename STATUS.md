@@ -419,3 +419,13 @@ Tables to create: diablo_money_matches, diablo_money_scores, diablo_money_histor
 ### tags.html: 2 surgical changes:
 - Change 1 — HTML: replaced inline guest input row with dashed "＋ Add a New Victim" button; input row hidden by default inside collapsible div; input has Enter key handler
 - Change 2 — JS: added toggleDiabloGuestInput() to show/hide row + auto-focus; addDiabloGuestPlayer() now collapses row after adding
+
+---
+
+## May 30, 2026 — Fullscreen scorecard overlay (commit d6772e8)
+
+### tags.html: 4 surgical changes:
+- Change 1 — CSS: added 25 new .dsc-* classes for fullscreen scorecard overlay (fixed inset:0, z-index:150, team rows, score controls, hole dots, running total chips)
+- Change 2 — startDiabloRound(): builds team-based scores array from teamAssignments for doubles; calls showDiabloScorecard() instead of showing diabloScorecardScreen
+- Change 3 — Replaced renderDiabloHole/adjustDiabloScore/activateDiabloScore/diabloNextHole/renderDiabloRunningTotals with new functions: showDiabloScorecard, hideDiabloScorecard, renderDiabloScorecardOverlay, dscActivate, dscAdjust, dscGoToHole, dscNextHole. Old stubs kept for compatibility.
+- Change 4 — resumeDiabloMatch(): calls showDiabloScorecard() instead of old scorecard screen
