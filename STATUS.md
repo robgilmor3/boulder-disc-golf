@@ -324,3 +324,11 @@ Tables to create: diablo_money_matches, diablo_money_scores, diablo_money_histor
 
 ### Backup: backups/tags-2026-05-29m.html (pre-edit, 190,634 bytes)
 ### Commit: fix: unlimited doubles teams, Wikimedia lava background
+
+## May 29, 2026 — Fix doubles team buttons to exact count
+
+### tags.html: 1 surgical fix
+- renderDiabloSelectedPlayers: teamNamesArr length changed from numTeams+2 to numTeams — shows exactly the right number of team buttons, no extra caps
+
+### Backup: backups/tags-2026-05-29n.html
+### Commit: fix: doubles team buttons match exact player count, no cap
