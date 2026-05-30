@@ -354,3 +354,13 @@ Tables to create: diablo_money_matches, diablo_money_scores, diablo_money_histor
 - Change 5 — closeDiabloPlay() and backToDiabloFormat() both reset teamNameMap: {}
 - Change 6 — showDiabloPayout() teamLabel uses teamNameMap[p.team] if available
 - Change 7 — renderDiabloRunningTotals() team label uses teamNameMap[p.team] if available
+
+---
+
+## May 30, 2026 — Background fix, flame emoji, remove auto-cali popup
+
+### tags.html: 4 surgical changes (commit af6634b):
+- Change 1 — .diablo-devil-bg: position fixed → absolute so hell gradient CSS shows through; opacity 0.04 → 0.06
+- Change 2 — .diablo-hero::after flame emoji: right 16px → 12px, font-size 60px → 72px, opacity 0.15 → 0.55, added drop-shadow glow filter
+- Change 3a — toggleDiabloPlayer(): removed checkCaliNeeded() call — no more auto-cali popup while tapping players
+- Change 3b — addDiabloGuestPlayer(): removed checkCaliNeeded() call — same fix for guest add flow
