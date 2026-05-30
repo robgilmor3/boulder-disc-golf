@@ -401,3 +401,13 @@ Tables to create: diablo_money_matches, diablo_money_scores, diablo_money_histor
 
 ### tags.html: 1 surgical fix:
 - setCaliMult(): now updates both player.buyinMultiplier AND teamAssignments cali entry so 1x/2x buttons re-render correctly
+
+---
+
+## May 30, 2026 — Scorecard +/- buttons, grey default 2, orange on activate (commit fb6e4bf)
+
+### tags.html: 4 surgical changes:
+- Change 1 — Added .diablo-score-default and .diablo-score-active CSS classes
+- Change 2 — renderDiabloHole(): replaced text inputs with +/− buttons + big tappable score display; defaults to grey 2, shows hell team name label; activates orange on tap/adjust
+- Change 3 — Added activateDiabloScore(idx) and adjustDiabloScore(idx, delta) functions
+- Change 4 — diabloNextHole(): reads from dhole_N_display dataset instead of input values; untouched scores default to 2; recalculates totals via reduce
