@@ -288,3 +288,14 @@ Tables to create: diablo_money_matches, diablo_money_scores, diablo_money_histor
 
 ### Backup: backups/tags-2026-05-29j.html (pre-edit, 187,737 bytes)
 ### Commit: feat: brighter El Diablo title, subtitle smaller, LFP wider, resume screen 3 options
+
+## May 29, 2026 — Larger El Diablo title, 666 memorial red+white, hellfire background
+
+### tags.html: 3 surgical changes
+- Change 1: .diablo-hero h1 font-size 36px → 48px
+- Change 2: .diablo-memorial CSS — dark #0a0000 bg with red border+glow; #666 tag: 56px bright red (#ff3300) with double text-shadow; names: white with red glow; sub: red; added .memorial-sub rule
+- Change 3: .diablo-page background — Unsplash hellfire image (photo-1516912481808) with dark rgba overlay (0.92/0.95), cover fixed
+- Net: +443 bytes (183,494 → 183,937 bytes)
+
+### Backup: backups/tags-2026-05-29k.html (pre-edit, 188,488 bytes)
+### Commit: feat: larger El Diablo title, 666 memorial red+white, hellfire background
