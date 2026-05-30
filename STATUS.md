@@ -376,3 +376,10 @@ Tables to create: diablo_money_matches, diablo_money_scores, diablo_money_histor
 - Change 4 — setCaliMult(mult) added; clearTeams() now resets teamAssignments + teamNameMap
 - Change 5 — diabloMoney state gets teamAssignments:[] and caliPlayer:null
 - Change 6 — closeDiabloPlay() and backToDiabloFormat() both reset teamAssignments/caliPlayer
+
+---
+
+## May 30, 2026 — Fix dice emoji unicode in randomize button (commit below)
+
+### tags.html: 1 surgical fix:
+- Fixed \U0001f3b2 literal string → real 🎲 emoji in RANDOMIZE TEAMS button inside renderDiabloSelectedPlayers
