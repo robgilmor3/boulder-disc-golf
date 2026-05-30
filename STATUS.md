@@ -383,3 +383,14 @@ Tables to create: diablo_money_matches, diablo_money_scores, diablo_money_histor
 
 ### tags.html: 1 surgical fix:
 - Fixed \U0001f3b2 literal string → real 🎲 emoji in RANDOMIZE TEAMS button inside renderDiabloSelectedPlayers
+
+---
+
+## May 30, 2026 — Cali random shuffle, gets hell name, red matching style (commit 22983e0)
+
+### tags.html: 3 surgical changes + 2 bonus fixes:
+- Change 1 — lockDiabloPlayers(): clears ALL players' cali/team state on lock (no pre-assignment)
+- Change 2 — randomizeTeams(): shuffles ALL players including future Cali; last player of odd group becomes Cali and gets their own unique hell name; Cali pushed into teamAssignments with isCali:true
+- Change 3a — renderDiabloSelectedPlayers forEach: filters out isCali entries so Cali doesn't render twice
+- Change 3b — Cali card replaced: now shows hell name in red (same style as teams), CALI label below, 1x HALF / 2x FULL buttons in matching red style
+- Bonus: Re-Randomize button emoji fixed (was \U0001f3b2 literal string)
