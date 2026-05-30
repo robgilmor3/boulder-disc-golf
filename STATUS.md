@@ -332,3 +332,12 @@ Tables to create: diablo_money_matches, diablo_money_scores, diablo_money_histor
 
 ### Backup: backups/tags-2026-05-29n.html
 ### Commit: fix: doubles team buttons match exact player count, no cap
+
+## May 29, 2026 — CSS hell background (fire demon smoke effect)
+
+### tags.html: 1 surgical change
+- .diablo-page background: Wikimedia lava URL removed entirely; replaced with 5-layer pure CSS radial-gradient hell effect — two side ember glows (rgba 180,0,0), top smoke darkening, center void (rgba 0,0,0,0.9), bottom lava glow, base linear dark-red gradient
+- No external image dependency — fully CSS
+
+### Backup: backups/tags-2026-05-29o.html
+### Commit: feat: CSS hell background replicating fire demon smoke effect
