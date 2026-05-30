@@ -299,3 +299,17 @@ Tables to create: diablo_money_matches, diablo_money_scores, diablo_money_histor
 
 ### Backup: backups/tags-2026-05-29k.html (pre-edit, 188,488 bytes)
 ### Commit: feat: larger El Diablo title, 666 memorial red+white, hellfire background
+
+## May 29, 2026 — Doubles multi-team bucket flow, correct payout math, T1-T6 teams
+
+### tags.html: 6 surgical changes
+- Change 1: renderDiabloSelectedPlayers — full rewrite: non-doubles path simplified; doubles bucket phase shows player count + odd/Cali warning; locked phase shows T1-T6+CALI buttons per player, team summary header, RANDOMIZE/Reset row
+- Change 2: randomizeTeams — now assigns pairs into T1/T2/T3... (floor(i/2) mapping); cali players untouched; 24-frame flicker animation unchanged
+- Change 3: updateDiabloPot — doubles: each non-cali player ×2 buyin per team; cali uses buyinMultiplier; display shows multiplier detail
+- Change 4: lockDiabloPlayers — calls updateDiabloPot() after locking; cleaned up auto-cali logic
+- Change 5: showDiabloPayout isDoubles branch — teamLabel uses t.toUpperCase() for T1/T2/T3 etc; pot math: each player contributes 1x buyin to team pot (2x total per pair); loserPot = total - winnerContrib; payoutSub shows score + per-winner amount
+- Change 6: T3/T4/T5/T6 team button selected CSS added; cali selected updated to #444 bg / #888 border
+- Net: +1693 bytes (183,937 → 185,630 bytes)
+
+### Backup: backups/tags-2026-05-29l.html (pre-edit, 188,931 bytes)
+### Commit: feat: doubles multi-team bucket flow, correct payout math, T1-T6 teams
