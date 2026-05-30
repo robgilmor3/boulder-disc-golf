@@ -313,3 +313,14 @@ Tables to create: diablo_money_matches, diablo_money_scores, diablo_money_histor
 
 ### Backup: backups/tags-2026-05-29l.html (pre-edit, 188,931 bytes)
 ### Commit: feat: doubles multi-team bucket flow, correct payout math, T1-T6 teams
+
+## May 29, 2026 — Unlimited doubles teams, Wikimedia lava background
+
+### tags.html: 3 surgical changes
+- Change 1: .diablo-page background — Unsplash URL replaced with Wikimedia lava flow image (Kilauea); overlay lightened slightly (0.88/0.93)
+- Change 2: randomizeTeams() — now uses 't' + (floor(i/2)+1) so teams are t1/t2/t3... with no hardcoded limit; handles any number of players
+- Change 3: renderDiabloSelectedPlayers — team buttons now dynamic: numTeams = ceil(nonCali/2), shows numTeams+2 buttons so there's always 2 extras; replaces hardcoded ['t1'..'t6']
+- Net: +196 bytes (185,630 → 185,826 bytes)
+
+### Backup: backups/tags-2026-05-29m.html (pre-edit, 190,634 bytes)
+### Commit: fix: unlimited doubles teams, Wikimedia lava background
