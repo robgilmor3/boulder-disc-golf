@@ -266,3 +266,12 @@ Tables to create: diablo_money_matches, diablo_money_scores, diablo_money_histor
 
 ### Backup: backups/tags-2026-05-29h.html (pre-edit, 184,082 bytes)
 ### Commit: feat: doubles team lock+randomize flow, Sparkman Bros DGC, hero subtitle pop
+
+## May 29, 2026 — Fix renderDiabloPage crash on diabloMatchSection
+
+### tags.html: 1 surgical fix
+- renderDiabloPage() was calling getElementById('diabloMatchSection').style.display which crashed since diabloMatchSection was deleted. Replaced with safe null-checked adminSection reference only.
+- diabloMatchSection references: 0 remaining in file
+
+### Backup: backups/tags-2026-05-29i.html (pre-edit, 187,755 bytes)
+### Commit: fix: remove diabloMatchSection reference that was crashing renderDiabloPage
