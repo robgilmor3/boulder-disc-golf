@@ -411,3 +411,11 @@ Tables to create: diablo_money_matches, diablo_money_scores, diablo_money_histor
 - Change 2 — renderDiabloHole(): replaced text inputs with +/− buttons + big tappable score display; defaults to grey 2, shows hell team name label; activates orange on tap/adjust
 - Change 3 — Added activateDiabloScore(idx) and adjustDiabloScore(idx, delta) functions
 - Change 4 — diabloNextHole(): reads from dhole_N_display dataset instead of input values; untouched scores default to 2; recalculates totals via reduce
+
+---
+
+## May 30, 2026 — Add a New Victim button (commit 4235a02)
+
+### tags.html: 2 surgical changes:
+- Change 1 — HTML: replaced inline guest input row with dashed "＋ Add a New Victim" button; input row hidden by default inside collapsible div; input has Enter key handler
+- Change 2 — JS: added toggleDiabloGuestInput() to show/hide row + auto-focus; addDiabloGuestPlayer() now collapses row after adding
