@@ -429,3 +429,19 @@ Tables to create: diablo_money_matches, diablo_money_scores, diablo_money_histor
 - Change 2 — startDiabloRound(): builds team-based scores array from teamAssignments for doubles; calls showDiabloScorecard() instead of showing diabloScorecardScreen
 - Change 3 — Replaced renderDiabloHole/adjustDiabloScore/activateDiabloScore/diabloNextHole/renderDiabloRunningTotals with new functions: showDiabloScorecard, hideDiabloScorecard, renderDiabloScorecardOverlay, dscActivate, dscAdjust, dscGoToHole, dscNextHole. Old stubs kept for compatibility.
 - Change 4 — resumeDiabloMatch(): calls showDiabloScorecard() instead of old scorecard screen
+
+---
+
+## June 1, 2026 — Relative-to-par scoring, birdie/bogey labels, E for even
+
+### Commit: 92b0957 — "feat: relative-to-par scoring, birdie/bogey labels, E for even"
+
+### tags.html: 4 surgical changes:
+- Added fmtRelPar(strokes, holesPlayed) — returns 'E', '+N', or '-N' relative to par (par=2 per hole)
+- Added scoreLabel(strokes) — returns hole label: Birdie, Par, Bogey, Double Bogey, etc.
+- renderDiabloScorecardOverlay: added holesPlayed var, running totals now show rel-par (E/+N/-N), team total header shows rel-par
+- Score control in overlay shows scoreLabel below the score number
+
+### Live verified:
+- fmtRelPar(0,0)='E', fmtRelPar(1,1)='-1', fmtRelPar(4,2)='E' ✓
+- scoreLabel(1)='Birdie', scoreLabel(2)='Par', scoreLabel(3)='Bogey' ✓
