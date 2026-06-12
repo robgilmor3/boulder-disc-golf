@@ -445,3 +445,9 @@ Tables to create: diablo_money_matches, diablo_money_scores, diablo_money_histor
 ### Live verified:
 - fmtRelPar(0,0)='E', fmtRelPar(1,1)='-1', fmtRelPar(4,2)='E' ✓
 - scoreLabel(1)='Birdie', scoreLabel(2)='Par', scoreLabel(3)='Bogey' ✓
+
+
+## June 12, 2026 — Added Fable 5 workflow section to CLAUDE.md
+
+- Appended FABLE 5 + COWORK WORKFLOW (June 2026) section to the bottom of CLAUDE.md. No other changes.
+- Commit: docs: add Fable 5 workflow section

@@ -273,3 +273,11 @@ Tables: players, events, notes, match_history, settings, rounds
 7. If unsure about something, stop and ask Rob before proceeding
 8. Do not revert changes that are already working
 9. Always follow BACKUP PROTOCOL before editing index.html or tags.html
+
+
+FABLE 5 + COWORK WORKFLOW (June 2026)
+Claude Fable 5 is now being used as the primary reasoning model for this project. Fable thinks and plans, Cowork executes. Rob pastes Fable's instruction blocks into Cowork, Cowork runs them, Rob brings results back to Fable for verification.
+When Cowork receives an instruction block written by Fable, follow it exactly. If something looks wrong or a file path does not exist, stop and report back before proceeding.
+Rob is on a new HP computer. GitHub token should be at C:\Users\robgi\Desktop\Claude Cowork Folder\GITHUB_TOKEN.secret. If that path does not exist, stop and ask Rob to confirm before touching the repo.
+Fable 5 is free until June 22 2026. Cowork double usage promo runs until July 5 2026.
+LLC research tasks may come through during this window. Cowork may be asked to navigate to Colorado Secretary of State, Boulder County Assessor, or Boulder County Clerk and Recorder to pull public records. Those are legitimate tasks, follow the instructions provided.
