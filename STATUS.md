@@ -451,3 +451,7 @@ Tables to create: diablo_money_matches, diablo_money_scores, diablo_money_histor
 
 - Appended FABLE 5 + COWORK WORKFLOW (June 2026) section to the bottom of CLAUDE.md. No other changes.
 - Commit: docs: add Fable 5 workflow section
+## June 14 2026
+- Fix .diablo-page background: added position:relative, overflow:hidden, isolation:isolate to CSS; removed inline style="position:relative;" from div
+- Fix FINISH ROUND button: corrected emoji escape from \U0001f525 (Python) to \uD83D\uDD25 (JS)
+- Fix right-side scorecard totals: now show relative to par (E/+1/-1) via fmtRelPar(), with dynamic font size
