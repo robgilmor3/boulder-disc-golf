@@ -4,6 +4,38 @@
 
 ---
 
+## September 8, 2026 — Diablo: format screen first, active games listed underneath (max 2)
+
+### Backup: backups/tags-2026-09-08c.html (pre-edit) — committed separately
+
+### The problem
+
+`checkForActiveMatch()` **replaced** the format card with a single "Active Game Found" screen. Tapping LET'S PLAY when any stale active match existed dropped Rob onto a resume prompt instead of the singles/doubles/tags options, which read as "you have to deal with this first." Because 16 money matches exist with status `active` (most of them abandoned mid-game while the scorecard was broken), this was happening nearly every time.
+
+### The change
+
+- LET'S PLAY now **always** lands on the format card. `openDiabloPlay()` hides setup/scorecard/payout and forces `diabloFormatScreen` visible before checking for active games
+- Active games render **below** the format card as their own list, capped at 2 (`.limit(2)` plus a `.slice(0,2)` belt-and-braces). Each card shows format, roster, and hole X of Y, with Resume and an ✕ abandon button
+- The list hides itself whenever the format card is not the visible screen, so it never trails along behind the setup or scorecard screens
+- New `diabloActiveMatches` state, new `renderDiabloActiveGames()`, `resumeDiabloMatchById(id)`, `abandonDiabloMatchById(id)`
+- The old markup block (`Active Game Found` card) was removed, and **`abandonAndNew()` and `startDifferentMatch()` were deleted** — they existed only to serve that block
+
+### Note on the deletions
+
+This is the first commit written under the rule Rob wants adopted: a session that replaces a feature deletes what it replaced, in the same commit. Both functions were verified to have zero remaining references before removal.
+
+### Verification
+
+- `node --check` on extracted inline JS — clean
+- 16 automated assertions through a real DOM, all passing: empty state hides the list and leaves the format card alone; one game renders a singular header and one card with correct hole/format; two games render a plural header and two cards; the list hides when the format card is hidden and returns when it comes back; a resume handler built from a roster containing `Pat O'Brien` parses with no stray attributes; malformed players JSON degrades to "No players recorded" instead of throwing
+- NOT yet tapped on a real phone
+
+### Still open from this conversation
+
+Rob also wants the "＋ Add a New Victim" button de-emphasised so it does not read as a required step. Not done in this commit — the active-games restructure was the specified priority and the session was near its usage limit.
+
+### Commit: feat: Diablo play screen defaults to new game, active games listed below (max 2)
+
 ## September 8, 2026 — Overnight surgical pass: dead handlers, apostrophe names, UTC dates
 
 Run unattended at Rob's request. Three independent surgical fixes, no features built, no behavior invented. Every item here was previously surfaced to Rob and either explicitly offered or reported in the code audit.
