@@ -58,6 +58,49 @@ Move the diablo-memorial div (the #666 memorial block) from its current position
 
 In the weather widget on the Home tab, rain drops currently fall straight down. Add a slight sideways angle to simulate wind-blown rain. CSS transform with a slight rotation or translateX drift on the animation keyframes.
 
+### BUG 7 — REGISTRATION DROPDOWN NOT TAPPABLE ON MOBILE (CRITICAL) — FIXED Sept 8 2026
+
+Reported: in `searchPlayerModal()` and `searchPlayer()` the dropdown items use `onpointerdown` with `event.preventDefault()`, but iOS Safari fires the input blur event before pointerdown reaches the dropdown item, hiding the dropdown before the tap registers.
+
+Specified fix: change both dropdown renderers to `onmousedown`. Also fix the single-quote name interpolation in `searchPlayerModal` to use `JSON.stringify`. Apply the same `onmousedown` change to the Diablo player search dropdowns (`searchDiabloPlayer`, `searchDiabloMoneyPlayer`).
+
+VERIFIED ROOT CAUSE (checked against the live site with real roster data, Sept 8 2026): the blur theory does not hold — there is no `onblur` handler anywhere in tags.html, so nothing hides the dropdown on blur. The Match page dropdown was dead because its handler attribute was truncated by the browser's HTML parser. `searchPlayer` interpolated `${JSON.stringify(p.name)}` raw into a double-quoted HTML attribute, so `onpointerdown="...selectPlayer("Kevin Bankson", 13, "190454")"` terminated the attribute at the first inner quote. Live, the handler read exactly `event.preventDefault();selectPlayer(` — a syntax error — and the rest of the name became stray attributes (`kevin`, `bankson",`, `13,`). Broken on every device, not just mobile.
+
+`searchPlayerModal` was NOT broken: its single-quote interpolation parses correctly inside a double-quoted attribute. It failed only on names containing an apostrophe. Copying the Match page pattern into it verbatim would have broken it for every name.
+
+Fix applied: all four renderers changed to `onmousedown` as specified. Name interpolation in `searchPlayer` and `searchPlayerModal` now uses `JSON.stringify(name).replace(/"/g,'&quot;')`, which is attribute-safe and handles apostrophes, double quotes and accents. Verified against `Kevin Bankson`, `Pat O'Brien`, `Ann "Ace" Diaz`, `Jose Ramirez`.
+
+STILL OPEN — same defect, not yet fixed (one line each):
+- The PDGA search-results dropdown (`selectPDGAResult`, inside `lookupPDGAName`) uses the same raw `JSON.stringify` interpolation and is fully dead for the same reason
+- `searchDiabloPlayer` and `searchDiabloMoneyPlayer` still interpolate names with escaped single quotes, so they break on apostrophe names
+
+### BUG 8 — EDIT REGISTRANT AFTER ADDING
+
+Once a player is registered for a match there is no way to edit their score or tag number.
+
+Add an edit button on each registrant row in both the Match page registrant list and the modal registered-players list. Tapping edit lets you change their tag number, or remove and re-add them.
+
+### BUG 9 — CLEAR DISPLAY OF PLAYER COUNT, ACE POOL, CTP
+
+The registration area for upcoming matches needs to prominently show:
+- Number of registered players
+- Current ace pool balance
+- CTP pool amount
+
+This is already described in Section 9 of this spec but is not yet built.
+
+### BUG 10 — END OF MATCH ACE ENTRY
+
+After scores are entered but before committing results, add a step where the TD can enter aces. For each ace: player name and hole number. This triggers the ace pool payout logic from Section 4.
+
+### BUG 11 — SCORING ORDER
+
+In the Diablo scorecard, and in main app scoring when it is built, the player/team order in the scorecard must reorder after each hole based on who scored best on the previous hole. Best score on the last hole goes first — they tee first. Ties are broken by going back hole by hole until broken. If still tied all the way back to hole 1, fall back to starting order, which is lowest PDGA number first.
+
+Add an Announce Order button that uses the Web Speech API (`speechSynthesis`) to read aloud: "Hole [number]. Tee order." followed by each name with a brief pause between them.
+
+See Section 10 for the full rules.
+
 ---
 
 ## SECTION 2 — TAG OVERRIDE ON REGISTRATION
@@ -251,6 +294,20 @@ The match registration page for an upcoming sanctioned match should show:
 - List of registered players with their tag numbers
 - Each player shows: opted into ace pool (yes/no), opted into CTP (yes/no)
 - Entry fee amounts clearly displayed (match fee, ace pool fee, CTP fee — all separate)
+
+---
+
+## SECTION 10 — SCORING ORDER
+
+Starting order for any scored match is lowest PDGA number first, or alphabetical if no PDGA numbers are on file.
+
+After each hole the scorecard reorders players so the best score on the previous hole appears first. That is the tee order for the next hole.
+
+Tie-breaking: go back one hole at a time until the tie breaks. If players are still tied all the way back to hole 1, fall back to starting order.
+
+An Announce Order button uses browser text-to-speech (`speechSynthesis`) to read aloud: "Hole [number]. Tee order." then each name, with a brief pause between them.
+
+This applies to Diablo scoring now, and to main app scoring when it is built.
 
 ---
 
