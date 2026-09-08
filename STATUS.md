@@ -4,6 +4,47 @@
 
 ---
 
+## September 7, 2026 — Bug Fixes: Diablo hole-wipe, doubles payout, nav highlighting
+
+### Backup: backups/tags-2026-09-07.html (pre-edit, 206,471 bytes) — committed separately before edits
+
+### tags.html: 13 surgical replacements across 3 bugs. No other functions or files touched.
+
+**BUG 1 (CRITICAL) — Diablo hole-wipe.** Root cause: `diabloMoney.currentHole` was doing two jobs at once — "which hole is on screen" and "furthest hole reached." Going back to fix a past hole dragged the frontier backward with it, so tapping Next re-walked forward from there, inserting duplicate score rows and making resumed matches double-count.
+
+Fix — added a separate `diabloMoney.frontierHole` tracking the furthest hole reached. `currentHole` is now purely the viewing hole.
+
+- `diabloMoney` initializer + `closeDiabloPlay()` reset — added `frontierHole: 1`
+- `startDiabloRound()` — sets `frontierHole = 1` alongside `currentHole = 1`
+- `resumeDiabloMatch()` — sets `frontierHole = Math.max(1, currentHole || 1)` so a resumed match restores its real frontier (see DEVIATION below)
+- `dscGoToHole(n)` — now allows any hole `1..frontierHole` (was: past holes only). Sets `currentHole` only, never `frontierHole`
+- `dscReturnToCurrent()` — NEW function, jumps back to `frontierHole`
+- `dscNextHole()` — saves only the viewed hole's score and recalculates totals. Advances `frontierHole` only when `currentHole === frontierHole`. When editing a past hole it saves that hole and returns to the frontier instead of advancing. Now deletes existing `diablo_money_scores` rows for that match+hole before inserting, so re-saving a corrected hole replaces its rows instead of duplicating them. `diablo_money_matches.current_hole` is bumped only when the frontier actually advances
+- `renderDiabloScorecardOverlay()` — running totals and rel-to-par now measure against `frontierHole - 1` (holes actually confirmed) so totals stay stable while looking back; hole dots render "done" for every hole below the frontier and are clickable up to and including it (previously dots 3-7 went blank the moment you jumped back to hole 2, which is what "all the scores are gone" looked like on the course); the Next button reads "Save & Return to Hole X" when viewing a past hole; a "↩ Return to Current (Hole X)" button appears in the footer while viewing a past hole
+
+**BUG 2 — Doubles payout math.** The `isDoubles` branch in `showDiabloPayout()` read player-shaped fields (`p.cali`, `p.team`, `p.name`) off `diabloMoney.scores`, which holds team-shaped objects (`teamKey`, `teamName`, `players`, `isCali`, `buyinMultiplier`) after `startDiabloRound()` builds them. Every team collapsed into one `undefined` bucket, `payoutPerWinner` resolved to exactly $0, and `undefined` player names were written into `diablo_money_history` and `diablo_player_stats`.
+
+Fix — replaced the entire `isDoubles` branch. Each entry in `scores` IS a team: `s.teamName` for the label (with " (Cali)" appended when `s.isCali`), `s.total` for the score, `s.players` for the roster, `buyin * (s.isCali ? (s.buyinMultiplier || 1) : 2)` for pot contribution. Loser filtering now compares object identity rather than label text, so two teams sharing a name can no longer merge. Singles branch untouched.
+
+**BUG 3 — Nav tab highlighting.** `showPage()`'s label map had no entry for the Stats or Diablo tabs, so tapping either left no tab highlighted.
+
+- `const labels = { splash:'Home', ledger:'Tags', match:'Match', admin:'Admin' };`
+- → `const labels = { splash:'Home', ledger:'Tags', match:'Match', stats:'Stats', diablo:'🔥 Diablo', admin:'Admin' };`
+
+### DEVIATION FROM INSTRUCTIONS (1)
+
+Instructions said to initialize `frontierHole` to 1 in both `startDiabloRound` and `resumeDiabloMatch`. Taken literally, that breaks resume: `checkForActiveMatch()` restores `currentHole` from the database, so resuming a match on hole 12 with `frontierHole = 1` would leave the frontier behind the viewing hole — every dot unclickable and the button reading "Save & Return to Hole 1." Used `Math.max(1, currentHole || 1)` instead, which preserves the intent without the regression.
+
+### Verification
+
+- Inline JS extracted and parsed with `node --check` — clean
+- Brace/paren/bracket balance compared against the pre-edit backup — identical, zero delta
+- Automated logic tests, 21 assertions, all passing: frontier advance, back-navigation leaving other holes intact, editing a past hole changing only that hole and recalculating totals, return-to-frontier behavior, forward-jump guard, single-hole delete-then-insert, no `current_hole` bump when editing a past hole, round finish
+- Automated payout tests: 3 even teams ($30 pot → $10 each to 2 winners), Cali in the field at 1x buy-in ($25 pot → $7.50 each), Cali team winning ($15 pot → $10), singles branch unchanged. No `undefined` anywhere in the output
+- NOT verified in a live browser on the course — the logic is tested, the on-device feel is not
+
+### Commit: fix: Diablo hole-wipe, doubles payout, nav highlighting
+
 ## May 29, 2026 — Diablo Full Rebuild (LFP header, devil bg, resume, stats, last win)
 
 ### Supabase SQL (needs manual run — Supabase dashboard did not load in browser):
