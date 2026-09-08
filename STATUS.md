@@ -4,6 +4,63 @@
 
 ---
 
+## September 8, 2026 — Overnight surgical pass: dead handlers, apostrophe names, UTC dates
+
+Run unattended at Rob's request. Three independent surgical fixes, no features built, no behavior invented. Every item here was previously surfaced to Rob and either explicitly offered or reported in the code audit.
+
+### Backup: backups/tags-2026-09-08b.html (pre-edit) — committed separately before edits
+
+### New shared helpers (added above `showPage`)
+
+- `attrStr(s)` — `JSON.stringify` plus `&quot;` escaping. The one canonical way to put a string into an inline HTML event attribute in this file. Null/undefined safe
+- `localDateStr(d)` — `YYYY-MM-DD` in the browser's local timezone
+- `localDateFromStr(s)` — parses `YYYY-MM-DD` as local midnight instead of UTC midnight
+
+The two inline escapes shipped earlier today in `searchPlayer` / `searchPlayerModal` were converged onto `attrStr` so there is exactly one pattern in the file rather than two.
+
+### FIX 1 — dead handlers and apostrophe-unsafe names (10 sites)
+
+`selectPDGAResult` in the PDGA search-results dropdown had the same raw `JSON.stringify` breakage fixed in the Match page dropdown earlier today: the handler attribute was truncated at the first inner quote, so that dropdown was fully dead. Changed to `onmousedown` + `attrStr`.
+
+Nine further sites interpolated player names into inline handlers with single quotes, which breaks on any name containing an apostrophe. All converted to `attrStr`:
+
+- `removeRegistrant`, `saveTDScore` (Match page)
+- `selectDiabloPlayer`, `removeDiabloRegistrant`, `saveDiabloScore`, `toggleDiabloPlayer` (x3), and the `diabloMoneyPlayerInput` value assignment (Diablo)
+
+Effect: a player named O'Brien no longer breaks the remove button, the score field, or the Diablo player grid.
+
+### FIX 2 — UTC date rollover (7 sites)
+
+`new Date().toISOString().split('T')[0]` returns the UTC date. Boulder is UTC−6/−7, so after 6pm local it returns tomorrow. Wednesday Night League starts around sunset, so the TODAY badge, the "you're registered, head to the Match tab" prompt, and the Match tab's auto-detect all silently stopped matching the event that was actually happening, at exactly the moment people needed them.
+
+All seven replaced with `localDateStr()`: `renderSplash` today, `initMatch` auto-detect, two admin paths, the weather widget, and the two history-row date writes (`diablo_match_history`, `diablo_money_history`).
+
+Verified at TZ=America/Denver: 9:00 PM Wed Sep 9 2026 now yields `2026-09-09`; the old code yielded `2026-09-10`.
+
+### FIX 3 — season scheduler generated every event one day late
+
+`new Date('2026-07-04')` parses as UTC midnight, which is 6pm July 3 in Denver, so `getDay()` returned 5 (Friday) instead of 6 (Saturday). The loop then advanced to what it thought was the target day and converted back out through UTC, landing one day late on every generated event.
+
+`generateSeasonSchedule` and the season countdown now use `localDateFromStr` for the start/end dates and `localDateStr` for the emitted date.
+
+Verified: July 4 2026 now reports `getDay() === 6`. A full Saturday season generates 18 events, all on Saturdays; Wednesday generates 17, all on Wednesdays. Previously every one was off by a day.
+
+### Verification
+
+- `node --check` on the extracted inline JS — parses clean
+- Automated tests at TZ=America/Denver, 31 assertions, all passing: local-date rollover at 8am / 9pm / 11:59pm, zero padding, season-start weekday, full Saturday and Wednesday season generation with every date checked against its target weekday, and handler escaping for `Kevin Bankson`, `Pat O'Brien`, `Ann "Ace" Diaz`, `José Ramírez`, `X & Y <b>` — each parsed through a real HTML parser, checked for stray attributes, and invoked to confirm the name arrives intact
+- Note on the brace-balance check used in earlier entries: it drifts on this diff because it cannot see regex literals, and this change removes three `/"/g` literals and adds one. `node --check` is the authoritative check and is clean
+
+### NOT DONE — deliberately left for Rob
+
+- Bugs 8 through 11 in the master spec. These need product decisions, not just code, and were not built unattended
+- Ace pool still charges a hardcoded $1 per player regardless of the configured amount. One line, but it changes money behavior, so it waits for a yes
+- `commitResults` is still non-atomic with no confirmation dialog. Needs a Supabase RPC to do properly
+- The Stats tab still cannot populate — `rounds` is never written by the live match flow
+- Supabase still has no authentication or row-level security. Unchanged and still the most important open item
+
+### Commits: fix: dead PDGA dropdown handler and apostrophe-unsafe names / fix: local date handling for today detection and season scheduler
+
 ## September 8, 2026 — Bug 7: mobile dropdown tap fix
 
 ### Backup: backups/tags-2026-09-08.html (pre-edit, 207,416 bytes) — committed separately before edits
