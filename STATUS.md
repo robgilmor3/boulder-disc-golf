@@ -4,6 +4,56 @@
 
 ---
 
+## September 8, 2026 — Bug 7: mobile dropdown tap fix
+
+### Backup: backups/tags-2026-09-08.html (pre-edit, 207,416 bytes) — committed separately before edits
+
+### tags.html: 4 surgical replacements, all in dropdown item renderers. No other functions touched.
+
+- `searchPlayer()` (Match page) — `onpointerdown` → `onmousedown`, name and PDGA number now interpolated with `JSON.stringify(x).replace(/"/g,'&quot;')`
+- `searchPlayerModal()` — `onpointerdown` → `onmousedown`, name interpolation changed from `'${p.name}'` to the same attribute-safe `JSON.stringify` + `&quot;` escape
+- `searchDiabloPlayer()` — `onpointerdown` → `onmousedown`
+- `searchDiabloMoneyPlayer()` — `onpointerdown` → `onmousedown`
+
+### VERIFIED ROOT CAUSE — differs from the reported diagnosis
+
+The instruction attributed the dead dropdown to iOS Safari firing blur before pointerdown. That does not hold: there is no `onblur` handler anywhere in tags.html, so nothing hides the dropdown on blur.
+
+Checked against the live site with the real 106-player roster. The Match page dropdown was dead because the handler attribute was truncated by the HTML parser. `searchPlayer` interpolated `${JSON.stringify(p.name)}` raw into a double-quoted attribute, so `onpointerdown="...selectPlayer("Kevin Bankson", 13, "190454")"` ended at the first inner quote. The live handler read exactly `event.preventDefault();selectPlayer(` — a syntax error — and the remainder of the name became stray DOM attributes (`kevin`, `bankson",`, `13,`). Broken on every device, not only mobile.
+
+`searchPlayerModal` was NOT broken. Its single-quote interpolation parses fine inside a double-quoted attribute; it failed only on apostrophe names. Copying the Match page pattern into it verbatim, as instructed, would have broken it for every name.
+
+### DEVIATION FROM INSTRUCTIONS (1)
+
+Instructions said to make `searchPlayerModal` use `JSON.stringify` "like the Match page version does." The Match page version is the broken one. Used `JSON.stringify(name).replace(/"/g,'&quot;')` in both places instead — attribute-safe, and the actual fix for the reported symptom. The `onmousedown` change was applied to all four renderers exactly as specified.
+
+### STILL OPEN — same defect, deliberately not fixed (outside the four named renderers)
+
+- PDGA search-results dropdown (`selectPDGAResult`, inside `lookupPDGAName`) uses the same raw `JSON.stringify` interpolation and is fully dead for the same reason. One line
+- `searchDiabloPlayer` and `searchDiabloMoneyPlayer` still interpolate names with escaped single quotes, so they break on apostrophe names. One line each
+- Two `onpointerdown` note-edit buttons left as-is — buttons, not dropdown items, no blur interaction
+
+### Verification
+
+- Inline JS extracted and parsed with `node --check` — clean
+- Brace/paren/bracket balance compared against the pre-edit backup — identical, zero delta
+- Attribute-escaping tested through a real HTML parser against `Kevin Bankson`, `Pat O'Brien`, `Ann "Ace" Diaz`, `Jose Ramirez`: handler parses, no stray attributes, sibling `style` attribute intact, name passed through to the handler byte-for-byte in every case
+- Pre-fix breakage confirmed on the live deployed site before editing
+- NOT verified by tapping on a physical iPhone. If the dropdown still misbehaves on iOS after this, the next lever is delaying the dropdown hide rather than changing the event type
+
+### Commit: fix: mobile dropdown tap bug — onmousedown replaces onpointerdown
+
+## September 8, 2026 — Master spec: bugs 7-11 and Section 10
+
+### BOULDER_DISC_GOLF_MASTER_SPEC.md only. No code changes in this commit.
+
+- Section 1 — added BUG 7 (mobile dropdown tap, marked FIXED with the verified root cause and the three still-open sibling instances), BUG 8 (edit registrant after adding), BUG 9 (clear display of player count, ace pool, CTP), BUG 10 (end of match ace entry), BUG 11 (scoring order)
+- Added SECTION 10 — SCORING ORDER: starting order by lowest PDGA number, reorder after each hole by previous-hole score, tie-break backward hole by hole, fall back to starting order, Announce Order button via `speechSynthesis`
+- Section 10 placed after Section 9 rather than after the trailing BUILD ORDER and REMINDERS blocks, so the numbered sections stay contiguous
+- Bugs 8 through 11 are spec text only — not built
+
+### Commit: docs: add bugs 7-11 and scoring order to master spec
+
 ## September 7, 2026 — Bug Fixes: Diablo hole-wipe, doubles payout, nav highlighting
 
 ### Backup: backups/tags-2026-09-07.html (pre-edit, 206,471 bytes) — committed separately before edits
