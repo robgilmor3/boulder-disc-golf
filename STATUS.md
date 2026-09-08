@@ -4,6 +4,37 @@
 
 ---
 
+## September 8, 2026 — Diablo: Add Player collapsed, readability pass
+
+### Backup: backups/tags-2026-09-08d.html (pre-edit) — committed separately
+
+### 1. "Add Player to El Diablo" collapsed into a dropdown
+
+That card sat directly above the money match section as a full expanded form (Name, PDGA #, Tag #, Add button), so tapping LET'S PLAY landed on it and it read as a required first step. It is now a single-line header with a chevron, collapsed by default, that expands on tap. All three fields and the `addDiabloPlayer()` wiring are unchanged inside it. The money match card is now the top of the view after LET'S PLAY.
+
+The separate "＋ Add a New Victim" button inside the singles/doubles/tags setup screen is untouched — that is the one for adding someone mid-setup who is not in the system.
+
+### 2. Readability pass — the real problem was contrast, not brightness
+
+The Diablo section used `#8b0000` for nearly all label and detail text on `#1a0000` / `#0d0000` backgrounds. Measured: **2.01:1**. WCAG's minimum for body text is 4.5:1 and for large text 3:1, so this failed even the lenient threshold. It was not Rob's phone.
+
+Raised via one appended CSS block (appended so it wins the cascade, original rules left intact):
+
+- Label/detail text `#8b0000` → `#ff6a4d` — **2.01:1 → 7.11:1**
+- Card titles `#cc2200` → `#ff5a33`, 18px → 19px — **3.64:1 → 6.48:1**
+- Player/score/buy-in names → `#ffe4dd` at weight 600
+- Mode buttons (SINGLES / DOUBLES / TAGS) → brighter text, stronger border
+- Section titles and team buttons lifted to match
+
+New `.diablo-eyebrow` class now used by MONEY MATCH, TAG MATCH and ACTIVE GAMES — Bebas Neue, 15px, wide tracking, glow. Previously these were 10px `#8b0000` monospace, which is what made them nearly invisible.
+
+### Verification
+
+- `node --check` — clean
+- 12 automated assertions through a real DOM: form collapsed on load, header renders as a single line, all three fields and the add handler survive, toggle opens/closes and flips the chevron, plus computed WCAG contrast ratios confirming the new values clear AA and the old ones did not
+
+### Commit: feat: collapse Diablo Add Player into a dropdown, raise text contrast across the Diablo section
+
 ## September 8, 2026 — Diablo: format screen first, active games listed underneath (max 2)
 
 ### Backup: backups/tags-2026-09-08c.html (pre-edit) — committed separately
