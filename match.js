@@ -573,6 +573,73 @@ async function submitPlayerScore(eventId) {
   }
 }
 
+// ── Step 2.5: end-of-match ace entry (Bug 10) ──
+let pendingAces = [];
+
+function goToAceEntry() {
+  pendingAces = [];
+  setStep(2.5);
+  renderAceEntryStep();
+}
+
+function renderAceEntryStep() {
+  const ev = state.events?.find(e => e.id === state.selectedEventId);
+  const course = ev?.course;
+
+  const balEl = document.getElementById('aceEntryPoolBalance');
+  if (balEl) balEl.textContent = (course ? getCachedAcePoolMain(course) : 0).toFixed(0);
+
+  const listEl = document.getElementById('aceEntryList');
+  if (listEl) {
+    listEl.innerHTML = !pendingAces.length
+      ? '<div class="empty">No aces entered.</div>'
+      : pendingAces.map((a, i) => `
+        <div class="flex-gap" style="align-items:center;margin-bottom:8px;">
+          <select style="flex:1" onchange="updateAceRow(${i}, 'player', this.value)">
+            <option value="">Select player...</option>
+            ${state.registrants.map(r => `<option value="${r.name}" ${a.player === r.name ? 'selected' : ''}>${r.name}</option>`).join('')}
+          </select>
+          <input type="number" min="1" max="27" placeholder="Hole #" value="${a.hole || ''}" style="width:90px" onchange="updateAceRow(${i}, 'hole', this.value)">
+          <button class="btn btn-danger btn-sm" onclick="removeAceRow(${i})">✕</button>
+        </div>
+      `).join('');
+  }
+
+  const validAces = pendingAces.filter(a => a.player && a.hole);
+  const preview = course ? previewAcePayout(course, validAces) : { totalShares: 0, perShare: 0, payouts: [], totalPayout: 0, mainPot: 0 };
+  const previewEl = document.getElementById('aceEntryPayoutPreview');
+  if (previewEl) {
+    previewEl.innerHTML = validAces.length
+      ? `<strong>Payout preview:</strong> ${preview.totalShares} share${preview.totalShares === 1 ? '' : 's'} · ` +
+        preview.payouts.map(p => `${p.player} $${p.amount.toFixed(2)}`).join(', ') +
+        ` — total $${preview.totalPayout.toFixed(2)} of $${preview.mainPot.toFixed(0)} pool`
+      : '';
+  }
+
+  const btn = document.getElementById('aceEntryContinueBtn');
+  if (btn) btn.textContent = validAces.length ? 'Continue →' : 'Skip — No Aces →';
+}
+
+function addAceRow() {
+  pendingAces.push({ player: '', hole: '' });
+  renderAceEntryStep();
+}
+
+function removeAceRow(i) {
+  pendingAces.splice(i, 1);
+  renderAceEntryStep();
+}
+
+function updateAceRow(i, field, val) {
+  if (!pendingAces[i]) return;
+  pendingAces[i][field] = field === 'hole' ? parseInt(val) : val;
+  renderAceEntryStep();
+}
+
+function proceedFromAceEntry() {
+  calculateResults();
+}
+
 function calculateResults() {
   const scored = state.registrants.map(r => {
     // Use player-submitted score, or fall back to TD's manual input
@@ -659,20 +726,35 @@ async function commitResults() {
     results: JSON.stringify(state.pendingResults),
   });
 
+  // Trigger the ace pool payout (Section 4 / Bug 10) for any aces entered in step 2.5
+  const course = document.getElementById('matchCourse').value;
+  const validAces = pendingAces.filter(a => a.player && a.hole);
+  let aceMsg = '';
+  if (course && validAces.length) {
+    const payout = await commitAcePayout(course, validAces);
+    aceMsg = ` 🕳️ ${validAces.length} ace${validAces.length === 1 ? '' : 's'} paid out $${payout.totalPayout.toFixed(2)}.`;
+  }
+  pendingAces = [];
+
   state.registrants = [];
   state.pendingResults = null;
   setStep(1);
   renderRegistrantList();
-  showToast('✓ Tags updated! Ledger committed.');
+  showToast('✓ Tags updated! Ledger committed.' + aceMsg);
   setTimeout(() => showPage('ledger'), 1500);
 }
 
+const MATCH_STEP_ORDER = [1, 2, 2.5, 3];
 function setStep(n) {
-  [1,2,3].forEach(i => {
-    document.getElementById('matchStep'+i).style.display = i === n ? 'block' : 'none';
-    const dot = document.getElementById('step'+i+'dot');
-    dot.classList.toggle('active', i === n);
-    dot.classList.toggle('done', i < n);
+  MATCH_STEP_ORDER.forEach(i => {
+    const suffix = String(i).replace('.', '_');
+    const stepEl = document.getElementById('matchStep' + suffix);
+    if (stepEl) stepEl.style.display = i === n ? 'block' : 'none';
+    const dot = document.getElementById('step' + suffix + 'dot');
+    if (dot) {
+      dot.classList.toggle('active', i === n);
+      dot.classList.toggle('done', MATCH_STEP_ORDER.indexOf(i) < MATCH_STEP_ORDER.indexOf(n));
+    }
   });
 }
 
