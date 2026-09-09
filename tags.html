@@ -26,6 +26,7 @@
     <button onclick="showPage(&apos;ledger&apos;)">Tags</button>
     <button onclick="showPage(&apos;match&apos;)">Match</button>
     <button onclick="showPage(&apos;stats&apos;)">Stats</button>
+    <button onclick="showPage('history')">History</button>
     <button class="diablo-nav" onclick="showPage('diablo')" id="diabloBtn" style="display:none">🔥 Diablo</button>
     <button onclick="showPage(&apos;admin&apos;)" id="adminBtn" style="display:none">Admin</button>
   </nav>
@@ -92,6 +93,22 @@
       <div class="section-title" style="margin:0">Player <span>Profile</span></div>
     </div>
     <div id="statsContent"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+  </div>
+
+  <!-- ══ MATCH HISTORY ══ -->
+  <div id="page-history" class="page">
+    <div class="section-title" style="margin-bottom:16px">Match <span>History</span></div>
+
+    <div class="flex-gap" style="margin-bottom:14px">
+      <button class="btn btn-primary history-tab-btn active" data-tab="official" onclick="switchHistoryTab('official')" style="flex:1">Official Matches</button>
+      <button class="btn btn-secondary history-tab-btn" data-tab="side" onclick="switchHistoryTab('side')" style="flex:1">Side Matches</button>
+    </div>
+
+    <div class="form-row" id="historySearchRow">
+      <input type="text" id="historySearchInput" placeholder="Search by player name..." oninput="filterHistory(this.value)">
+    </div>
+
+    <div id="historyContent"><div class="loading"><div class="spinner"></div>Loading...</div></div>
   </div>
 
   <!-- ══ DIABLO ══ -->
@@ -665,6 +682,7 @@
 
 <script src="app.js"></script>
 <script src="ace-pool.js"></script>
+<script src="history.js"></script>
 <script src="diablo.js"></script>
 <script src="match.js"></script>
 <script src="admin.js"></script>

@@ -39,13 +39,14 @@ function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
   document.getElementById('page-' + id).classList.add('active');
-  const labels = { splash:'Home', ledger:'Tags', match:'Match', stats:'Stats', diablo:'🔥 Diablo', admin:'Admin' };
+  const labels = { splash:'Home', ledger:'Tags', match:'Match', stats:'Stats', history:'History', diablo:'🔥 Diablo', admin:'Admin' };
   [...document.querySelectorAll('nav button')].find(b => b.textContent === labels[id])?.classList.add('active');
   if (id === 'splash')  renderSplash();
   if (id === 'ledger')  renderLedger();
   if (id === 'admin')   renderAdmin();
   if (id === 'match')   initMatch();
   if (id === 'stats')   renderStats();
+  if (id === 'history') renderHistoryPage();
   if (id === 'diablo') renderDiabloPage();
 }
 
