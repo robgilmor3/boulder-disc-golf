@@ -309,6 +309,14 @@
 
       <div class="card">
         <div class="card-title">🏌️ Registrants <span id="regCount" style="font-size:13px;font-weight:400;color:var(--text-muted)"></span></div>
+        <div id="regPaymentSummary" style="margin-bottom:14px;padding:12px 14px;background:rgba(255,255,255,0.03);border-radius:8px;border:1px solid var(--border);">
+          <div style="display:flex;gap:18px;flex-wrap:wrap;font-family:'Barlow Condensed',sans-serif;font-size:15px;letter-spacing:1px;">
+            <span>👥 <strong id="regSummaryCount">0</strong> registered</span>
+            <span style="color:var(--gold)">💰 Ace Pool: $<strong id="regSummaryAcePool">0</strong></span>
+            <span style="color:var(--orange)">🎯 CTP Pool: $<strong id="regSummaryCtpPool">0</strong></span>
+          </div>
+          <div id="regSummaryPaidStats" style="margin-top:8px;font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;"></div>
+        </div>
         <div id="registrantList"><div class="empty">No players added yet.</div></div>
         <div class="divider"></div>
         <button class="btn btn-gold btn-full" id="proceedBtn" style="display:none" onclick="goToScoring()">Enter Scores →</button>

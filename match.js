@@ -5,6 +5,8 @@
 async function initMatch() {
   const today = localDateStr();
 
+  await loadAcePool();
+
   // Auto-detect today's event if none selected yet
   if (!state.selectedEventId && state.events?.length) {
     const todayEv = state.events.find(ev => !ev.cancelled && ev.date === today)
@@ -336,6 +338,7 @@ function renderRegistrantList() {
 
   if (!state.registrants.length) {
     el.innerHTML = '<div class="empty">No players added yet.</div>';
+    renderRegistrationSummary();
     return;
   }
 
@@ -351,14 +354,101 @@ function renderRegistrantList() {
       `;
     }
     return `
-    <div class="registrant-item">
+    <div class="registrant-item" style="flex-wrap:wrap;row-gap:6px;">
       <span class="reg-tag">#${r.tag}</span>
       <span class="reg-name">${r.name}</span>
+      <label style="font-size:11px;display:flex;align-items:center;gap:3px;color:var(--gold);white-space:nowrap;">
+        <input type="checkbox" ${r.ace_paid ? 'checked' : ''} onchange="toggleRegistrantPaid(${attrStr(r.name)}, 'ace', this.checked)"> Ace Paid
+      </label>
+      ${renderCtpCheckboxesForRegistrant(r)}
       <button class="btn btn-secondary btn-sm" onclick="editRegistrant(${attrStr(r.name)})">✏️</button>
       <button class="btn btn-danger btn-sm" onclick="removeRegistrant(${attrStr(r.name)})">✕</button>
     </div>
   `;
   }).join('');
+
+  renderRegistrationSummary();
+}
+
+// ── CTP checkboxes for a registrant row — shape depends on the event's ctp_mode ──
+function renderCtpCheckboxesForRegistrant(r) {
+  const ev = state.events?.find(e => e.id === state.selectedEventId);
+  const ctpMode = ev?.ctp_mode || 'A';
+  const ctpHoles = ev?.ctp_holes || 1;
+  if (ctpMode === 'B') {
+    let html = '';
+    for (let h = 1; h <= ctpHoles; h++) {
+      const field = 'ctp_paid_hole' + h;
+      html += `<label style="font-size:11px;display:flex;align-items:center;gap:3px;color:var(--orange);white-space:nowrap;">
+        <input type="checkbox" ${r[field] ? 'checked' : ''} onchange="toggleRegistrantPaid(${attrStr(r.name)}, ${attrStr(field)}, this.checked)"> CTP${h} Paid
+      </label>`;
+    }
+    return html;
+  }
+  return `<label style="font-size:11px;display:flex;align-items:center;gap:3px;color:var(--orange);white-space:nowrap;">
+    <input type="checkbox" ${r.ctp_paid ? 'checked' : ''} onchange="toggleRegistrantPaid(${attrStr(r.name)}, 'ctp', this.checked)"> CTP Paid
+  </label>`;
+}
+
+// ── Toggle a player's ace-pool / CTP paid status, adjust pool totals, persist ──
+async function toggleRegistrantPaid(name, field, checked) {
+  const r = state.registrants.find(r => r.name === name);
+  if (!r) return;
+  const propMap = { ace: 'ace_paid', ctp: 'ctp_paid' };
+  const prop = propMap[field] || field; // ctp_paid_holeN passed through as-is
+  if (!!r[prop] === checked) return;
+  r[prop] = checked;
+
+  if (field === 'ace') {
+    const ev = state.events?.find(e => e.id === state.selectedEventId);
+    const acePerPlayer = parseFloat(ev?.ace_per_player || 0);
+    const delta = checked ? acePerPlayer : -acePerPlayer;
+    const newBalance = Math.max(0, (state.acePool || 0) + delta);
+    state.acePool = newBalance;
+    await db.from('settings').upsert({ key: 'ace_pool_balance', value: String(newBalance) }, { onConflict: 'key' });
+  }
+
+  await persistRegistrants();
+  renderRegistrantList();
+}
+
+// ── Prominent counts at the top of the registrant card ──
+function renderRegistrationSummary() {
+  const countEl = document.getElementById('regSummaryCount');
+  if (!countEl) return;
+  const aceEl = document.getElementById('regSummaryAcePool');
+  const ctpEl = document.getElementById('regSummaryCtpPool');
+  const statsEl = document.getElementById('regSummaryPaidStats');
+
+  const ev = state.events?.find(e => e.id === state.selectedEventId);
+  const acePerPlayer = parseFloat(ev?.ace_per_player || 0);
+  const ctpMode = ev?.ctp_mode || 'A';
+  const ctpHoles = ev?.ctp_holes || 1;
+  const ctpFee = parseFloat(ev?.ctp_fee || 0);
+
+  const total = state.registrants.length;
+  const acePaidCount = state.registrants.filter(r => r.ace_paid).length;
+  const aceCollected = acePaidCount * acePerPlayer;
+
+  countEl.textContent = total;
+  aceEl.textContent = (state.acePool || 0).toFixed(0);
+
+  let ctpTotal = 0;
+  const ctpStatsParts = [];
+  if (ctpMode === 'B') {
+    for (let h = 1; h <= ctpHoles; h++) {
+      const paid = state.registrants.filter(r => r['ctp_paid_hole' + h]).length;
+      ctpTotal += paid * ctpFee;
+      ctpStatsParts.push(`Hole ${h}: ${paid} of ${total} paid CTP ($${(paid * ctpFee).toFixed(0)})`);
+    }
+  } else {
+    const paid = state.registrants.filter(r => r.ctp_paid).length;
+    ctpTotal = paid * ctpFee;
+    ctpStatsParts.push(`${paid} of ${total} paid CTP ($${ctpTotal.toFixed(0)})`);
+  }
+  ctpEl.textContent = ctpTotal.toFixed(0);
+
+  statsEl.innerHTML = `${acePaidCount} of ${total} paid ace pool ($${aceCollected.toFixed(0)}) &nbsp;·&nbsp; ` + ctpStatsParts.join(' · ');
 }
 
 function editRegistrant(name) {
