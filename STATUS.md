@@ -4,6 +4,74 @@
 
 ---
 
+## September 9, 2026 — Diablo scoring order + Announce button, match history page
+
+### Backup: backups/pre-scoring-order/{diablo.js,match.js,app.js,tags.html} (pre-edit)
+
+### 1. Scoring order reorder after each hole, with Announce Order button (Bug 11 / Section 10)
+
+`startDiabloRound()` now sorts `diabloMoney.scores` into real starting order at round
+start — lowest PDGA number first, alphabetical if nobody on the card has one on file
+(`compareDiabloStartingOrder`) — and captures that order as `diabloMoney.startingOrderKeys`
+for tie-break fallback later. `resumeDiabloMatch()` captures the same for an in-progress
+match being resumed (using whatever order it's already in, since the true original
+starting order isn't persisted anywhere to recover on resume).
+
+`dscNextHole()` now calls `reorderDiabloScoresAfterHole(h)` whenever a hole is committed
+and the round is advancing forward (not when re-saving a past hole from the "viewing past
+hole" path, which still just jumps back to the frontier as before). The comparator walks
+backward from the just-played hole to hole 1 comparing single-hole scores — a countback
+tie-break — falling back to `startingOrderKeys` if every hole ties. Since
+`renderDiabloScorecardOverlay()` just renders whatever order `diabloMoney.scores` is
+already in, the scorecard shows the new tee order automatically.
+
+Added an Announce Order button (red-themed `diablo-btn-secondary`, matching the existing
+theme) in the scorecard footer between the hole dots and the Next Hole button.
+`announceDiabloOrder()` builds one `SpeechSynthesisUtterance` — "Hole [n]. Tee order.
+[name], [name]..." — using team names for doubles entries, never individual players.
+
+Commit: `feat: scoring order reorder after each hole with announce button`
+
+### 2. Match history page (Section 7)
+
+New `history.js` + a History nav button (between Stats and Diablo) with two tabs.
+Official Matches lists `match_history` rows — course, date, player count, and the winner
+(the results entry with `finish === 1`) with their score — tap to expand and see every
+player's score, incoming tag, outgoing tag, and the same up/down/flat arrow convention
+already used elsewhere (`showPlayerStats`, the Step 3 results list). A search box filters
+by player name. Side Matches is the specified placeholder — "No side matches recorded
+yet." — since Section 3 side matches aren't built. Match type shows as a static "Tag
+Match" label since `match_history` has no type column and, by construction, everything
+currently in that table is an official tag match (Diablo writes to its own separate
+history tables; side matches don't exist yet). Renders in the standard green BDG theme —
+no `diablo-*` classes used anywhere in the new page.
+
+Commit: `feat: match history page with expandable results`
+
+### Verification (both features)
+
+No test suite exists for this app. Verified locally:
+
+- Scoring order: with `diabloState.players`/`diabloMoney` swapped for test fixtures
+  (restored after) and the real `speechSynthesis.speak`/`cancel` methods patched and
+  restored, confirmed starting-order sort (PDGA 50 before PDGA 100 before alphabetical
+  no-PDGA names), reorder-after-hole (best score on the hole wins), countback tie-break
+  (previous hole decides), full-tie fallback to `startingOrderKeys`, and the announced
+  utterance text ("Hole 5. Tee order. Brimstone, Inferno.") all matched expectations
+  exactly. Rendered the live scorecard overlay with fake doubles data to confirm the
+  button's placement and styling, then clicked it for real with no console errors.
+- Match history: against the one real match in `match_history` (Valmont DGC, Jul 4 2026,
+  2 players), the list, expand, and search all produced correct results — see the commit
+  message for the exact figures. Side Matches tab showed the placeholder and correctly
+  hid the search box.
+- Page loaded with zero console errors after both commits. Notably, the one pre-existing
+  error tracked in earlier entries below did not reproduce at all this session, on
+  repeated fresh loads — it may have resolved itself once the settings rows it was
+  likely hitting with `.single()` existed (several were created during the previous
+  session's ace-pool work). Not confirmed as fixed, just no longer observed.
+
+---
+
 ## September 9, 2026 — Ace pool payout system, end-of-match ace entry, tag override on registration
 
 ### Backup: backups/pre-ace-pool/{match.js,app.js} (pre-edit)
