@@ -4,6 +4,50 @@
 
 ---
 
+## September 9, 2026 — Follow-up: schema blocker confirmed, weather error not reproduced
+
+Two sessions worked on this repo concurrently after the same usage-limit reset, both
+verifying the edit-registrant/payment-tracking/CTP-setup work below and each writing a
+STATUS.md entry (this repo now has two: this one is the second, layered on top of the
+first). Re-verifying independently turned up one correction and one confirmation:
+
+### CONFIRMED — Add Event is currently broken in production (needs Rob's action)
+
+Queried the live `events` table directly via the Supabase REST API
+(`GET /rest/v1/events?select=id,ctp_mode,ctp_holes,ctp_fee`) and got back HTTP 400:
+`column events.ctp_mode does not exist`. `addEvent()` (admin.js) always writes
+`ctp_mode`/`ctp_holes`/`ctp_fee` on every insert now, so this doesn't just affect events
+using CTP — **creating any new event from the Admin panel currently fails outright**, caught
+cleanly by the existing error toast (no crash, no partial row) but broken all the same.
+
+I can't run schema migrations — the app only has the anon/publishable key, and `ALTER
+TABLE` isn't reachable through PostgREST regardless of key. This needs Rob to run, in the
+Supabase SQL editor (https://supabase.com/dashboard/project/mewwizubdwfgvrhiylur/sql/new):
+
+```sql
+ALTER TABLE events
+  ADD COLUMN IF NOT EXISTS ctp_mode text DEFAULT 'A',
+  ADD COLUMN IF NOT EXISTS ctp_holes integer DEFAULT 1,
+  ADD COLUMN IF NOT EXISTS ctp_fee numeric DEFAULT 0;
+```
+
+### NOT REPRODUCED — `fetchWeatherForCards is not defined`
+
+The other session's entry (below) reports this ReferenceError firing on every page load.
+Loaded the live production URL (https://boulder-disc-golf.vercel.app/tags.html) twice with
+full fresh navigations: zero console errors both times, weather cards rendered correctly
+with real data, and the network log shows `weather.js` returning 200 OK before
+`renderSplash()` would need it. Script order in tags.html is app.js → diablo.js → match.js
+→ admin.js → weather.js, unchanged from the original split — app.js's startup IIFE calls
+`loadPlayers()` (a real Supabase network round-trip) before `renderSplash()`, so its `await`
+continuation shouldn't run until well after every script tag has finished executing,
+regardless of load order or network speed. Not confident enough to call the other session's
+finding wrong outright — possibly a transient state during their test (e.g. mid-deploy) —
+but it isn't currently reproducing, so leaving it alone rather than "fixing" something that
+isn't currently broken.
+
+---
+
 ## September 9, 2026 — Edit registrant tag, registration payment tracking, CTP setup options
 
 ### Backup: backups/pre-match-essentials/admin.js and match.js (pre-edit)
