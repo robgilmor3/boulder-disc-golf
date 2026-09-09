@@ -4,6 +4,32 @@
 
 ---
 
+## September 9, 2026 — Diablo pick grid orders by who played most recently
+
+### Backup: backups/tags-2026-09-09.html (pre-edit) — committed separately
+
+### Correction to yesterday's note
+
+STATUS said grid ranking was blocked because nothing recorded who played or when. That was wrong. `startDiabloRound()` has always written a `diablo_money_matches` row containing the full player list plus a `created_at` timestamp, so the history was there the whole time. Confirmed against live data: 16 matches spanning 2026-05-29 to 2026-09-08, 18 distinct player names recoverable. No schema change was needed.
+
+### What changed
+
+Rob's ask was recency, not a leaderboard: whoever played most recently should drift to the visible chips, everyone else stays reachable by search. No cap — the roster is 31 and they all fit.
+
+- New `diabloLastPlayed` map and `loadDiabloRecency()`, which reads the last 50 match rows and builds name → most recent `created_at`. Called from `openDiabloPlay()`
+- `renderDiabloQuickGrid()` now sorts: **in this game first**, then **played most recently**, then **never played, by tag**. #666 still excluded
+- `startDiabloRound()` stamps everyone in the round as played right now, so the ordering updates immediately instead of waiting for the next reload
+- A player added through ADD SOMEONE NEW, or pulled in through search, is stamped too — so someone entered for the first time sits near the front rather than at the bottom with the never-played
+
+Nothing is hidden and nothing is labelled. The order just reflects who has been around lately.
+
+### Verification
+
+- `node --check` — clean
+- 12 automated assertions through a real DOM: recency order with mixed played/never-played, selected player jumping to the front regardless of history, a freshly stamped never-played player rising, #666 always excluded, empty recency falling back cleanly to tag order, null tags sorting last without throwing, and an apostrophe name still producing a parseable handler
+
+### Commit: feat: Diablo pick grid orders by most recently played
+
 ## September 8, 2026 — Diablo Who's Playing: names, search, add (and the add-player bug)
 
 ### Backup: backups/tags-2026-09-08e.html (pre-edit) — committed separately
