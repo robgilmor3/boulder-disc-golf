@@ -4,6 +4,74 @@
 
 ---
 
+## September 9, 2026 — Edit registrant tag, registration payment tracking, CTP setup options
+
+### Backup: backups/pre-match-essentials/admin.js and match.js (pre-edit)
+
+### 1. Edit a registrant's tag after they're added (Section 1, BUG 8)
+
+Previously there was no way to fix a registrant's tag number once they were added to a
+match — only remove and re-add. Added inline edit (✏️) to both registrant lists:
+
+- Match page registrant list (`match.js`): `editRegistrant`/`cancelEditRegistrant`/
+  `saveRegistrantEdit` — swaps the row for a number input, validates 1–350 and no
+  duplicate tag within the match, persists via the existing `persistRegistrants()`.
+- The "who's registered" modal opened from the event card (`showRegisteredPlayers`):
+  same pattern (`editModalRegistrant`/`cancelModalEditRegistrant`/
+  `saveModalRegistrantEdit`) via a new `updateRegistrantTag()` that writes straight to
+  the event's `registered` jsonb column.
+
+Commit: `feat: edit registrant tag number after registration`
+
+### 2. Registration payment tracking (Section 13 of the spec)
+
+Added the Ace Pool / CTP paid checkboxes described in the spec:
+
+- Each registrant row now shows an "Ace Paid" checkbox and one or more "CTP Paid"
+  checkboxes (`renderCtpCheckboxesForRegistrant` — one checkbox for CTP modes A/C, one
+  per hole for mode B), all unchecked by default.
+- `toggleRegistrantPaid(name, field, checked)` flips the flag on the registrant, and for
+  the ace checkbox adjusts `state.acePool` by the event's `ace_per_player` fee
+  (increment on check, decrement on uncheck) and persists the new balance to
+  `settings.ace_pool_balance`.
+- New payment summary card at the top of the Registrants panel (`renderRegistrationSummary`,
+  new `#regPaymentSummary` block in tags.html): registered count, live Ace Pool $ and CTP
+  Pool $ totals, and a "`N of M paid ace pool ($X)` · `...CTP...`" line — CTP math branches
+  per hole for mode B, single total otherwise.
+- `initMatch()` now calls `loadAcePool()` on load so the summary has a real starting balance.
+
+Commit: `feat: registration payment tracking with ace pool and CTP checkboxes`
+
+### 3. CTP setup options on event creation (Section 13 of the spec)
+
+Admin's Add Event form now has a CTP Setup radio group (Option A/B/C from the spec) with
+`updateCtpModeFields()` showing only the relevant fields per mode:
+
+- **A — single pool:** one CTP entry fee field.
+- **B — per-hole pools:** # of CTP holes + entry fee per hole.
+- **C — per-hole shared pool:** # of CTP holes + one shared entry fee.
+
+`addEvent()` reads `ctp_mode`, and `ctp_holes`/`ctp_fee` per the selected mode, and saves
+all three on the new `events` row so the registration-page checkboxes (fix #2) know which
+shape to render.
+
+Commit: `feat: CTP setup options on event creation`
+
+### Verification
+
+No test suite exists for this app. This work landed while the session was mid-task and
+got interrupted by a usage-limit reset before verification and this STATUS.md entry were
+written — verified now, after the fact, before reporting it done:
+
+- `{` / `}` and `(` / `)` balance check on `match.js` and `admin.js` — both balanced
+- Loaded the live app locally (zero console errors) and exercised all three features live:
+  CTP mode radios correctly show/hide exactly their own field set (A/B/C all checked);
+  toggling a real registrant's Ace Paid checkbox moved the ace pool from $2 → $3 → back to
+  $2 and the summary line updated in real time; editing a real registrant's tag (95 → 77)
+  rendered and saved correctly. All Supabase writes during this test were intercepted with
+  a temporary `db.from` stub so no live event/settings data was actually touched, and
+  in-memory state was reverted to its original values afterward.
+
 ## September 9, 2026 — Edit registrant, registration payment tracking, CTP setup (Bugs 8/9, Sections 9/13)
 
 ### Backup: backups/pre-match-essentials/{match.js,admin.js,app.js} (pre-edit) — committed separately first
