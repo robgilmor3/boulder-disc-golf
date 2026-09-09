@@ -4,6 +4,56 @@
 
 ---
 
+## September 8, 2026 — Diablo doubles payout fixes; registration payment tracking added to spec
+
+### 1. Cali winner label no longer duplicates the name
+
+In `showDiabloPayout()` (diablo.js), the doubles branch built `winnerLabel` as
+`winner.label + ' (' + winner.players.join(' + ') + ')'`. For a solo Cali winner,
+`winner.label` is already `'Kim (Cali)'`, so the old code produced `'Kim (Cali) (Kim)'`.
+
+- Hoisted `teamArr` out of the `if (isDoubles)` block into the function's outer `let`
+  declaration (it's needed again for fix #2 below) and added an `isCali` field to each
+  team object it builds.
+- `winnerLabel` now skips the trailing `(players...)` suffix when the winner is a solo
+  Cali team: `(winner.isCali && winner.players.length === 1) ? winner.label : winner.label
+  + ' (' + winner.players.join(' + ') + ')'`. Multi-player teams (Cali or not) are
+  unaffected — `Brimstone (Rob + Chuck)` still reads as before.
+
+Backup: `backups/diablo-2026-09-08-pre-payout-fixes.js` (pre-edit, covers both fixes below)
+
+Commit: `fix: Cali winner label no longer duplicates name`
+
+### 2. Doubles total_pot now reflects the actual pot
+
+`total_pot` written to `diablo_money_history` was `diabloMoney.players.reduce((s,p) => s +
+buyin * (p.buyinMultiplier||1), 0)` — summing over individual players rather than teams.
+For doubles it now sums `teamArr`'s already-correct per-team `pot` field instead
+(`buyin*2` per normal team, `buyin*multiplier` for Cali). Singles calculation is
+untouched, exactly as asked.
+
+Commit: `fix: doubles total_pot reflects actual pot amount`
+
+### Verification (both fixes)
+
+No test suite exists for this app. Verified by loading the live-matching app locally
+(zero console errors) and running the exact extracted expressions against constructed
+mock team data in the browser console: solo-Cali winner produced `"Kim (Cali)"` (not
+duplicated), a multi-player non-Cali winner still produced `"Brimstone (Rob + Chuck)"`,
+and the doubles `total_pot` summed correctly from per-team pots.
+
+### 3. Master spec: registration payment tracking
+
+Appended Section 13 to `BOULDER_DISC_GOLF_MASTER_SPEC.md` — Ace Pool / CTP paid
+checkboxes on registration (unchecked by default, checked by admin on physical payment,
+pool totals update in real time on check not on registration), and the three CTP setup
+modes a TD can pick per event (Option A single pool, Option B per-hole separate pools,
+Option C per-hole shared pool).
+
+Commit: `docs: add registration payment tracking to master spec`
+
+---
+
 ## September 9, 2026 — Delete players from El Diablo, prominent running +/-
 
 ### Backup: backups/tags-2026-09-09b.html (pre-edit) — committed separately
