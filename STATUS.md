@@ -66,6 +66,60 @@ Nothing is hidden and nothing is labelled. The order just reflects who has been 
 
 ### Commit: feat: Diablo pick grid orders by most recently played
 
+## September 8, 2026 — Master spec: group scoring + code cleanup; split tags.html into modules
+
+### 1. Master spec updated
+
+Appended Section 11 (Group Scoring for Tag Matches — app scoring flow, multi-scorer conflict
+detection, real-time visibility via Supabase realtime, the new Live Scoring tab, end-of-round
+verification, player transfer, late join, scoring order, Announce Order via `speechSynthesis`)
+and Section 12 (Code Cleanup — the file split below) to `BOULDER_DISC_GOLF_MASTER_SPEC.md`.
+
+Commit: `docs: add group scoring and code cleanup sections to master spec`
+
+### 2. tags.html split into modules (Section 12 of the spec)
+
+`tags.html` was one 3314-line file mixing HTML, CSS, and JS. Backed up first to
+`backups/tags-2026-09-08-pre-split.html`, then split into:
+
+- `styles.css` — all CSS (was the inline `<style>` block)
+- `app.js` — core logic: Supabase init, app state, navigation, data layer, splash/home,
+  tag ledger, season stats, community notes, auth, utils, PWA install prompt, and the
+  startup IIFE
+- `diablo.js` — the El Diablo ledger and the Diablo money-match/tag-match flow, including
+  the team-name generator and the hole-by-hole scorecard overlay
+- `match.js` — match flow: registration, PDGA lookup, scoring, tag redistribution
+- `admin.js` — admin panel: dynamic admin access, event CRUD, season schedule generator,
+  bulk tag assignment, player/role management
+- `weather.js` — NWS/Open-Meteo fetching and rendering for event cards, including the
+  per-event weather save used by the admin event form
+
+`tags.html` now only contains markup plus the `<link rel="stylesheet" href="styles.css">`
+and five `<script src="...">` tags (loaded app.js, diablo.js, match.js, admin.js,
+weather.js).
+
+No code was retyped — every file was assembled from exact line ranges of the original,
+then verified by sorting all non-blank lines from the original script and from the five
+new files and diffing them: identical multiset, so nothing was lost, duplicated, or
+altered. A couple of functions physically embedded in the wrong original section
+(`fetchWeatherForEvent`, called from `addEvent`, and `fmtDate`, used only by the admin
+panel) were placed by what they actually do rather than where they happened to sit.
+
+### Verification
+
+No test suite exists for this app. Verified by standing up a throwaway local static
+server, loading the split `tags.html`, and clicking through every page — Home, Tags,
+Match, Stats, Diablo (ledger, delete buttons, money-match setup, active-game resume),
+and, logged in as `rob`/`boulder1` (god admin), the full Admin panel (event list, season
+scheduler, community notes, add player, bulk tag assignment, player roster/roles, admin
+access manager). Everything rendered against live Supabase data with zero browser
+console errors. The "Player Profile" heading that shows on the Stats tab is pre-existing
+(confirmed identical in the pre-split backup) — `renderStats()` and `showPlayerStats()`
+share the same `#page-stats` container in the original file, not something introduced by
+the split.
+
+### Commit: refactor: split monolith into separate CSS and JS modules
+
 ## September 8, 2026 — Diablo Who's Playing: names, search, add (and the add-player bug)
 
 ### Backup: backups/tags-2026-09-08e.html (pre-edit) — committed separately
