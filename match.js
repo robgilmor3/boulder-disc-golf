@@ -69,23 +69,86 @@ async function persistRegistrants() {
 }
 
 // ── Show registered players for an event (tap the count) ──
+let regListModalEventId = null;
+let editingModalRegistrant = null;
+
 function showRegisteredPlayers(eventId) {
   const ev = state.events.find(e => e.id === eventId);
   if (!ev) return;
   const registered = Array.isArray(ev.registered) ? ev.registered
     : (ev.registered ? JSON.parse(ev.registered) : []);
   if (!registered.length) { showToast('No players registered yet.'); return; }
+  regListModalEventId = eventId;
+  editingModalRegistrant = null;
+  renderRegListModalBody();
+  openModal('regListModal');
+}
+
+function renderRegListModalBody() {
+  const ev = state.events.find(e => e.id === regListModalEventId);
+  if (!ev) return;
+  const registered = Array.isArray(ev.registered) ? ev.registered
+    : (ev.registered ? JSON.parse(ev.registered) : []);
   const sorted = [...registered].sort((a, b) => (a.tag ?? 999) - (b.tag ?? 999));
-  const listHtml = sorted.map(r =>
-    `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+  const listHtml = sorted.map(r => {
+    if (editingModalRegistrant === r.name) {
+      return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);flex-wrap:wrap;">
+        <input type="number" min="1" max="350" value="${r.tag}" id="modalEditTag_${r.name.replace(/\W/g,'_')}" style="width:70px;padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'DM Mono',monospace;">
+        <span style="flex:1;font-family:'Barlow Condensed',sans-serif;font-size:16px;letter-spacing:1px;">${r.name}</span>
+        <button class="btn btn-primary btn-sm" onclick="saveModalRegistrantEdit(${attrStr(r.name)})">✓</button>
+        <button class="btn btn-secondary btn-sm" onclick="cancelModalEditRegistrant()">✕</button>
+      </div>`;
+    }
+    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
       <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--orange);min-width:44px;">#${r.tag}</span>
-      <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;letter-spacing:1px;">${r.name}</span>
-    </div>`
-  ).join('');
+      <span style="flex:1;font-family:'Barlow Condensed',sans-serif;font-size:16px;letter-spacing:1px;">${r.name}</span>
+      <button class="btn btn-secondary btn-sm" onclick="editModalRegistrant(${attrStr(r.name)})">✏️</button>
+    </div>`;
+  }).join('');
   document.getElementById('regListModalTitle').textContent =
     (ev.title || 'Tag Match') + ' · ' + registered.length + ' registered';
   document.getElementById('regListModalBody').innerHTML = listHtml;
-  openModal('regListModal');
+}
+
+function editModalRegistrant(name) {
+  editingModalRegistrant = name;
+  renderRegListModalBody();
+}
+
+function cancelModalEditRegistrant() {
+  editingModalRegistrant = null;
+  renderRegListModalBody();
+}
+
+async function saveModalRegistrantEdit(name) {
+  const input = document.getElementById('modalEditTag_' + name.replace(/\W/g,'_'));
+  const newTag = parseInt(input?.value);
+  if (!newTag || newTag < 1 || newTag > 350) return showToast('Enter a valid tag # (1–350).', true);
+  const ok = await updateRegistrantTag(regListModalEventId, name, newTag);
+  if (!ok) return showToast('Error saving tag.', true);
+  editingModalRegistrant = null;
+  renderRegListModalBody();
+  if (state.selectedEventId === regListModalEventId) renderRegistrantList();
+  showToast(`${name}'s tag updated to #${newTag}`);
+}
+
+// ── Update a single registrant's tag on a given event and persist ──
+async function updateRegistrantTag(eventId, name, newTag) {
+  const ev = state.events.find(e => e.id === eventId);
+  if (!ev) return false;
+  let registrants = Array.isArray(ev.registered) ? ev.registered
+    : (ev.registered ? JSON.parse(ev.registered) : []);
+  const idx = registrants.findIndex(r => r.name === name);
+  if (idx === -1) return false;
+  registrants[idx].tag = newTag;
+  try {
+    const { error } = await db.from('events')
+      .update({ registered: JSON.stringify(registrants) }).eq('id', eventId);
+    if (error) throw error;
+  } catch(e) { console.error('updateRegistrantTag:', e); return false; }
+  ev.registered = registrants;
+  if (state.selectedEventId === eventId) state.registrants = registrants;
+  return true;
 }
 
 let pdgaLookupTimer = null;
@@ -262,6 +325,8 @@ function clearRegForm() {
   document.getElementById('pdgaLookupStatus').style.display = 'none';
 }
 
+let editingMatchRegistrant = null;
+
 function renderRegistrantList() {
   const el = document.getElementById('registrantList');
   const count = document.getElementById('regCount');
@@ -274,13 +339,50 @@ function renderRegistrantList() {
     return;
   }
 
-  el.innerHTML = [...state.registrants].sort((a,b) => a.tag - b.tag).map(r => `
+  el.innerHTML = [...state.registrants].sort((a,b) => a.tag - b.tag).map(r => {
+    if (editingMatchRegistrant === r.name) {
+      return `
+        <div class="registrant-item" style="flex-wrap:wrap;row-gap:6px;">
+          <input type="number" min="1" max="350" value="${r.tag}" id="editTag_${r.name.replace(/\W/g,'_')}" style="width:70px;padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'DM Mono',monospace;">
+          <span class="reg-name">${r.name}</span>
+          <button class="btn btn-primary btn-sm" onclick="saveRegistrantEdit(${attrStr(r.name)})">✓</button>
+          <button class="btn btn-secondary btn-sm" onclick="cancelEditRegistrant()">✕</button>
+        </div>
+      `;
+    }
+    return `
     <div class="registrant-item">
       <span class="reg-tag">#${r.tag}</span>
       <span class="reg-name">${r.name}</span>
+      <button class="btn btn-secondary btn-sm" onclick="editRegistrant(${attrStr(r.name)})">✏️</button>
       <button class="btn btn-danger btn-sm" onclick="removeRegistrant(${attrStr(r.name)})">✕</button>
     </div>
-  `).join('');
+  `;
+  }).join('');
+}
+
+function editRegistrant(name) {
+  editingMatchRegistrant = name;
+  renderRegistrantList();
+}
+
+function cancelEditRegistrant() {
+  editingMatchRegistrant = null;
+  renderRegistrantList();
+}
+
+async function saveRegistrantEdit(name) {
+  const input = document.getElementById('editTag_' + name.replace(/\W/g,'_'));
+  const newTag = parseInt(input?.value);
+  if (!newTag || newTag < 1 || newTag > 350) return showToast('Enter a valid tag # (1–350).', true);
+  if (state.registrants.find(r => r.name !== name && r.tag === newTag)) return showToast(`Tag #${newTag} already in match.`, true);
+  const r = state.registrants.find(r => r.name === name);
+  if (!r) return;
+  r.tag = newTag;
+  editingMatchRegistrant = null;
+  renderRegistrantList();
+  await persistRegistrants();
+  showToast(`${name}'s tag updated to #${newTag}`);
 }
 
 function removeRegistrant(name) {
