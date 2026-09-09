@@ -4,6 +4,105 @@
 
 ---
 
+## September 9, 2026 — Ace pool payout system, end-of-match ace entry, tag override on registration
+
+### Backup: backups/pre-ace-pool/{match.js,app.js} (pre-edit)
+
+### 1. Ace pool two-pot payout system (Section 4)
+
+New `ace-pool.js` implements the two-pot model per course (or per shared pool group):
+main pot capped per course, holding pot for overflow once the cap is hit. Payout uses
+the shares system (one ace = one share, a player double-acing = two shares, pot divided
+by shares). Hole modifiers supported (Valmont hole 5 seeded at 0.5 shares by default).
+
+`perShare` divides the pot by `max(totalShares, 1)` rather than `totalShares` directly —
+this was a genuine subtlety in the spec's own worked examples: a lone half-share ace
+against a $100 pot pays $50 with $50 left in the pot, which only falls out of the math
+with the `max(…, 1)` floor. A naive `pot/totalShares` would have paid the ace the entire
+$100. Verified by hand against both of the spec's Section 4 examples before writing the
+code.
+
+State lives in `settings` as `ace_pool_main_<group>`, `ace_pool_holding_<group>`,
+`ace_pool_config_<course>` (group = the course name, or a shared `poolGroup` if courses
+are configured to share a pool). No admin UI for editing cap/hole-modifiers was built
+this round — not explicitly asked for — so course config beyond the seeded Valmont
+default currently requires writing the `ace_pool_config_<course>` settings row directly.
+
+Wired the existing Ace Paid registration checkbox (match.js) to route money through the
+new two-pot model instead of the old flat `ace_pool_balance` key, and updated the home
+page's ace pool total (app.js `renderSplash`) to read the same per-course balance.
+Removed the old `commitResults()` block that unconditionally added $1/player to the ace
+pool on every match commit — it predated the payment checkboxes and would have
+double-counted against real opt-in payments going forward.
+
+Script tag added to tags.html, loaded right after app.js.
+
+Commit: `feat: ace pool two-pot payout system with hole modifiers`
+
+### 2. End of match ace entry (Bug 10)
+
+New Step 2.5 in the match flow, between score entry and results: a "Any Aces This
+Round?" card where the TD adds any number of aces (player dropdown from the current
+registrants + hole number), sees the live ace pool balance, and a live payout preview
+computed via `previewAcePayout()`. Skippable — the button reads "Skip — No Aces →" until
+a valid ace is entered, then "Continue →".
+
+`setStep()` now drives four steps (1, 2, 2.5, 3) via an explicit `MATCH_STEP_ORDER` array
+instead of assuming steps are always 1/2/3. `commitResults()` now calls
+`commitAcePayout()` with whatever aces were entered, updating the two-pot balances and
+reporting the payout in the success toast. Ace details aren't persisted into
+`match_history` — that table's `results` column is read elsewhere (`showPlayerStats`) as
+a bare array of player results, and changing its shape to also carry ace data would have
+broken that reader; the pool balance change in `settings` is the durable record instead.
+
+Commit: `feat: end of match ace entry with pool payout`
+
+### 3. Tag override on registration (Section 2)
+
+`addRegistrant()` (match.js) now checks whether the entered tag belongs to someone else
+in the ledger and, if so, prompts: "Tag #14 is currently held by [Mike Johnson]. Are you
+sure you want to claim this tag?" On confirm, the holder's tag is set to null (renders as
+the existing "—" dash) and, if the claiming player already exists in the ledger, their
+own tag updates immediately too — independent of match-result tag redistribution, per
+spec. A cascade (A takes B's tag, B takes C's) falls out naturally since each
+registration re-checks current ledger state; no special-case code needed.
+
+Admin panel gets a 3-position slider (no / minimal / full confirmation), stored in
+`settings` as `tag_override_confirmation_level`, loaded at app init and refreshed in
+`renderAdmin()`. Per spec, the slider only governs the admin's own experience —
+non-admins always get full confirmation regardless of the saved level.
+
+Commit: `feat: tag override on registration with displacement`
+
+### Verification (all three features)
+
+No test suite exists for this app. Verified locally by loading the app and, for anything
+that would otherwise write real data, stubbing `db.from(...).update/upsert` and
+`window.confirm` for the duration of the test so production data was never touched
+(confirmed afterward — e.g. Kevin Bankson's real tag was still #13):
+
+- Ace pool: toggling a real registrant's Ace Paid checkbox moved the Valmont pool
+  $0 → $1 → back to $0; home page total tracked it live.
+- Ace entry step: stepped through registration → scores → ace entry with a real
+  registrant; the Valmont hole-5 modifier correctly produced 0.5 shares in the live
+  preview, a plain hole produced a full share, add/remove rows re-rendered correctly.
+  `commitAcePayout()`'s full deduct-then-replenish cycle was exercised against stubbed
+  writes (main $20/holding $15, cap $20, three aces incl. a half-share hole) and
+  produced the expected $4/$8/$8 payout with main replenished to $15.
+- Tag override: confirmation text matched the spec exactly; the displaced player's
+  update payload was correct (`tag: null, last_change: 'down'`); none/minimal/full each
+  gated `confirm()` correctly for an admin; a non-admin still got full confirmation with
+  the slider set to 'none'.
+- Page loaded with no new console errors after each of the three commits. One
+  pre-existing error is still present on every fresh load — see the September 9 entry
+  below (before this one) for what was already ruled out. Re-confirmed this run that it
+  is not coming from any ace-pool.js code (a fresh, unloaded course's config fetch
+  originally 406'd against `.single()` on a missing settings row — fixed by switching to
+  `.maybeSingle()` — and replaying the fixed call directly produces zero errors, so it
+  isn't the same request as the one still showing up on cold load).
+
+---
+
 ## September 9, 2026 — Follow-up: schema blocker confirmed, weather error not reproduced
 
 Two sessions worked on this repo concurrently after the same usage-limit reset, both
