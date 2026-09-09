@@ -4,6 +4,42 @@
 
 ---
 
+## September 9, 2026 — Delete players from El Diablo, prominent running +/-
+
+### Backup: backups/tags-2026-09-09b.html (pre-edit) — committed separately
+
+### 1. Delete players (new capability)
+
+There was no way to remove anyone from the El Diablo roster — no function, no button, nothing. Rob's roster had accumulated test entries (`ford` alongside `Ford`, `Joe getterbrntfuck`, `dick bokal`) with no way to clear them.
+
+- Each ledger row now carries a ✕ button, **admin only** (`state.currentUser.role` in `god`/`admin`) — same gate the Add Player card uses
+- New `deleteDiabloPlayer(id, name)`: confirms, deletes by id from `diablo_players`, pulls the player out of the current match if they were selected, then re-renders the ledger, the pick grid and the selected list
+- The confirm spells out that this does not touch the main Boulder tag ledger, since the two rosters are separate tables
+- #666 is already filtered out of the ledger, so the memorial can't be deleted through the UI
+
+### 2. Running score is now the loudest thing on the scorecard
+
+The relative-to-par numbers existed but were losing to their surroundings: team names at 9px in `#8b0000`, scores at 20px, all one colour, sitting next to a 72px hole number.
+
+- Header chips: name 9px → **12px** in `#ff8a70`, score 20px → **34px**
+- Per-row totals: 28px → **38px**
+- Hole number 72px → 54px to give the totals bar room. This is the one thing Rob did not ask for — it was needed to fit the bigger scores on a phone
+- Colour by sign: **under par gold with a glow**, **even bright white**, **over par red**. Applied to both the header chips and the row totals, so a glance tells you the standings
+- Leader chip keeps its gold border and now gets a glow
+
+Rob's example reads exactly as intended: Team Bat Dung `-1` in gold, Team Scary Face `E` in white, Team Chunder `+2` in red.
+
+### Verification
+
+- `node --check` — clean
+- 17 automated assertions through a real DOM: delete buttons render for god and admin and are absent for players and logged-out users, #666 never listed, an apostrophe name produces a parseable delete handler, deleting removes by id and pulls the player out of the live match while leaving the similarly-named real player alone, cancelling the confirm changes nothing, and the scorecard emits `under`/`even`/`over` classes with the right values plus the leader highlight and the 38px row totals
+
+### Note
+
+`Ford` vs `ford` and the other junk entries are Rob's test data. He can now clear them himself from the ledger. `dick bokal` is a real person the crew calls Richard — his call whether to rename or remove.
+
+### Commit: feat: delete players from El Diablo roster, make running +/- prominent on the scorecard
+
 ## September 9, 2026 — Diablo pick grid orders by who played most recently
 
 ### Backup: backups/tags-2026-09-09.html (pre-edit) — committed separately
