@@ -309,11 +309,34 @@ async function addRegistrant() {
   const existingPlayer = state.players.find(p => p.name === name);
   const isNew = !existingPlayer;
 
+  // Tag override (Section 2) — does this tag already belong to someone else in the ledger?
+  const holder = state.players.find(p => p.tag === tag && p.name !== name);
+  if (holder) {
+    const isAdmin = state.currentUser && ['god','admin'].includes(state.currentUser.role);
+    const level = isAdmin ? (state.tagOverrideLevel || 'full') : 'full';
+    if (level === 'full') {
+      if (!confirm(`Tag #${tag} is currently held by ${holder.name}. Are you sure you want to claim this tag?`)) return;
+    } else if (level === 'minimal') {
+      if (!confirm(`Claim tag #${tag} from ${holder.name}?`)) return;
+    }
+    // level === 'none' (admin only) — proceed without prompting
+
+    // Displace the current holder — their tag goes to a dash until they next register
+    const { error: dispErr } = await db.from('players').update({ tag: null, last_change: 'down' }).eq('id', holder.id);
+    if (!dispErr) holder.tag = null;
+
+    // Update the claiming player's own ledger entry immediately, if they already exist
+    if (existingPlayer) {
+      const { error: claimErr } = await db.from('players').update({ tag }).eq('id', existingPlayer.id);
+      if (!claimErr) existingPlayer.tag = tag;
+    }
+  }
+
   state.registrants.push({ name, tag, pdga: pdga || (existingPlayer ? existingPlayer.pdga : ''), score: null, isNew });
   clearRegForm();
   renderRegistrantList();
   await persistRegistrants();
-  showToast(`${name} added — Tag #${tag}${isNew ? ' (new player)' : ''}`);
+  showToast(`${name} added — Tag #${tag}${isNew ? ' (new player)' : ''}${holder ? ` (claimed from ${holder.name})` : ''}`);
 }
 
 function clearRegForm() {

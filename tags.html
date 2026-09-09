@@ -382,6 +382,20 @@
       <div class="stat-card"><div class="stat-val" id="statMatches">—</div><div class="stat-lbl">Matches</div></div>
     </div>
 
+    <!-- Tag Override Confirmation -->
+    <div class="admin-section">
+      <h3>🔐 Tag Override Confirmation</h3>
+      <div class="card">
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px">Controls how much confirmation admins see when claiming a tag from another player during registration. Regular players always get full confirmation.</p>
+        <input type="range" id="tagOverrideSlider" min="0" max="2" step="1" value="2"
+          oninput="updateTagOverrideLabel(this.value)" onchange="saveTagOverrideLevel(this.value)" style="width:100%">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-top:4px;">
+          <span>No confirmation</span><span>Minimal</span><span>Full confirmation</span>
+        </div>
+        <div id="tagOverrideLabel" style="text-align:center;margin-top:8px;font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:1px;">Full confirmation</div>
+      </div>
+    </div>
+
     <!-- Add Event -->
     <div class="admin-section">
       <h3>📅 Add Event</h3>

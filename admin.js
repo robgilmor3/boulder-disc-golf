@@ -2,6 +2,32 @@
 //  ADMIN
 // ═══════════════════════════════════════════════════════
 
+// ── Tag override confirmation slider (Section 2) ──
+const TAG_OVERRIDE_LEVELS = ['none', 'minimal', 'full'];
+const TAG_OVERRIDE_LABELS = { none: 'No confirmation', minimal: 'Minimal confirmation', full: 'Full confirmation' };
+
+function updateTagOverrideLabel(idx) {
+  const level = TAG_OVERRIDE_LEVELS[idx];
+  const el = document.getElementById('tagOverrideLabel');
+  if (el) el.textContent = TAG_OVERRIDE_LABELS[level];
+}
+
+async function saveTagOverrideLevel(idx) {
+  const level = TAG_OVERRIDE_LEVELS[idx];
+  state.tagOverrideLevel = level;
+  updateTagOverrideLabel(idx);
+  await db.from('settings').upsert({ key: 'tag_override_confirmation_level', value: level }, { onConflict: 'key' });
+  showToast('Tag override confirmation set to: ' + TAG_OVERRIDE_LABELS[level]);
+}
+
+function renderTagOverrideSlider() {
+  const sliderEl = document.getElementById('tagOverrideSlider');
+  if (!sliderEl) return;
+  const idx = TAG_OVERRIDE_LEVELS.indexOf(state.tagOverrideLevel || 'full');
+  sliderEl.value = idx >= 0 ? idx : 2;
+  updateTagOverrideLabel(sliderEl.value);
+}
+
 // ═══════════════════════════════════════════════════════
 //  DYNAMIC ADMIN MANAGEMENT
 // ═══════════════════════════════════════════════════════
@@ -105,7 +131,9 @@ function renderAdminEvents(showAll) {
 }
 
 async function renderAdmin() {
-  await Promise.all([loadPlayers(), loadEvents(), loadNotes(), loadAcePool()]);
+  await Promise.all([loadPlayers(), loadEvents(), loadNotes(), loadAcePool(), loadTagOverrideLevel()]);
+
+  renderTagOverrideSlider();
 
   document.getElementById('statPlayers').textContent = state.players.length;
 

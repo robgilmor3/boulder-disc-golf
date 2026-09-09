@@ -20,6 +20,7 @@ let state = {
   registrants: [],
   pendingResults: null,
   selectedEventId: null,
+  tagOverrideLevel: 'full',
 };
 
 // Demo credentials (in prod these would be in Supabase auth)
@@ -64,6 +65,15 @@ async function loadAcePool() {
     if (data) state.acePool = parseFloat(data.value) || 0;
   } catch(e) { state.acePool = 0; }
   return state.acePool;
+}
+
+// ── Tag override confirmation level (Section 2) — admin-configurable slider ──
+async function loadTagOverrideLevel() {
+  try {
+    const { data } = await db.from('settings').select('value').eq('key', 'tag_override_confirmation_level').maybeSingle();
+    state.tagOverrideLevel = data?.value || 'full';
+  } catch(e) { state.tagOverrideLevel = 'full'; }
+  return state.tagOverrideLevel;
 }
 
 async function loadEvents() {
@@ -644,5 +654,6 @@ document.querySelectorAll('.modal-overlay').forEach(el => {
   }
 
   await loadPlayers();
+  await loadTagOverrideLevel();
   await renderSplash();
 })();
