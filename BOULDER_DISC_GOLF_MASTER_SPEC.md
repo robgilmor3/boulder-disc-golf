@@ -324,6 +324,70 @@ This applies to Diablo scoring now, and to main app scoring when it is built.
 
 ---
 
+## SECTION 11 — GROUP SCORING FOR TAG MATCHES
+
+Multiple scoring methods coexist: app scoring, other apps like UDisc, and paper. TD sees everything and manually enters scores for non-app players.
+
+### App scoring flow
+
+Registered players open Match tab, see tappable name chips of everyone registered for this match only. Your name is auto-selected from login. Tap other people in your playing card to form a group. Minimum 3 per card, warn but do not hard-block in prototype mode. Name the group by typing or hitting a random generate button that pulls from a Boulder and disc golf themed name list, separate from the Diablo demon names. Once the group is set, score hole by hole with the same interface style as Diablo but using the course's actual par per hole.
+
+### Multi-scorer within a group
+
+Every person in a group can independently keep score on their own phone. Each person scores every player in the group. When everyone commits a hole, the app compares all entries. Conflicts are highlighted showing which player, which hole, and who entered what. Must resolve before moving to next hole. Same conflict check at end of round before final submit. All conflict checks are soft warnings not hard blocks in prototype mode.
+
+### Real-time visibility
+
+TD sees all groups and committed hole scores updated on each commit, not on every keystroke. All app users can see other groups committed scores in real time. Uses Supabase realtime subscriptions.
+
+### Live Scoring tab
+
+New nav tab called Live Scoring that shows all groups currently scoring through the app. Each group shows group name, players, current hole, committed scores. Updated in real time on commits. This is the spectator and TD view.
+
+### End of round
+
+Each group's players verify scores are correct. All players in a group must submit before it uploads to TD master view. TD sees app-scored groups auto-populated alongside manual entries for paper and other app players. TD enters missing scores manually for non-app players. TD commits all results and tags redistribute.
+
+### Player transfer
+
+A player can move from one group to another mid-round. All their hole scores transfer with them. The app handles this with a transfer button that lets the TD or the player request a move.
+
+### Late join
+
+If someone joins a group after scoring has started, they can backfill scores for holes they missed since they were physically present.
+
+### Scoring order
+
+After each hole, player order in the scorecard reorders based on best score on the previous hole. Best goes first as tee order. Ties broken by going back one hole at a time. If tied to hole 1, fall back to starting order which is lowest PDGA number or alphabetical.
+
+### Announce Order button
+
+Uses Web Speech API `speechSynthesis` to read aloud "Hole [number]. Tee order." then each name with a brief pause between them.
+
+### Not mandatory yet
+
+Multi-scorer conflict check, all-must-submit requirement, verification step all work but are soft warnings not hard gates in prototype mode.
+
+---
+
+## SECTION 12 — CODE CLEANUP
+
+The codebase is a single 3300 line HTML file with CSS, HTML, and JavaScript mixed together. Before building any new features, split into separate files:
+
+- `tags.html` — HTML structure only
+- `styles.css` — all CSS
+- `app.js` — core app logic, navigation, and data layer
+- `diablo.js` — all Diablo and money match code
+- `match.js` — match flow, registration, and scoring
+- `admin.js` — admin panel and event management
+- `weather.js` — weather fetching and rendering
+
+Each JS file is loaded via script tags in `tags.html`. CSS loaded via link tag. All functions and variables that are shared across files go through a single global app state object. No functionality changes during the split, only file organization.
+
+Test by verifying the app loads and all pages work after the split.
+
+---
+
 ## REMINDERS FOR CLAUDE CODE
 
 - Read CLAUDE.md before every session
