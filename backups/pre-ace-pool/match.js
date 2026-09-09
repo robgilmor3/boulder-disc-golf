@@ -5,6 +5,8 @@
 async function initMatch() {
   const today = localDateStr();
 
+  await loadAcePool();
+
   // Auto-detect today's event if none selected yet
   if (!state.selectedEventId && state.events?.length) {
     const todayEv = state.events.find(ev => !ev.cancelled && ev.date === today)
@@ -45,8 +47,6 @@ async function initMatch() {
         state.registrants = [];
       }
     } catch(e) { console.error('load registrants:', e); state.registrants = []; }
-
-    if (ev?.course) await ensureAcePoolLoaded(ev.course);
   } else {
     document.getElementById('matchDate').value = today;
   }
@@ -403,7 +403,9 @@ async function toggleRegistrantPaid(name, field, checked) {
     const ev = state.events?.find(e => e.id === state.selectedEventId);
     const acePerPlayer = parseFloat(ev?.ace_per_player || 0);
     const delta = checked ? acePerPlayer : -acePerPlayer;
-    if (ev?.course) await adjustAcePool(ev.course, delta);
+    const newBalance = Math.max(0, (state.acePool || 0) + delta);
+    state.acePool = newBalance;
+    await db.from('settings').upsert({ key: 'ace_pool_balance', value: String(newBalance) }, { onConflict: 'key' });
   }
 
   await persistRegistrants();
@@ -429,7 +431,7 @@ function renderRegistrationSummary() {
   const aceCollected = acePaidCount * acePerPlayer;
 
   countEl.textContent = total;
-  aceEl.textContent = (ev?.course ? getCachedAcePoolMain(ev.course) : 0).toFixed(0);
+  aceEl.textContent = (state.acePool || 0).toFixed(0);
 
   let ctpTotal = 0;
   const ctpStatsParts = [];
@@ -650,6 +652,12 @@ async function commitResults() {
       player.best_tag = newBest;
     }
   }
+
+  // Update ace pool balance in settings
+  const aceAdded = state.pendingResults.length * 1; // $1/player default
+  const newAceBalance = (state.acePool || 0) + aceAdded;
+  state.acePool = newAceBalance;
+  await db.from('settings').upsert({ key: 'ace_pool_balance', value: String(newAceBalance) });
 
   // Log match
   await db.from('match_history').insert({

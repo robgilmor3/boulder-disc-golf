@@ -112,9 +112,6 @@ async function renderSplash() {
     return evEnd > now;
   }).slice(0, 2);
 
-  // Prime the ace pool cache for every course shown so the sync getter below has data
-  await Promise.all([...new Set(visibleEvents.map(ev => ev.course))].filter(Boolean).map(c => ensureAcePoolLoaded(c)));
-
   if (!visibleEvents.length) {
     el.innerHTML = '<div class="empty">No upcoming events. Check back soon!</div>';
   } else {
@@ -126,7 +123,7 @@ async function renderSplash() {
       const registered = Array.isArray(ev.registered) ? ev.registered : (ev.registered ? JSON.parse(ev.registered) : []);
       const playerCount = registered.length;
       const aceContrib = parseFloat(ev.ace_per_player || 1);
-      const aceTotal = ev.course ? getCachedAcePoolMain(ev.course) : 0;
+      const aceTotal = parseFloat(ev.ace_pool_total || state.acePool || 0);
       const aceCap = ev.ace_pool_cap ? parseFloat(ev.ace_pool_cap) : null;
       const aceCapped = aceCap && aceTotal >= aceCap;
       return `
