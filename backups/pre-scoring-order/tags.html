@@ -1,0 +1,673 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BDG Tags">
+<meta name="theme-color" content="#0a0f0d">
+<title>Boulder Disc Golf — Tag League</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=MedievalSharp&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+  <a href="https://boulderdiscgolf.com" class="logo" style="text-decoration:none;color:inherit;cursor:pointer;">
+    Boulder Disc Golf
+    <span>TAG LEAGUE</span>
+  </a>
+  <nav>
+    <button class="active" onclick="showPage(&apos;splash&apos;)">Home</button>
+    <button onclick="showPage(&apos;ledger&apos;)">Tags</button>
+    <button onclick="showPage(&apos;match&apos;)">Match</button>
+    <button onclick="showPage(&apos;stats&apos;)">Stats</button>
+    <button class="diablo-nav" onclick="showPage('diablo')" id="diabloBtn" style="display:none">🔥 Diablo</button>
+    <button onclick="showPage(&apos;admin&apos;)" id="adminBtn" style="display:none">Admin</button>
+  </nav>
+  <div class="header-right">
+    <span class="user-pill" id="userLabel">Guest</span>
+    <button class="btn btn-secondary btn-sm" onclick="openModal('loginModal')" id="loginBtn">Login</button>
+    <button class="btn btn-secondary btn-sm" onclick="doLogout()" id="logoutBtn" style="display:none">Out</button>
+  </div>
+</header>
+
+
+
+<main>
+
+  <!-- ══ SPLASH ══ -->
+  <div id="page-splash" class="page active">
+    <div class="install-banner" id="installBanner">
+      <span style="font-size:24px">📲</span>
+      <p>Add to your home screen for quick access!</p>
+      <button class="btn btn-primary btn-sm" id="installBtn">Add</button>
+      <button class="btn btn-secondary btn-sm" onclick="document.getElementById('installBanner').classList.remove('show')">Dismiss</button>
+    </div>
+
+    <div class="splash-hero">
+      <h1>Tag Matches</h1>
+      <div class="sub">BOULDER DISC GOLF · COLORADO</div>
+    </div>
+
+    <div id="eventList"><div class="loading"><div class="spinner"></div>Loading events...</div></div>
+
+    <div class="notes-section">
+      <h3>📋 Club Notes</h3>
+      <div id="notesList"><div class="loading"><div class="spinner"></div></div></div>
+      <div id="addNoteForm" style="display:none;margin-top:14px;gap:8px;flex-direction:column;">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:2px;">
+          <span style="font-size:11px;letter-spacing:2px;color:var(--text-muted);text-transform:uppercase;">Insert:</span>
+          <button onclick="insertSymbol('• ')" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:var(--text);cursor:pointer;font-size:15px;" title="Bullet">• Bullet</button>
+          <button onclick="insertSymbol('→ ')" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:var(--text);cursor:pointer;font-size:15px;" title="Arrow">→ Arrow</button>
+          <button onclick="insertSymbol('⚠️ ')" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:var(--text);cursor:pointer;font-size:15px;" title="Warning">⚠️ Warning</button>
+          <button onclick="insertSymbol('🥏 ')" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:var(--text);cursor:pointer;font-size:15px;" title="Disc">🥏 Disc</button>
+        </div>
+        <textarea id="quickNoteInput" rows="6" placeholder="One note per line. Paste from Word, type multiple lines — each line posts as its own note." style="padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:var(--text);font-family:inherit;font-size:14px;width:100%;resize:vertical;line-height:1.6;"></textarea>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button class="btn btn-primary btn-sm" onclick="quickAddNote()">Post Notes</button>
+          <span style="font-size:12px;color:var(--text-muted);">Each line = one note</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TAG LEDGER ══ -->
+  <div id="page-ledger" class="page">
+    <div class="section-header">
+      <div class="section-title">Tag <span>Ledger</span></div>
+    </div>
+    <input class="search-box" type="search" placeholder="Search by name or PDGA#..." oninput="filterLedger(this.value)" id="ledgerSearch">
+    <div class="tag-list" id="tagList"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+  </div>
+
+  <!-- ══ PLAYER STATS ══ -->
+  <div id="page-stats" class="page">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+      <button class="btn btn-secondary btn-sm" onclick="showPage(&apos;ledger&apos;)">← Back</button>
+      <div class="section-title" style="margin:0">Player <span>Profile</span></div>
+    </div>
+    <div id="statsContent"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+  </div>
+
+  <!-- ══ DIABLO ══ -->
+  <div id="page-diablo" class="page">
+    <div class="diablo-page">
+      <!-- Devil background -->
+      <div class="diablo-devil-bg">
+        <svg viewBox="0 0 400 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+          <path d="M200 50 L160 120 L100 100 L140 160 L80 180 L150 190 L120 260 L200 220 L280 260 L250 190 L320 180 L260 160 L300 100 L240 120 Z" fill="#cc2200"/>
+          <circle cx="170" cy="195" r="8" fill="#cc2200"/>
+          <circle cx="230" cy="195" r="8" fill="#cc2200"/>
+          <path d="M175 230 Q200 250 225 230" stroke="#cc2200" stroke-width="3" fill="none"/>
+          <path d="M140 310 Q200 280 260 310 Q240 380 200 400 Q160 380 140 310Z" fill="#cc2200"/>
+          <path d="M160 400 L140 480 M240 400 L260 480" stroke="#cc2200" stroke-width="8" stroke-linecap="round"/>
+          <path d="M185 400 L180 500 L200 490 L220 500 L215 400" fill="#cc2200"/>
+          <ellipse cx="200" cy="540" rx="60" ry="15" fill="#cc2200" opacity="0.5"/>
+        </svg>
+      </div>
+
+      <!-- Sticky header -->
+      
+      <div class="diablo-hero" style="display:flex;align-items:center;justify-content:space-between;gap:16px;"> <div style="flex-shrink:0;"> <h1>El Diablo</h1> <div class="sub" style="color:#ff6600;font-size:11px;letter-spacing:3px;text-shadow:0 0 12px rgba(255,102,0,0.7),0 0 24px rgba(204,34,0,0.4);margin-top:6px;font-weight:600;">SPARKMAN BROS DGC · 25 HOLES · PAR 50</div> </div> <div style="flex:1;display:flex;justify-content:center;padding-right:8px;"> <button class="diablo-lfp-btn" style="padding:8px 28px;" onclick="openDiabloPlay()">LET'S FUCKING PLAY</button> </div> </div>
+      <!-- Last Big Win -->
+      <div class="diablo-last-win" id="diabloLastWin" style="display:none;">
+        <div class="diablo-last-win-title">💰 LAST BIG WIN</div>
+        <div class="diablo-last-win-winner" id="diabloLastWinName"></div>
+        <div class="diablo-last-win-detail" id="diabloLastWinDetail"></div>
+      </div>
+
+      <!-- Player Stats -->
+      <div class="diablo-card" id="diabloStatsCard" style="display:none;margin-bottom:14px;position:relative;z-index:1;">
+        <div class="diablo-card-title">📊 Player Stats</div>
+        <div id="diabloStatsList"></div>
+      </div>
+      <div class="diablo-section-title">Tag <span>Ledger</span></div>
+      <input class="diablo-search-box" type="search" placeholder="Search Diablo players..." oninput="filterDiabloLedger(this.value)" id="diabloSearch">
+      <div id="diabloTagList"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+  <div class="diablo-memorial" style="margin-top:12px;">
+    <div class="memorial-tag">#666</div>
+    <div class="memorial-names">JESSE &amp; GBEAR</div>
+    <div class="memorial-sub">Forever in the game. Forever on the board.</div>
+  </div>
+      <div id="diabloAdminSection" style="display:none;margin-top:24px;">
+        <button type="button" class="diablo-collapse-head" id="diabloAddPlayerHead" onclick="toggleDiabloAddPlayer()">
+          <span>👤 ADD PLAYER TO EL DIABLO</span><span class="chev">▾</span>
+        </button>
+        <div class="diablo-card" id="diabloAddPlayerBody" style="display:none;margin-top:8px;">
+          <div class="form-row">
+            <label style="color:#ff6a4d">Name</label>
+            <input type="text" id="diabloNewName" placeholder="First Last or Nickname" style="background:#1a0000;border-color:#8b0000;color:#ffcccc;">
+          </div>
+          <div style="display:flex;gap:8px;">
+            <div class="form-row" style="flex:1">
+              <label style="color:#ff6a4d">PDGA # (optional)</label>
+              <input type="text" id="diabloNewPDGA" placeholder="e.g. 26024" style="background:#1a0000;border-color:#8b0000;color:#ffcccc;">
+            </div>
+            <div class="form-row" style="flex:1">
+              <label style="color:#ff6a4d">Tag # (optional)</label>
+              <input type="number" id="diabloNewTag" placeholder="1-50" min="1" max="50" style="background:#1a0000;border-color:#8b0000;color:#ffcccc;">
+            </div>
+          </div>
+          <button class="diablo-btn diablo-btn-primary" onclick="addDiabloPlayer()">Add Player 🔥</button>
+        </div>
+      </div>
+
+  <!-- MONEY MATCH -->
+  <div id="diabloMoneySection" style="margin-top:24px;position:relative;z-index:1;">
+    <div id="diabloPlayAnchor" style="height:1px;"></div>
+    <div id="diabloModeScreen">
+      <div id="diabloFormatScreen">
+        <div class="diablo-card" style="position:relative;z-index:1;">
+          <div class="diablo-eyebrow">💰 MONEY MATCH</div>
+          <div class="diablo-mode-select" style="margin-bottom:20px;">
+            <button class="diablo-mode-btn" onclick="selectDiabloFormat('money-singles')">💰 SINGLES</button>
+            <button class="diablo-mode-btn" onclick="selectDiabloFormat('money-doubles')">👥 DOUBLES</button>
+          </div>
+          <div class="diablo-eyebrow">🏷️ TAG MATCH</div>
+          <div class="diablo-mode-select">
+            <button class="diablo-mode-btn" onclick="selectDiabloFormat('tags')">🏷️ TAGS</button>
+          </div>
+        </div>
+      </div>
+      <div id="diabloResumeScreen" style="display:none;"></div>
+      <div id="diabloSetupScreen" style="display:none;">
+        <div class="diablo-card" style="position:relative;z-index:1;">
+          <div class="diablo-card-title" id="diabloSetupTitle">👹 Who's Playing?</div>
+          <div id="diabloQuickPlayerGrid" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;"></div>
+          <div style="position:relative;margin-bottom:8px;">
+            <input type="text" id="diabloMoneyPlayerInput" placeholder="🔍 Search all players..." oninput="searchDiabloMoneyPlayer(this.value)" autocomplete="off" style="width:100%;background:#0d0000;border:1px solid #8b0000;border-radius:6px;color:#ffe4dd;padding:11px 12px;font-size:14px;">
+            <div id="diabloMoneyDropdown" style="display:none;position:absolute;top:50px;left:0;right:0;background:#1a0000;border:1px solid #8b0000;border-radius:8px;max-height:200px;overflow-y:auto;z-index:100;"></div>
+          </div>
+          <button type="button" class="diablo-collapse-head" id="diabloNewVictimHead" onclick="toggleDiabloGuestInput()" style="margin-bottom:8px;font-size:14px;padding:10px 14px;">
+            <span>＋ ADD SOMEONE NEW</span><span class="chev">▾</span>
+          </button>
+          <div id="diabloGuestInputRow" style="display:none;margin-bottom:10px;">
+            <div style="display:flex;gap:8px;">
+              <input type="text" id="diabloNewVictimName" placeholder="First Last or Nickname" autocomplete="off" onkeydown="if(event.key==='Enter')addDiabloGuestPlayer()" style="flex:1;background:#0d0000;border:1px solid #8b0000;border-radius:6px;color:#ffe4dd;padding:10px 12px;font-size:14px;">
+              <button class="diablo-btn diablo-btn-primary" onclick="addDiabloGuestPlayer()" style="flex-shrink:0;">Add</button>
+            </div>
+            <div style="font-size:11px;color:#ff6a4d;font-family:DM Mono,monospace;margin-top:6px;">Saves to the El Diablo roster and drops them straight into this game.</div>
+          </div>
+          <div id="diabloSelectedPlayers" style="margin-bottom:8px;"></div>
+          <button class="diablo-btn diablo-btn-primary" id="diabloLockBtn" style="width:100%;justify-content:center;margin-bottom:14px;display:none;" onclick="lockDiabloPlayers()">🔒 LOCK IN PLAYERS →</button>
+          <div id="diabloTeamAssign" style="display:none;margin-bottom:14px;">
+            <div style="font-size:10px;color:#8b0000;letter-spacing:2px;font-family:DM Mono,monospace;margin-bottom:8px;">ASSIGN TEAMS</div>
+            <div id="diabloTeamRows"></div>
+          </div>
+          <div id="diabloBuyinSection" style="display:none;">
+            <div class="diablo-buyin-row">
+              <span class="diablo-buyin-name">Buy-in per player ($)</span>
+              <input type="number" id="diabloBuyinAmount" value="5" min="1" class="diablo-buyin-input" oninput="updateDiabloPot()">
+            </div>
+            <div style="margin-top:8px;padding:10px;background:#0d0000;border-radius:6px;font-family:DM Mono,monospace;font-size:12px;color:#8b0000;" id="diabloPotDisplay">Total pot: $0</div>
+          </div>
+          <button class="diablo-btn diablo-btn-primary" id="diabloStartRoundBtn" style="width:100%;justify-content:center;margin-top:14px;display:none;font-size:18px;padding:16px;" onclick="startDiabloRound()">START ROUND 🔥</button>
+          <button class="diablo-btn diablo-btn-secondary" onclick="backToDiabloFormat()" style="width:100%;justify-content:center;margin-top:8px;">← Back</button>
+        </div>
+      </div>
+      <div id="diabloScorecardScreen" style="display:none;">
+        <div class="diablo-running-total" id="diabloRunningTotals" style="position:relative;z-index:1;"></div>
+        <div class="diablo-hole-card" style="position:relative;z-index:1;">
+          <div class="diablo-hole-num" id="diabloHoleNum">1</div>
+          <div class="diablo-hole-par">PAR 2 · HOLE <span id="diabloHoleOf">1 OF 25</span></div>
+          <div id="diabloHoleScores"></div>
+          <button class="diablo-btn diablo-btn-primary" id="diabloNextHoleBtn" style="width:100%;justify-content:center;margin-top:16px;" onclick="diabloNextHole()">Next Hole →</button>
+        </div>
+        <button class="diablo-btn diablo-btn-secondary" onclick="if(confirm('Abandon this round?')) { closeDiabloPlay(); }" style="margin-top:8px;width:100%;justify-content:center;">✕ Abandon Round</button>
+      </div>
+      <div id="diabloPayoutScreen" style="display:none;">
+        <div class="diablo-payout-card" style="position:relative;z-index:1;">
+          <div style="font-size:13px;color:#8b0000;font-family:DM Mono,monospace;letter-spacing:2px;margin-bottom:8px;">WINNER</div>
+          <div class="diablo-payout-winner" id="diabloWinnerName"></div>
+          <div style="font-size:13px;color:#8b0000;font-family:DM Mono,monospace;letter-spacing:2px;margin:12px 0 4px;">EACH COLLECTS</div>
+          <div class="diablo-payout-amount" id="diabloPayoutAmount"></div>
+          <div class="diablo-payout-sub" id="diabloPayoutSub"></div>
+        </div>
+        <div id="diabloFinalScores" style="margin-bottom:14px;position:relative;z-index:1;"></div>
+        <button class="diablo-btn diablo-btn-primary" onclick="closeDiabloPlay()" style="width:100%;justify-content:center;margin-bottom:8px;">Play Again 🔥</button>
+    <button class="diablo-btn diablo-btn-secondary" onclick="backToDiabloFormat()" style="width:100%;justify-content:center;">← Back to Game Select</button>
+      </div>
+    </div>
+  </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MATCH ══ -->
+  <div id="page-match" class="page">
+    <div class="section-title" style="margin-bottom:16px">Match <span>Manager</span></div>
+
+    <!-- Step indicators -->
+    <div class="step-indicator">
+      <div class="step-dot active" id="step1dot"></div>
+      <div class="step-dot" id="step2dot"></div>
+      <div class="step-dot" id="step2_5dot"></div>
+      <div class="step-dot" id="step3dot"></div>
+    </div>
+
+    <!-- Step 1: Register -->
+    <div id="matchStep1">
+      <div class="card">
+        <div class="card-title">📍 Event Details</div>
+        <div class="form-row">
+          <label>Course</label>
+          <select id="matchCourse" onchange="saveMatchState()">
+            <option>Valmont DGC</option>
+            <option>Harlow Platts Community Park</option>
+            <option>East Interlocken Park</option>
+            <option>Wondervu DGC</option>
+          </select>
+        </div>
+        <div class="flex-gap">
+          <div class="form-row" style="flex:1">
+            <label>Date</label>
+            <input type="date" id="matchDate" onchange="saveMatchState()">
+          </div>
+          <div class="form-row" style="flex:1">
+            <label>Time</label>
+            <input type="time" id="matchTime" onchange="saveMatchState()">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">➕ Register Player</div>
+        <div class="form-row">
+          <label>Name or PDGA#</label>
+          <input type="text" id="regSearch" placeholder="Type name or PDGA number..." oninput="searchPlayer(this.value)" autocomplete="off">
+          <div id="playerDropdown" style="display:none; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius); margin-top:4px; max-height:180px; overflow-y:auto;"></div>
+          <div id="pdgaLookupStatus" style="display:none;margin-top:6px;font-size:12px;color:var(--text-muted);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;"></div>
+        </div>
+        <div id="newPlayerFields" style="display:none">
+          <div class="form-row">
+            <label>Full Name <span style="color:var(--text-muted);font-weight:300">(new player)</span></label>
+            <input type="text" id="newPlayerName" placeholder="First Last">
+          </div>
+          <div class="form-row">
+            <label>PDGA# <span style="color:var(--text-muted);font-weight:300">(optional)</span></label>
+            <input type="text" id="newPlayerPDGA" placeholder="Leave blank if none">
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Nickname <span style="color:var(--text-muted);font-weight:300">(optional)</span></label>
+          <input type="text" id="regNickname" placeholder="e.g. Chains, Birdie Rob...">
+        </div>
+        <div class="form-row">
+          <label>Current Tag #</label>
+          <input type="number" id="regTag" placeholder="1–350" min="1" max="350">
+        </div>
+        <div class="flex-gap mt-8">
+          <button class="btn btn-primary" onclick="addRegistrant()">Add to Match</button>
+          <button class="btn btn-secondary" onclick="clearRegForm()">Clear</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🏌️ Registrants <span id="regCount" style="font-size:13px;font-weight:400;color:var(--text-muted)"></span></div>
+        <div id="regPaymentSummary" style="margin-bottom:14px;padding:12px 14px;background:rgba(255,255,255,0.03);border-radius:8px;border:1px solid var(--border);">
+          <div style="display:flex;gap:18px;flex-wrap:wrap;font-family:'Barlow Condensed',sans-serif;font-size:15px;letter-spacing:1px;">
+            <span>👥 <strong id="regSummaryCount">0</strong> registered</span>
+            <span style="color:var(--gold)">💰 Ace Pool: $<strong id="regSummaryAcePool">0</strong></span>
+            <span style="color:var(--orange)">🎯 CTP Pool: $<strong id="regSummaryCtpPool">0</strong></span>
+          </div>
+          <div id="regSummaryPaidStats" style="margin-top:8px;font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;"></div>
+        </div>
+        <div id="registrantList"><div class="empty">No players added yet.</div></div>
+        <div class="divider"></div>
+        <button class="btn btn-gold btn-full" id="proceedBtn" style="display:none" onclick="goToScoring()">Enter Scores →</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Scores -->
+    <div id="matchStep2" style="display:none">
+      <div class="card">
+        <div class="card-title" style="display:flex;align-items:center;justify-content:space-between;">
+          <span>📊 Score Status</span>
+          <button class="btn btn-secondary btn-sm" onclick="refreshTDScores()" style="font-size:11px;letter-spacing:1px;">↻ Refresh</button>
+        </div>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px">✅ = player submitted · ⏳ = enter manually</p>
+        <div id="scoreList"></div>
+        <div class="divider"></div>
+        <div class="flex-gap">
+          <button class="btn btn-secondary" onclick="backToStep1()">← Back</button>
+          <button class="btn btn-primary" id="calcTagsBtn" onclick="goToAceEntry()" disabled>Calculate Tags →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2.5: Aces -->
+    <div id="matchStep2_5" style="display:none">
+      <div class="card">
+        <div class="card-title">🕳️ Any Aces This Round?</div>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px">Ace pool balance: $<span id="aceEntryPoolBalance">0</span></p>
+        <div id="aceEntryList"></div>
+        <button class="btn btn-secondary btn-sm" onclick="addAceRow()" style="margin-top:8px">+ Add Ace</button>
+        <div id="aceEntryPayoutPreview" style="margin-top:14px;font-size:13px;color:var(--text-muted)"></div>
+        <div class="divider"></div>
+        <div class="flex-gap">
+          <button class="btn btn-secondary" onclick="backToStep2()">← Back</button>
+          <button class="btn btn-primary" id="aceEntryContinueBtn" onclick="proceedFromAceEntry()">Skip — No Aces →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Results -->
+    <div id="matchStep3" style="display:none">
+      <div class="card">
+        <div class="card-title">🏆 New Tag Assignments</div>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px">Tiebreaker: better incoming tag wins.</p>
+        <div id="resultsList"></div>
+        <div class="divider"></div>
+        <div class="flex-gap">
+          <button class="btn btn-secondary" onclick="backToStep2()">← Back</button>
+          <button class="btn btn-gold" onclick="commitResults()">✓ Commit & Update Ledger</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ ADMIN ══ -->
+  <div id="page-admin" class="page">
+    <div class="section-title" style="margin-bottom:16px">Admin <span>Panel</span></div>
+
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-val" id="statPlayers">—</div><div class="stat-lbl">Players</div></div>
+      <div class="stat-card"><div class="stat-val" id="statTags">350</div><div class="stat-lbl">Tags</div></div>
+      <div class="stat-card"><div class="stat-val" id="statMatches">—</div><div class="stat-lbl">Matches</div></div>
+    </div>
+
+    <!-- Tag Override Confirmation -->
+    <div class="admin-section">
+      <h3>🔐 Tag Override Confirmation</h3>
+      <div class="card">
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px">Controls how much confirmation admins see when claiming a tag from another player during registration. Regular players always get full confirmation.</p>
+        <input type="range" id="tagOverrideSlider" min="0" max="2" step="1" value="2"
+          oninput="updateTagOverrideLabel(this.value)" onchange="saveTagOverrideLevel(this.value)" style="width:100%">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-top:4px;">
+          <span>No confirmation</span><span>Minimal</span><span>Full confirmation</span>
+        </div>
+        <div id="tagOverrideLabel" style="text-align:center;margin-top:8px;font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:1px;">Full confirmation</div>
+      </div>
+    </div>
+
+    <!-- Add Event -->
+    <div class="admin-section">
+      <h3>📅 Add Event</h3>
+      <div class="card">
+        <div class="form-row">
+          <label>Title</label>
+          <input type="text" id="evTitle" placeholder="Weekly Tag Match">
+        </div>
+        <div class="form-row">
+          <label>Course</label>
+          <select id="evCourse">
+            <option>Valmont DGC</option>
+            <option>Harlow Platts Community Park</option>
+            <option>Coal Creek DGC</option>
+          </select>
+        </div>
+        <div class="flex-gap">
+          <div class="form-row" style="flex:1">
+            <label>Date</label>
+            <input type="date" id="evDate">
+          </div>
+          <div class="form-row" style="flex:1">
+            <label>Time</label>
+            <input type="time" id="evTime" value="08:00">
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Hosted by</label>
+          <input type="text" id="evHost" placeholder="Shane Sparkman">
+        </div>
+        <div class="flex-gap">
+          <div class="form-row" style="flex:1">
+            <label>Entry Fee ($)</label>
+            <input type="number" id="evEntryFee" placeholder="0" min="0" step="0.50" value="0">
+          </div>
+          <div class="form-row" style="flex:1">
+            <label>Ace Pool / Player ($)</label>
+            <input type="number" id="evAcePerPlayer" placeholder="1" min="0" step="0.50" value="1">
+          </div>
+          <div class="form-row" style="flex:1">
+            <label>Ace Pool Cap ($)</label>
+            <input type="number" id="evAceCap" placeholder="None" min="0" step="10">
+          </div>
+        </div>
+        <div class="form-row">
+          <label>CTP Setup</label>
+          <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;">
+            <label style="display:flex;align-items:center;gap:6px;font-weight:400;">
+              <input type="radio" name="ctpMode" value="A" checked onchange="updateCtpModeFields()"> Single CTP pool — one winner
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-weight:400;">
+              <input type="radio" name="ctpMode" value="B" onchange="updateCtpModeFields()"> Multiple CTP holes — each with its own pool
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-weight:400;">
+              <input type="radio" name="ctpMode" value="C" onchange="updateCtpModeFields()"> Multiple CTP holes — shared pool
+            </label>
+          </div>
+        </div>
+        <div class="flex-gap" id="ctpModeAFields">
+          <div class="form-row" style="flex:1">
+            <label>CTP Entry Fee ($)</label>
+            <input type="number" id="evCtpFeeA" placeholder="0" min="0" step="0.50" value="0">
+          </div>
+        </div>
+        <div class="flex-gap" id="ctpModeBFields" style="display:none">
+          <div class="form-row" style="flex:1">
+            <label># of CTP Holes</label>
+            <input type="number" id="evCtpHolesB" placeholder="1" min="1" step="1" value="1">
+          </div>
+          <div class="form-row" style="flex:1">
+            <label>Entry Fee per Hole ($)</label>
+            <input type="number" id="evCtpFeeB" placeholder="0" min="0" step="0.50" value="0">
+          </div>
+        </div>
+        <div class="flex-gap" id="ctpModeCFields" style="display:none">
+          <div class="form-row" style="flex:1">
+            <label># of CTP Holes</label>
+            <input type="number" id="evCtpHolesC" placeholder="1" min="1" step="1" value="1">
+          </div>
+          <div class="form-row" style="flex:1">
+            <label>Entry Fee (single) ($)</label>
+            <input type="number" id="evCtpFeeC" placeholder="0" min="0" step="0.50" value="0">
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="addEvent()">Add Event</button>
+      </div>
+      <div id="adminEventList"></div>
+    </div>
+
+    <!-- Community Notes -->
+    <div class="admin-section">
+      <h3>📋 Community Notes</h3>
+      <div class="card">
+        <div class="form-row">
+          <label>New Note</label>
+          <select id="noteDurationType" style="padding:6px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;margin-right:6px;"><option value="permanent">Permanent</option><option value="round">This round</option></select><input type="text" id="noteInput" style="flex:1" placeholder="Pick up your trash. Don't be an asshole." onkeydown="if(event.key==='Enter')addNote()">
+        </div>
+      <div class="card" style="margin-top:14px">
+        <div class="card-title">🗓 Season Scheduler</div>
+        <div class="recur-section">
+          <div class="form-row"><label>Type</label><select id="recurType"><option value="saturday">Saturday Tag Match (noon)</option><option value="wednesday">Wednesday Night League (sunset)</option></select></div>
+          <div class="form-row"><label>Course</label><select id="recurCourse"><option>Valmont DGC</option><option>Harlow Platts Community Park</option><option>East Interlocken Park</option><option>Wondervu DGC</option></select></div>
+          <div class="form-row"><label>Title (optional)</label><input type="text" id="recurTitle" placeholder="Leave blank for default"></div>
+          <div class="form-row"><label>Ace pool per player ($)</label><input type="number" id="recurAce" value="5" min="0" style="width:70px"></div>
+          <div class="form-row"><label>Season end date</label><input type="date" id="recurEndDate" value="2026-10-31"></div>
+          <button class="btn btn-primary" id="generateSeasonBtn" onclick="generateSeasonSchedule()" style="width:100%;margin-top:4px">🗓 Generate Season Schedule</button>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:6px">Creates weekly events Jul 4 → end date. Wednesday times auto-set from sunset −2h15m via Open-Meteo.</div>
+        </div>
+      </div>
+        <button class="btn btn-primary" onclick="addNote()">Post Note</button>
+      </div>
+      <div id="adminNoteList"></div>
+    </div>
+
+    <!-- Add Player -->
+    <div class="admin-section">
+      <h3>👤 Add Player</h3>
+      <div class="card">
+        <div class="form-row">
+          <label>Full Name</label>
+          <input type="text" id="npName" placeholder="First Last">
+        </div>
+        <div class="flex-gap">
+          <div class="form-row" style="flex:1">
+            <label>PDGA # (optional)</label>
+            <input type="text" id="npPDGA" placeholder="e.g. 26024">
+          </div>
+          <div class="form-row" style="flex:1">
+            <label>Tag # (optional)</label>
+            <input type="number" id="npTag" placeholder="1–350" min="1" max="350">
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Role</label>
+          <select id="npRole">
+            <option value="player">Player</option>
+            <option value="scorer">Scorer</option>
+            <option value="admin">Admin</option>
+            <option value="god">God Admin</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="addPlayer()">Add Player</button>
+      </div>
+    </div>
+
+    <!-- Player Roster (God only) -->
+    <!-- Tag Assignment Bulk Editor -->
+    <div class="admin-section" id="tagAssignSection">
+      <h3>🏷️ Assign Tags</h3>
+      <div class="card">
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">Quickly assign or update tag numbers. Players with no tag show first. Type a number and press Enter or Tab to move to the next.</p>
+        <input class="search-box" type="search" placeholder="Filter players..." oninput="filterTagAssign(this.value)" id="tagAssignSearch" style="margin-bottom:12px;">
+        <div id="tagAssignList"></div>
+        <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-primary" onclick="saveTagAssignments()">💾 Save All Changes</button>
+          <button class="btn btn-secondary" onclick="renderTagAssign('')">↺ Reset</button>
+        </div>
+        <div id="tagAssignStatus" style="margin-top:10px;font-size:13px;color:var(--green);display:none;"></div>
+      </div>
+    </div>
+
+    <div class="admin-section" id="godSection" style="display:none">
+      <h3>👑 Player Roster & Roles</h3>
+      <div id="adminRoster"></div>
+    </div>
+
+    <div class="admin-section" id="tempAdminSection" style="display:none">
+      <h3>🔑 Admin Access Manager</h3>
+      <div id="adminAccessList" style="margin-bottom:14px;"></div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:12px;">Add Admin Access</div>
+        <div class="form-row">
+          <label>Username</label>
+          <input type="text" id="newAdminUser" placeholder="e.g. casey" autocomplete="off">
+        </div>
+        <div class="form-row">
+          <label>Password</label>
+          <input type="password" id="newAdminPass" placeholder="Set a password">
+        </div>
+        <div class="form-row">
+          <label>Display Name</label>
+          <input type="text" id="newAdminName" placeholder="e.g. Casey Jones">
+        </div>
+        <div class="form-row">
+          <label>Role</label>
+          <select id="newAdminRole">
+            <option value="admin">Admin</option>
+            <option value="scorer">Scorer</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Expires <span style="font-size:11px;font-weight:300;color:var(--text-muted)">(leave blank = permanent)</span></label>
+          <input type="date" id="newAdminExpiry" placeholder="Optional expiry date">
+        </div>
+        <button class="btn btn-primary" style="margin-top:6px" onclick="addDynamicAdmin()">Add Admin →</button>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<!-- ══ MODALS ══ -->
+
+<!-- Register for event -->
+<div class="modal-overlay" id="registerModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2>Register for Match</h2>
+    <div id="modalEventInfo" style="font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;margin-bottom:14px;"></div>
+    <div class="form-row">
+      <label>Name or PDGA#</label>
+      <input type="text" id="modalRegSearch" placeholder="Type name or PDGA number..." oninput="searchPlayerModal(this.value)" autocomplete="off">
+      <div id="modalDropdown" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);margin-top:4px;max-height:160px;overflow-y:auto;"></div>
+    </div>
+    <div class="form-row">
+      <label>Nickname <span style="font-size:11px;font-weight:300;color:var(--text-muted)">(optional)</span></label>
+      <input type="text" id="modalNickname" placeholder="e.g. Chains, Birdie Rob...">
+    </div>
+    <div class="form-row">
+      <label>Current Tag #</label>
+      <input type="number" id="modalTag" placeholder="e.g. 47" min="1" max="350">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('registerModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitModalReg()">Register ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- Registered Players List -->
+<div class="modal-overlay" id="regListModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2 id="regListModalTitle" style="margin-bottom:16px"></h2>
+    <div id="regListModalBody" style="max-height:60vh;overflow-y:auto;"></div>
+    <div class="modal-actions" style="margin-top:16px">
+      <button class="btn btn-secondary" onclick="closeModal('regListModal')">Close</button>
+      <button class="btn btn-primary" onclick="closeModal('regListModal');showPage('match')">Go to Match →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Login -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2>Admin Login</h2>
+    <div class="form-row">
+      <label>Username</label>
+      <input type="text" id="loginUser" placeholder="username" autocomplete="username">
+    </div>
+    <div class="form-row">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div id="loginErr" style="color:var(--red);font-size:13px;margin-top:6px;display:none">Invalid credentials.</div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('loginModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="doLogin()">Login →</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+<script src="ace-pool.js"></script>
+<script src="diablo.js"></script>
+<script src="match.js"></script>
+<script src="admin.js"></script>
+<script src="weather.js"></script>
+</body>
+</html>
