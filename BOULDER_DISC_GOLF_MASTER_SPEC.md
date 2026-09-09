@@ -388,6 +388,22 @@ Test by verifying the app loads and all pages work after the split.
 
 ---
 
+## SECTION 13 — REGISTRATION PAYMENT TRACKING
+
+When a player registers for a match, two checkboxes appear: Ace Pool and CTP. Both unchecked by default. Admin checks the box when the player physically pays. Checking Ace Pool Paid increments the ace pool total by the event's per-player ace fee. Checking CTP Paid increments the CTP pool total. The ace pool and CTP numbers on the registration page update in real time as the admin collects money at the course. Numbers grow on payment confirmation, not on registration.
+
+### CTP setup options
+
+For each event the TD picks one of three modes at event setup:
+
+- **Option A — single CTP pool.** Everyone pays one amount, one pool, one winner per CTP hole.
+- **Option B — multiple CTP holes, each with its own separate pool.** Players pay per CTP hole.
+- **Option C — multiple CTP holes, shared pool.** Everyone pays one amount, total split evenly across all CTP holes.
+
+The checkboxes on each player registration adjust accordingly: either one CTP checkbox (Options A and C) or one per CTP hole (Option B), depending on the mode.
+
+---
+
 ## REMINDERS FOR CLAUDE CODE
 
 - Read CLAUDE.md before every session
