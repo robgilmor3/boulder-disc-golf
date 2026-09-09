@@ -4,6 +4,41 @@
 
 ---
 
+## September 8, 2026 — Diablo Who's Playing: names, search, add (and the add-player bug)
+
+### Backup: backups/tags-2026-09-08e.html (pre-edit) — committed separately
+
+### THE BUG Rob reported
+
+Adding a player and having them appear as a chip in Who's Playing never worked, and the reason is in the code, not the UI. `addDiabloPlayer()` (the top "Add Player to El Diablo" card) ends with `loadDiabloPlayers(); renderDiabloLedger('')` — it refreshes the **ledger** and never calls `renderDiabloQuickGrid()`. The new player was saved correctly and simply was not redrawn into the pick grid until something else happened to re-render it.
+
+Fixed: `addDiabloPlayer()` now calls `renderDiabloQuickGrid()` too, and that function got a null guard so it is safe to call from anywhere.
+
+### Screen order — now names, search, add
+
+Per Rob: player chips first, then search, then add. Previously the grid was followed straight by "＋ Add a New Victim", with search buried inside that button's expanded row.
+
+- **Chips** (unchanged position) — the roster, tap to toggle, #666 excluded
+- **🔍 Search all players** — full-width box directly under the chips. Selecting a result now **adds that player to the game** via `toggleDiabloPlayer()`. Previously it only typed the name into the box and you still had to press Add
+- **＋ ADD SOMEONE NEW** — collapsed one-line dropdown, same pattern as the Add Player card
+
+### Guests are gone
+
+`addDiabloGuestPlayer()` used to push `{guest: true}` into the current match only — never saved anywhere, so the person had to be retyped every single round. It now inserts into `diablo_players` (the real roster), reloads, re-renders both the ledger and the grid, and auto-selects them into the current game. One action instead of three, and they exist next time.
+
+If the insert fails it degrades to adding them to this game only and says so, rather than silently losing them.
+
+### Verification
+
+- `node --check` — clean
+- 21 automated assertions through a real DOM: element order proven by DOM position (search above add), old victim button gone, add form collapsed by default, search result lands in the game and clears the box, chip renders with its ✓, #666 stays out, a newly added name saves to the roster and appears as a *selected* chip, input clears and the form re-collapses, duplicates refused, and an apostrophe name (`Pat O'Brien`) renders a chip whose handler parses
+
+### NOT DONE — needs Rob's decision
+
+Grid ranking and trimming. Rob wants most-played / recently-played players surfaced and inactive ones pushed off, capped around 20-30. Blocked on a data problem, not a code problem: `diablo_players` has no last-played or play-count column, `diablo_player_stats` is empty, and the only participation record is the `players` JSON blob on 16 `diablo_money_matches` rows. Ranking cannot be built well until that data is being recorded.
+
+### Commit: feat: Diablo Who's Playing reordered to names/search/add, new players save to the roster and auto-select
+
 ## September 8, 2026 — Diablo: Add Player collapsed, readability pass
 
 ### Backup: backups/tags-2026-09-08d.html (pre-edit) — committed separately
