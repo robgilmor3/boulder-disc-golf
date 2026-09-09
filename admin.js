@@ -238,6 +238,13 @@ async function saveTagAssignments() {
   renderLedger();
 }
 
+function updateCtpModeFields() {
+  const mode = document.querySelector('input[name="ctpMode"]:checked')?.value || 'A';
+  document.getElementById('ctpModeAFields').style.display = mode === 'A' ? 'flex' : 'none';
+  document.getElementById('ctpModeBFields').style.display = mode === 'B' ? 'flex' : 'none';
+  document.getElementById('ctpModeCFields').style.display = mode === 'C' ? 'flex' : 'none';
+}
+
 async function addEvent() {
   const title = document.getElementById('evTitle').value.trim() || 'Weekly Tag Match';
   const course = document.getElementById('evCourse').value;
@@ -247,10 +254,24 @@ async function addEvent() {
   const entry_fee = parseFloat(document.getElementById('evEntryFee')?.value || 0);
   const ace_per_player = parseFloat(document.getElementById('evAcePerPlayer')?.value || 1);
   const ace_pool_cap = document.getElementById('evAceCap')?.value ? parseFloat(document.getElementById('evAceCap').value) : null;
+
+  const ctp_mode = document.querySelector('input[name="ctpMode"]:checked')?.value || 'A';
+  let ctp_holes = 1, ctp_fee = 0;
+  if (ctp_mode === 'A') {
+    ctp_fee = parseFloat(document.getElementById('evCtpFeeA')?.value || 0);
+  } else if (ctp_mode === 'B') {
+    ctp_holes = parseInt(document.getElementById('evCtpHolesB')?.value || 1);
+    ctp_fee = parseFloat(document.getElementById('evCtpFeeB')?.value || 0);
+  } else if (ctp_mode === 'C') {
+    ctp_holes = parseInt(document.getElementById('evCtpHolesC')?.value || 1);
+    ctp_fee = parseFloat(document.getElementById('evCtpFeeC')?.value || 0);
+  }
+
   if (!date) return showToast('Pick a date.', true);
   const { error } = await db.from('events').insert({
     title, course, date, time, cancelled: false,
     host, entry_fee, ace_per_player, ace_pool_cap,
+    ctp_mode, ctp_holes, ctp_fee,
     registered: []
   });
   if (error) return showToast('Error adding event.', true);

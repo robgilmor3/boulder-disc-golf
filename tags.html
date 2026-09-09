@@ -409,6 +409,46 @@
             <input type="number" id="evAceCap" placeholder="None" min="0" step="10">
           </div>
         </div>
+        <div class="form-row">
+          <label>CTP Setup</label>
+          <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;">
+            <label style="display:flex;align-items:center;gap:6px;font-weight:400;">
+              <input type="radio" name="ctpMode" value="A" checked onchange="updateCtpModeFields()"> Single CTP pool — one winner
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-weight:400;">
+              <input type="radio" name="ctpMode" value="B" onchange="updateCtpModeFields()"> Multiple CTP holes — each with its own pool
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-weight:400;">
+              <input type="radio" name="ctpMode" value="C" onchange="updateCtpModeFields()"> Multiple CTP holes — shared pool
+            </label>
+          </div>
+        </div>
+        <div class="flex-gap" id="ctpModeAFields">
+          <div class="form-row" style="flex:1">
+            <label>CTP Entry Fee ($)</label>
+            <input type="number" id="evCtpFeeA" placeholder="0" min="0" step="0.50" value="0">
+          </div>
+        </div>
+        <div class="flex-gap" id="ctpModeBFields" style="display:none">
+          <div class="form-row" style="flex:1">
+            <label># of CTP Holes</label>
+            <input type="number" id="evCtpHolesB" placeholder="1" min="1" step="1" value="1">
+          </div>
+          <div class="form-row" style="flex:1">
+            <label>Entry Fee per Hole ($)</label>
+            <input type="number" id="evCtpFeeB" placeholder="0" min="0" step="0.50" value="0">
+          </div>
+        </div>
+        <div class="flex-gap" id="ctpModeCFields" style="display:none">
+          <div class="form-row" style="flex:1">
+            <label># of CTP Holes</label>
+            <input type="number" id="evCtpHolesC" placeholder="1" min="1" step="1" value="1">
+          </div>
+          <div class="form-row" style="flex:1">
+            <label>Entry Fee (single) ($)</label>
+            <input type="number" id="evCtpFeeC" placeholder="0" min="0" step="0.50" value="0">
+          </div>
+        </div>
         <button class="btn btn-primary" onclick="addEvent()">Add Event</button>
       </div>
       <div id="adminEventList"></div>
