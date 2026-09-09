@@ -4,6 +4,120 @@
 
 ---
 
+## September 9, 2026 — Edit registrant, registration payment tracking, CTP setup (Bugs 8/9, Sections 9/13)
+
+### Backup: backups/pre-match-essentials/{match.js,admin.js,app.js} (pre-edit) — committed separately first
+
+### 1. Edit registrant tag number after registration (Bug 8)
+
+Match tab registrant rows and the home-page "registered players" modal both got an ✏️ edit
+button next to the existing remove/close controls. Tapping it swaps that row for an inline
+tag-number input with ✓/✕. Saving validates the tag (1–350), updates
+`state.registrants`/`ev.registered`, and persists to Supabase (`events.registered`).
+
+- `match.js`: `editRegistrant`, `cancelEditRegistrant`, `saveRegistrantEdit` for the Match
+  tab list; `editModalRegistrant`, `cancelModalEditRegistrant`, `saveModalRegistrantEdit`,
+  and a shared `updateRegistrantTag(eventId, name, newTag)` for the home-page modal, which
+  is keyed off `regListModalEventId` rather than `state.selectedEventId` since the modal can
+  be opened for any upcoming event, not just the one currently loaded on the Match tab.
+- `showRegisteredPlayers` split into itself (guards + opens modal) and a re-callable
+  `renderRegListModalBody()` so edit/save can redraw the modal in place.
+
+Commit: `feat: edit registrant tag number after registration`
+
+### 2. Registration payment tracking — ace pool + CTP checkboxes (Bug 9, Sections 9 & 13)
+
+The Match tab's Registrants card now shows a summary block above the list: player count,
+ace pool balance, CTP pool amount, and a "`X of Y paid ace pool ($Z)` · `X of Y paid CTP
+($Z)`" line, all updating live as checkboxes are toggled — no page reload.
+
+Each registrant row grew two checkboxes (both default unchecked): **Ace Paid** and **CTP
+Paid** (or one **CTP Paid** checkbox per hole when the event's `ctp_mode` is `'B'` — see
+Feature 3 below). Checking Ace Paid increments the *persistent* ace pool balance
+(`settings.ace_pool_balance` — the same value the home page and `commitResults()` already
+use) by the event's `ace_per_player`; unchecking it decrements the same amount. This mirrors
+the existing global-pool model rather than inventing a new per-course balance, since the
+schema only tracks one rolling balance today (Section 4's per-course pools are a larger,
+separate change not requested here). CTP pool amounts are derived live from
+`paid-count × ctp_fee` rather than stored as their own running total, which keeps them
+always correct without a second value that could drift out of sync with the checkboxes.
+Paid status is stored per player as `ace_paid` / `ctp_paid` (or `ctp_paid_hole1`,
+`ctp_paid_hole2`, ...) directly on the registrant object in `events.registered`.
+
+- `match.js`: `renderRegistrationSummary()`, `renderCtpCheckboxesForRegistrant()`,
+  `toggleRegistrantPaid()`; `initMatch()` now calls `loadAcePool()` so the balance shown on
+  the Match tab (and, as a side effect, the home page — they share `state.acePool`) is fresh
+  rather than stuck at 0 until the Admin tab happened to be visited first.
+- `tags.html`: new `#regPaymentSummary` block above `#registrantList` on the Match tab.
+
+Commit: `feat: registration payment tracking with ace pool and CTP checkboxes`
+
+### 3. CTP setup options on event creation (Section 13)
+
+Admin → Add Event gained a CTP Setup radio group — Option A (single pool, one winner),
+Option B (multiple CTP holes, each its own pool — adds # of holes + per-hole fee fields),
+Option C (multiple CTP holes, shared pool — adds # of holes + single fee field). Only the
+fields for the selected mode are shown (`updateCtpModeFields()`). `addEvent()` now writes
+`ctp_mode`, `ctp_holes`, `ctp_fee` onto the new event row, which is what Feature 2's
+checkboxes read to decide whether a registrant gets one CTP checkbox or one per hole.
+
+Commit: `feat: CTP setup options on event creation`
+
+### REQUIRED — Supabase schema change, not yet run
+
+`events` has no `ctp_mode` / `ctp_holes` / `ctp_fee` columns yet (confirmed live via the
+REST API before writing this). Until the SQL below is run, submitting Add Event fails with
+a Supabase 400 ("Could not find the ctp_mode column") — confirmed live during verification.
+The failure is caught cleanly (existing `if (error) return showToast(...)` path, no JS
+crash, no partial event written), but Add Event will not work at all until this runs.
+
+Run in the Supabase SQL editor (https://supabase.com/dashboard/project/mewwizubdwfgvrhiylur/sql/new):
+
+```sql
+ALTER TABLE events
+  ADD COLUMN IF NOT EXISTS ctp_mode text DEFAULT 'A',
+  ADD COLUMN IF NOT EXISTS ctp_holes integer DEFAULT 1,
+  ADD COLUMN IF NOT EXISTS ctp_fee numeric DEFAULT 0;
+```
+
+### Pre-existing bug found during verification (NOT fixed — out of scope for this session)
+
+Every page load throws `Uncaught ReferenceError: fetchWeatherForCards is not defined` from
+`app.js:644` (inside the startup IIFE's call to `renderSplash()`). Confirmed present in the
+pre-edit backup (`backups/pre-match-essentials/app.js:175`), so it predates this session and
+isn't caused by any of the three features above — `app.js` was only read, never edited, in
+this session. Root cause: `renderSplash()` calls `fetchWeatherForCards()`, but with plain
+(non-`defer`) `<script>` tags in `tags.html`, `app.js`'s startup IIFE runs before
+`weather.js` (loaded after it) has defined that function. Left alone per Rob's "make only
+what was asked" rule — flagging here since it means the app does not currently load with
+strictly zero console errors, though it's unrelated to today's changes.
+
+### Verification
+
+No test suite exists for this app. `node`/`python` aren't available in this environment, so
+syntax was checked by careful manual review plus pushing each commit and exercising it live
+at https://boulder-disc-golf.vercel.app/tags (Vercel auto-deploys `main`):
+
+- Feature 1: opened the home-page "registered players" modal for the live Sep 9 event,
+  tapped ✏️ next to Rob Gilmore, confirmed the inline tag input + ✓/✕ appeared, cancelled
+  (did not alter his real tag). Repeated on the Match tab list. Zero new console errors.
+- Feature 2: registered a throwaway `ZZTest Player` (#111) on the empty Sep 12 event,
+  confirmed the summary block read "1 registered · Ace Pool: $2 · CTP Pool: $0" and "0 of 1
+  paid ace pool ($0)". Checked Ace Paid — balance live-updated to $3 and the stat line to "1
+  of 1 paid ace pool ($1)". Unchecked it — balance dropped back to $2. Removed the test
+  registrant afterward; event returned to 0 registered and the real ace pool balance ($2)
+  was unaffected. Zero new console errors.
+- Feature 3: selected CTP mode B in the Add Event form on the live Admin tab, confirmed the
+  per-hole fields swapped in correctly (mode A's field disappeared, holes-count + per-hole
+  fee fields appeared). Submitted with a test date — got the expected Supabase 400 documented
+  above, no bogus event was created (event list and Matches count unchanged), and the app did
+  not crash (the toast-based error path handled it as designed).
+- Every commit's live page load was checked in the browser console; the only errors seen
+  across all three were the pre-existing `fetchWeatherForCards` error (present before this
+  session) and the expected/handled 400 from the Feature 3 SQL-migration test above.
+
+---
+
 ## September 8, 2026 — Diablo doubles payout fixes; registration payment tracking added to spec
 
 ### 1. Cali winner label no longer duplicates the name
