@@ -116,51 +116,49 @@ function renderOfficialMatchesHtml() {
   }).join('');
 }
 
-// Renders one side match card. toggleFn lets callers outside the History page
-// (e.g. the splash/home tab) re-render their own container on expand instead
-// of the History page's #historyContent.
-function renderSideMatchCardHtml(m, toggleFn) {
-  toggleFn = toggleFn || 'toggleHistoryMatch';
-  const players = parseHistoryPlayers(m);
-  const winner = players.find(r => r.finish === 1) || players[0] || {};
-  const key = 's' + m.id;
-  const isOpen = !!historyState.expanded[key];
-  const d = m.date ? new Date(m.date + 'T12:00:00') : null;
-  const dateStr = d ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : (m.date || '');
-
-  const rowsHtml = isOpen ? players.slice().sort((a, b) => (a.finish || 99) - (b.finish || 99)).map(r => {
-    const oldTag = r.tag ?? null;
-    const better = oldTag != null && r.newTag < oldTag;
-    const worse = oldTag != null && r.newTag > oldTag;
-    const arrow = better ? '▲' : worse ? '▼' : '—';
-    const arrowColor = better ? 'var(--green)' : worse ? '#ff6b6b' : 'var(--text-muted)';
-    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13px;">
-      <span style="flex:1">${r.name}</span>
-      <span style="font-family:'DM Mono',monospace;color:var(--text-muted);margin-right:12px">${r.score ? r.score + '✦' : '—'}</span>
-      <span style="font-family:'DM Mono',monospace">#${oldTag ?? '—'} → #${r.newTag}</span>
-      <span style="color:${arrowColor};margin-left:8px">${arrow}</span>
-    </div>`;
-  }).join('') : '';
-
-  return `<div class="card" style="margin-bottom:10px;cursor:pointer;" onclick="${toggleFn}('${key}')">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
-      <div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;letter-spacing:1px;">${m.course || 'Unspecified'}</div>
-        <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">${dateStr} · ${players.length} players</div>
-      </div>
-      <div style="text-align:right;">
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);">🏆 ${winner.name || '—'}</div>
-        <div style="font-size:11px;color:var(--text-muted);font-family:'DM Mono',monospace;">${winner.score ? winner.score + '✦' : ''}</div>
-      </div>
-    </div>
-    ${isOpen ? `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">${rowsHtml}</div>` : ''}
-  </div>`;
-}
-
 function renderSideMatchesHtml() {
   const startBtn = `<button class="btn btn-primary btn-full" onclick="openSideMatchModal()" style="margin-bottom:14px">⚡ Start Side Match</button>`;
+
   if (!historyState.sideMatches.length) {
     return startBtn + '<div class="empty">No side matches recorded yet.</div>';
   }
-  return startBtn + historyState.sideMatches.map(m => renderSideMatchCardHtml(m, 'toggleHistoryMatch')).join('');
+
+  const list = historyState.sideMatches.map(m => {
+    const players = parseHistoryPlayers(m);
+    const winner = players.find(r => r.finish === 1) || players[0] || {};
+    const key = 's' + m.id;
+    const isOpen = !!historyState.expanded[key];
+    const d = m.date ? new Date(m.date + 'T12:00:00') : null;
+    const dateStr = d ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : (m.date || '');
+
+    const rowsHtml = isOpen ? players.slice().sort((a, b) => (a.finish || 99) - (b.finish || 99)).map(r => {
+      const oldTag = r.tag ?? null;
+      const better = oldTag != null && r.newTag < oldTag;
+      const worse = oldTag != null && r.newTag > oldTag;
+      const arrow = better ? '▲' : worse ? '▼' : '—';
+      const arrowColor = better ? 'var(--green)' : worse ? '#ff6b6b' : 'var(--text-muted)';
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13px;">
+        <span style="flex:1">${r.name}</span>
+        <span style="font-family:'DM Mono',monospace;color:var(--text-muted);margin-right:12px">${r.score ? r.score + '✦' : '—'}</span>
+        <span style="font-family:'DM Mono',monospace">#${oldTag ?? '—'} → #${r.newTag}</span>
+        <span style="color:${arrowColor};margin-left:8px">${arrow}</span>
+      </div>`;
+    }).join('') : '';
+
+    return `<div class="card" style="margin-bottom:10px;cursor:pointer;" onclick="toggleHistoryMatch('${key}')">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+        <div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;letter-spacing:1px;">${m.course || 'Unspecified'}</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">${dateStr} · ${players.length} players</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);">🏆 ${winner.name || '—'}</div>
+          <div style="font-size:11px;color:var(--text-muted);font-family:'DM Mono',monospace;">${winner.score ? winner.score + '✦' : ''}</div>
+        </div>
+      </div>
+      ${isOpen ? `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">${rowsHtml}</div>` : ''}
+    </div>`;
+  }).join('');
+
+  return startBtn + list;
 }

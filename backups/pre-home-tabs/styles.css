@@ -79,31 +79,6 @@
   nav button:hover { color: var(--text); background: var(--surface); }
   nav button.active { color: var(--green); background: var(--green-glow); }
 
-  /* Tag Matches / Side Matches toggle on the home screen — styled like nav button above */
-  .splash-tabs {
-    display: flex;
-    gap: 4px;
-    margin-bottom: 14px;
-  }
-
-  .splash-tab-btn {
-    flex: 1;
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 10px;
-    border-radius: var(--radius);
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: center;
-  }
-
-  .splash-tab-btn:hover { color: var(--text); background: var(--surface); }
-  .splash-tab-btn.active { color: var(--green); background: var(--green-glow); }
-
   .header-right {
     display: flex;
     align-items: center;

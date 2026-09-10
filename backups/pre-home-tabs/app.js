@@ -108,38 +108,8 @@ async function loadNotes() {
 //  SPLASH
 // ═══════════════════════════════════════════════════════
 
-// ── Tag Matches / Side Matches tab toggle (Section 3, home screen) ──
-let splashTab = 'tag';
-
-function switchSplashTab(tab) {
-  splashTab = tab;
-  document.querySelectorAll('.splash-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
-  const eventEl = document.getElementById('eventList');
-  const sideEl = document.getElementById('splashSideMatches');
-  if (eventEl) eventEl.style.display = tab === 'tag' ? '' : 'none';
-  if (sideEl) sideEl.style.display = tab === 'side' ? 'block' : 'none';
-  if (tab === 'side') renderSplashSideMatches();
-}
-
-async function renderSplashSideMatches() {
-  const el = document.getElementById('splashSideMatchList');
-  if (!el || typeof loadHistorySideMatches !== 'function') return;
-  el.innerHTML = '<div class="loading"><div class="spinner"></div>Loading...</div>';
-  await loadHistorySideMatches();
-  const recent = historyState.sideMatches.slice(0, 5);
-  el.innerHTML = recent.length
-    ? recent.map(m => renderSideMatchCardHtml(m, 'toggleSplashSideMatch')).join('')
-    : '<div class="empty">No side matches recorded yet.</div>';
-}
-
-function toggleSplashSideMatch(key) {
-  historyState.expanded[key] = !historyState.expanded[key];
-  renderSplashSideMatches();
-}
-
 async function renderSplash() {
   await Promise.all([loadEvents(), loadNotes()]);
-  switchSplashTab('tag');
 
   const now = new Date();
   const today = localDateStr(now);

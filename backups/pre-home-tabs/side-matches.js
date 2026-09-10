@@ -209,7 +209,4 @@ async function commitSideMatch() {
     await loadHistorySideMatches();
     renderHistoryTabContent();
   }
-  if (document.getElementById('page-splash')?.classList.contains('active') && typeof splashTab !== 'undefined' && splashTab === 'side') {
-    await renderSplashSideMatches();
-  }
 }
