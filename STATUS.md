@@ -4,6 +4,61 @@
 
 ---
 
+## September 9, 2026 — Home screen side match tab; weather bar mobile overflow fix
+
+### Backup: backups/pre-home-tabs/{app.js,history.js,side-matches.js,styles.css,tags.html} (pre-edit)
+
+### 1. Home screen Side Match tab
+
+Added a Tag Matches / Side Matches toggle above the home screen's event list,
+styled like the header nav buttons (new `.splash-tab-btn` mirrors `nav button`'s
+color/background/transition rules). Tag Matches is active by default and behaves exactly
+as before; Side Matches hides the event cards and shows a Start Side Match button plus
+the 5 most recent side matches (date, course or "Unspecified", player count, winner),
+tap to expand full results with tag movement.
+
+Refactored history.js's side-match card markup into a shared `renderSideMatchCardHtml(m,
+toggleFn)` so the History page and this new home tab render identical cards from one
+place — the only difference is which toggle function (and therefore which container)
+re-renders on expand. `commitSideMatch()` (side-matches.js) now also refreshes the home
+tab's list if a match was started and committed from there.
+
+Commit: `feat: side match tab on home screen with history`
+
+### 2. Weather bar mobile overflow
+
+The event card weather bar's 5 hourly columns plus the left panel exceeded the screen
+width on phones under ~480px and bled off the right edge. Added two media queries: under
+480px, drop to 3 columns (hidden via `:nth-child(4)`/`:nth-child(5)` — the event hour is
+always the 2nd of the 5 columns per weather.js's `hourOffsets = [-1,0,1,2,3]`, so keeping
+columns 1-3 gives exactly the event hour plus one hour on each side) and remove the 70px
+right padding on `.event-weather-wrapper`. Under 380px, hide the hourly columns entirely,
+left panel only.
+
+Worth noting: the first version of this fix had zero effect. Placed right after the
+existing `max-width:640px` block, both new media query blocks sat *before* the base
+`.ewb-hour`/`.ewb-hours` rules later in the file — at equal CSS specificity the later
+rule always wins the cascade regardless of which one is in a matching media query, so the
+base `display:flex` silently overrode `display:none` every time. Caught this with direct
+`getComputedStyle` checks (screenshots were misleading at some emulated viewport
+sizes in this session's browser pane — visual width didn't always match
+`window.innerWidth`, and `document.documentElement.clientWidth` turned out to be the
+reliable one to check against). Moved both blocks to after the base rules instead, which
+fixed it — verified at 600px (unaffected, 5 columns, 70px padding), 450px (3 columns,
+0px padding, no overflow), and 375px (hourly columns hidden, left panel only).
+
+Commit: `fix: weather bar mobile overflow on small screens`
+
+### Verification (both)
+
+App loads with zero console errors. Side match tab: verified show/hide toggling both
+directions and, via a stubbed `loadHistorySideMatches`, that a real side match record
+renders identically on the home tab and the History page (same collapsed summary, same
+expand-to-full-results). Weather bar: verified all three breakpoint states plus no
+regression above 480px, per the note above.
+
+---
+
 ## September 9, 2026 — Fix: Ace/CTP payment checkboxes not sticking on mobile
 
 Rob reported the Ace Paid / CTP Paid checkboxes on the Match tab registrant list flash
