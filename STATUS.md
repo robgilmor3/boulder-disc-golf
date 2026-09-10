@@ -4,6 +4,57 @@
 
 ---
 
+## September 9, 2026 — Fix: Ace/CTP payment checkboxes not sticking on mobile
+
+Rob reported the Ace Paid / CTP Paid checkboxes on the Match tab registrant list flash
+green on tap on mobile but don't stay checked — resets after releasing the tap.
+
+### Root cause
+
+`toggleRegistrantPaid()` (match.js) had no error handling at all. It calls
+`adjustAcePool()` (ace-pool.js) for the ace checkbox, which calls `saveAcePoolBalances()`
+— and that function's Supabase `upsert` had no try/catch of its own. On a flaky mobile
+connection that write can reject. With nothing catching it, the rejection propagated all
+the way up and `toggleRegistrantPaid` aborted immediately, never reaching
+`persistRegistrants()` or the `renderRegistrantList()` re-render. `r[prop]` was already
+set correctly in memory (that line runs before either `await`), but with no re-render the
+checkbox was left showing whatever the browser's own native toggle happened to settle on
+after the interrupted event — matching the reported "flashes then doesn't stick" exactly.
+
+### Fix
+
+Wrapped `toggleRegistrantPaid()`'s body in try/catch and added `console.log` at the four
+requested points: before setting `r[prop]`, after `adjustAcePool`, after
+`persistRegistrants`, and in the catch. The catch block now re-renders unconditionally,
+so even when the network call fails, the checkbox ends up showing the user's actual tap
+instead of silently reverting to a stale render.
+
+Commit: `fix: ace/ctp payment checkboxes not sticking on mobile`
+
+### Verification
+
+Tested in a mobile-emulated viewport (real `.click()` dispatches on the actual checkbox
+elements, not synthetic state changes) against a live registrant: Ace Paid and CTP Paid
+both toggle and stay toggled (true→false→true), `checked` and `r.ace_paid`/`r.ctp_paid`
+always matched afterward, and the real Valmont ace pool balance moved $1→$0→$1 correctly
+through the round trip. Confirmed the fix's actual purpose by patching `adjustAcePool` to
+throw on demand: all four log statements fired in the right order with the right data,
+and critically the checkbox still ended up reflecting the new state instead of freezing
+on a stale one. App loads with zero console errors in a fresh tab.
+
+### Not fixed (out of scope for this task)
+
+`saveAcePoolBalances()` in ace-pool.js still has no try/catch of its own — a genuine
+network failure there still means the ace pool balance write is lost (there's no way
+around that without connectivity), and its in-memory cache updates optimistically before
+the write is confirmed, so a failed write can leave the cache showing a balance that was
+never actually saved. Match.js's new try/catch stops that failure from corrupting the
+*checkbox* UI, but doesn't address the *pool balance* staying in sync with the database
+under a dropped connection. Flagging this for a future pass rather than fixing it now,
+since it wasn't part of what was asked here.
+
+---
+
 ## September 9, 2026 — Side matches (Section 3)
 
 ### Backup: backups/pre-side-matches/{match.js,app.js,tags.html,history.js} (pre-edit)
