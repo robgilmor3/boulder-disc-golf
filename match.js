@@ -415,22 +415,34 @@ function renderCtpCheckboxesForRegistrant(r) {
 
 // ── Toggle a player's ace-pool / CTP paid status, adjust pool totals, persist ──
 async function toggleRegistrantPaid(name, field, checked) {
-  const r = state.registrants.find(r => r.name === name);
-  if (!r) return;
-  const propMap = { ace: 'ace_paid', ctp: 'ctp_paid' };
-  const prop = propMap[field] || field; // ctp_paid_holeN passed through as-is
-  if (!!r[prop] === checked) return;
-  r[prop] = checked;
+  try {
+    const r = state.registrants.find(r => r.name === name);
+    if (!r) return;
+    const propMap = { ace: 'ace_paid', ctp: 'ctp_paid' };
+    const prop = propMap[field] || field; // ctp_paid_holeN passed through as-is
+    if (!!r[prop] === checked) return;
 
-  if (field === 'ace') {
-    const ev = state.events?.find(e => e.id === state.selectedEventId);
-    const acePerPlayer = parseFloat(ev?.ace_per_player || 0);
-    const delta = checked ? acePerPlayer : -acePerPlayer;
-    if (ev?.course) await adjustAcePool(ev.course, delta);
+    console.log('[toggleRegistrantPaid] before setting r[prop]:', { name, field, prop, from: r[prop], to: checked });
+    r[prop] = checked;
+
+    if (field === 'ace') {
+      const ev = state.events?.find(e => e.id === state.selectedEventId);
+      const acePerPlayer = parseFloat(ev?.ace_per_player || 0);
+      const delta = checked ? acePerPlayer : -acePerPlayer;
+      if (ev?.course) await adjustAcePool(ev.course, delta);
+      console.log('[toggleRegistrantPaid] after adjustAcePool:', { course: ev?.course, delta });
+    }
+
+    await persistRegistrants();
+    console.log('[toggleRegistrantPaid] after persistRegistrants:', { name, prop, value: r[prop] });
+
+    renderRegistrantList();
+  } catch(e) {
+    console.error('[toggleRegistrantPaid] error, re-rendering to keep UI in sync with in-memory state:', e);
+    // Re-render even on failure so the checkbox reflects r[prop] (already set above)
+    // instead of silently reverting to whatever the last render left in the DOM.
+    renderRegistrantList();
   }
-
-  await persistRegistrants();
-  renderRegistrantList();
 }
 
 // ── Prominent counts at the top of the registrant card ──
