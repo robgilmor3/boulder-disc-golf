@@ -455,6 +455,21 @@
   .ewb-hour .ewb-harrow { font-size:12px; color:#2AAA50; line-height:1; }
   .ewb-hour .ewb-hwind  { font-size:10px; color:rgba(61,220,110,0.35); }
 
+  /* Narrow phones: 5 hourly columns (64px each) + the 130px left panel overflow
+     past the screen edge. Trim to 3 columns -- event hour plus one on each
+     side, per hourOffsets = [-1,0,1,2,3] in weather.js where the event hour is
+     the 2nd column -- and stop reserving 70px of dead space on the right.
+     Placed after the base .ewb-hour/.ewb-hours rules above so it actually wins
+     the cascade at equal specificity instead of being overridden by them. */
+  @media (max-width: 480px) {
+    .event-weather-wrapper { padding-right: 0; }
+    .ewb-hour:nth-child(4), .ewb-hour:nth-child(5) { display: none; }
+  }
+  /* Smallest phones: drop the hourly columns entirely, left panel only. */
+  @media (max-width: 380px) {
+    .ewb-hours { display: none; }
+  }
+
   /* ── TAG LEDGER ── */
   .search-box {
     background: var(--surface);
